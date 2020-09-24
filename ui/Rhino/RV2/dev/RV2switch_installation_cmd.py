@@ -8,11 +8,32 @@ import subprocess
 import json
 import os
 import compas
+from compas_rv2.rhino import select_filepath_open
 
 try:
     from compas_bootstrapper import CONDA_EXE
 except ImportError:
-    CONDA_EXE = 'conda'
+    CONDA_EXE = ''
+
+
+def find_conda(conda_exe):
+    if conda_exe and os.path.exists(conda_exe):
+        print("Using CONDA_EXE from compas_boostraper: ", conda_exe)
+        return conda_exe
+    else:
+        user_path = os.path.expanduser('~')
+        default_path = os.path.join(user_path, "Anaconda3", "Scripts", "conda.exe")
+        if os.path.exists(default_path):
+            print("Found conda at default path: ", default_path)
+            return default_path
+        else:
+            rs.MessageBox("CONDA not found in default path, please select conda.exe manually")
+            conda_exe = select_filepath_open(user_path, ".exe")
+            if os.path.basename(conda_exe) != "conda.exe":
+                rs.MessageBox("Please select conda.exe")
+            else:
+                print("Manually selected: ", conda_exe)
+                return conda_exe
 
 
 def run(cmd):
@@ -67,7 +88,13 @@ def list_package(name):
 
 
 def list_envs(show_packages=True):
-    out, err, code = run('%s env list --json' % CONDA_EXE)
+
+    conda_exe = find_conda(CONDA_EXE)
+
+    if not conda_exe:
+        return
+
+    out, err, code = run('%s env list --json' % conda_exe)
     if code == 0:
         envs = json.loads(out.decode())
         for env in envs['envs']:
@@ -123,6 +150,10 @@ def RunCommand(is_interactive):
         print('fetching conda envs....')
 
         envs = list_envs(show_packages=False)
+
+        if not envs:
+            return
+
         envs_dict = {}
         for env_path in envs:
             if env_path.find('envs') < 0:
