@@ -46,7 +46,7 @@ def RunCommand(is_interactive):
         keys = form.select_edges()
 
     if keys:
-        ModifyAttributesForm.from_sceneNode(form, keys)
+        ModifyAttributesForm.from_sceneNode(form, 'edges', keys)
         # public = [name for name in form.datastructure.default_edge_attributes.keys() if not name.startswith("_")]
         # if form.update_edges_attributes(keys, names=public):
         if thrust:

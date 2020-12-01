@@ -6,6 +6,7 @@ import compas_rhino
 from compas_rv2.rhino import get_scene
 from compas.utilities import flatten
 from compas_rv2.rhino import rv2_undo
+from compas_rv2.rhino import ModifyAttributesForm
 
 
 __commandname__ = "RV2force_modify_vertices"
@@ -41,11 +42,12 @@ def RunCommand(is_interactive):
         keys = force.select_vertices()
 
     if keys:
-        public = [name for name in force.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
-        if force.update_vertices_attributes(keys, names=public):
-            if thrust:
-                thrust.settings['_is.valid'] = False
-            scene.update()
+        ModifyAttributesForm.from_sceneNode(force, 'vertices', keys)
+        # public = [name for name in force.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
+        # if force.update_vertices_attributes(keys, names=public):
+        if thrust:
+            thrust.settings['_is.valid'] = False
+        scene.update()
 
 
 # ==============================================================================

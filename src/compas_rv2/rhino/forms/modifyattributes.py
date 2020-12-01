@@ -84,8 +84,30 @@ class Tree_Table(forms.TreeGridView):
         self._guid_lable = dict(values)
 
     @classmethod
-    def create_edges_table(cls, sceneNode, edges):
+    def create_vertices_table(cls, sceneNode, keys):
+        datastructure = sceneNode.datastructure
+        table = cls(sceneNode=sceneNode, table_type='vertices')
+        table.add_column('Name')
+        table.add_column('Value', Editable=True)
+        attributes = list(datastructure.default_vertex_attributes.keys())
+        attributes = table.sort_attributes(attributes)
 
+        treecollection = forms.TreeGridItemCollection()
+        key = keys[0]
+        for attr in attributes:
+            if attr[0] != '_':
+                values = [str(attr), datastructure.vertex_attribute(key, attr)]
+                vertex_item = forms.TreeGridItem(Values=tuple(values))
+                treecollection.Add(vertex_item)
+
+        table.DataStore = treecollection
+        table.Activated += table.SelectEvent(sceneNode, keys)
+        table.ColumnHeaderClick += table.HeaderClickEvent()
+        table.CellEdited += table.EditEvent(sceneNode, keys)
+        return table
+
+    @classmethod
+    def create_edges_table(cls, sceneNode, edges):
         datastructure = sceneNode.datastructure
         table = cls(sceneNode=sceneNode, table_type='edges')
         table.add_column('Name')
@@ -107,6 +129,37 @@ class Tree_Table(forms.TreeGridView):
         table.CellEdited += table.EditEvent(sceneNode, edges)
         return table
 
+    @classmethod
+    def create_faces_table(cls, sceneNode):
+        datastructure = sceneNode.datastructure
+        table = cls(sceneNode=sceneNode, table_type='faces')
+        table.add_column('key')
+        table.add_column('vertices')
+        attributes = list(datastructure.default_face_attributes.keys())
+        attributes = table.sort_attributes(attributes)
+        for attr in attributes:
+            editable = attr[0] != '_'
+            checkbox = type(datastructure.default_face_attributes[attr]) == bool
+            if not editable:
+                attr = attr[1:]
+            table.add_column(attr, Editable=editable, checkbox=checkbox)
+
+        treecollection = forms.TreeGridItemCollection()
+        for key in datastructure.faces():
+            values = [str(key), str(datastructure.face[key])]
+            for attr in attributes:
+                values.append(datastructure.face_attribute(key, attr))
+            face_item = forms.TreeGridItem(Values=tuple(values))
+            treecollection.Add(face_item)
+            for v in datastructure.face[key]:
+                vertex_item = forms.TreeGridItem(Values=('', str(v)))
+                face_item.Children.Add(vertex_item)
+        table.DataStore = treecollection
+        table.Activated += table.SelectEvent(sceneNode, 'guid_face', 'guid_vertex')
+        table.ColumnHeaderClick += table.HeaderClickEvent()
+        table.CellEdited += table.EditEvent()
+        return table
+
     def sort_attributes(self, attributes):
         sorted_attributes = attributes[:]
         sorted_attributes.sort()
@@ -120,17 +173,16 @@ class Tree_Table(forms.TreeGridView):
 
         return sorted_attributes
 
-    def SelectEvent(self, sceneNode, edges):
+    def SelectEvent(self, sceneNode, keys):
         def on_selected(sender, event):
             attr = event.Item.Values[0]
-            self.draw_values(sceneNode, edges, attr)
+            self.draw_values(sceneNode, keys, attr)
 
         return on_selected
 
-    def EditEvent(self, sceneNode, edges):
+    def EditEvent(self, sceneNode, keys):
         def on_edited(sender, event):
             try:
-                keys = edges
                 attr = event.Item.Values[0]
                 value = event.Item.Values[1]
 
@@ -222,40 +274,70 @@ class Tree_Table(forms.TreeGridView):
             key, attr = _key
             get_set_attributes(key, attr, new_value)
 
-    def draw_values(self, sceneNode, edges, attr):
+    def draw_values(self, sceneNode, keys, attr):
 
         self.clear_label()
-
         datastructure = sceneNode.datastructure
-        is_not_edge = list(datastructure.edges_where({'_is_edge': False}))
-        edges_to_draw = list(set(list(datastructure.edges())) - set(is_not_edge))
-        edges_selected = list(set(edges) & set(edges_to_draw))
-        edges_unselected = list(set(edges_to_draw) - set(edges_selected))  # noqa E501
 
-        labels = []
-        for edge in edges_selected:
-            color = [0, 0, 0]
-            pos = datastructure.edge_midpoint(*edge)
-            value = round(datastructure.edge_attribute(edge, attr), 2)
-            labels.append({'pos': pos, 'text': str(value), 'color': color})
+        def get_edges_lable():
+            is_not_edge = list(datastructure.edges_where({'_is_edge': False}))
+            edges_to_draw = list(set(list(datastructure.edges())) - set(is_not_edge))
+            edges_selected = list(set(keys) & set(edges_to_draw))
+            edges_unselected = list(set(edges_to_draw) - set(edges_selected))  # noqa E501
+
+            labels = []
+            values = [datastructure.edge_attribute(edge, attr) for edge in edges_to_draw]
+            v_max = max(values)
+            v_min = min(values)
+            v_range = v_max - v_min or v_max or 1
+
+            for edge in edges_to_draw:
+                value = datastructure.edge_attribute(edge, attr)
+                if edge in edges_selected:
+                    color = [0, 0, 0]
+                else:
+                    color = i_to_rgb(value/v_range)
+                pos = datastructure.edge_midpoint(*edge)
+                value = '{:.3g}'.format(value)
+                labels.append({'pos': pos, 'text': value, 'color': color})
+
+            return labels, edges_to_draw
+
+        def get_vertices_lable():
+            vertices_to_draw = list(datastructure.vertices())
+            vertices_selected = keys
+            vertices_unselected = list(set(vertices_to_draw) - set(vertices_selected))  # noqa E501
+
+            labels = []
+            values = [datastructure.vertex_attribute(vertex, attr) for vertex in vertices_to_draw]
+            v_max = max(values)
+            v_min = min(values)
+            v_range = v_max - v_min or v_max or 1
+
+            for vertex in vertices_to_draw:
+                value = datastructure.vertex_attribute(vertex, attr)
+                if vertex in vertices_selected:
+                    color = [0, 0, 0]
+                else:
+                    color = i_to_rgb(value/v_range)
+                pos = datastructure.vertex_coordinates(vertex)
+                value = '{:.3g}'.format(value)
+                labels.append({'pos': pos, 'text': value, 'color': color})
+
+            return labels, vertices_to_draw
+
+        def get_faces_lable():
+            raise NotImplementedError
+
+        if self.table_type == 'vertices':
+            labels, keys = get_vertices_lable()
+        elif self.table_type == 'edges':
+            labels, keys = get_edges_lable()
+        else:
+            labels, keys = get_faces_lable()
 
         guids = compas_rhino.draw_labels(labels, layer='Default', clear=False, redraw=True) # noqa E501
-        guid_lable = dict(zip(guids, edges_selected))
-        self._guid_lable.update(guid_lable)
-
-        labels = []
-        values = [datastructure.edge_attribute(edge, attr) for edge in edges_to_draw]
-        v_max = max(values)
-        v_min = min(values)
-        v_range = v_max - v_min or v_max or 1
-        for edge in edges_unselected:
-            pos = datastructure.edge_midpoint(*edge)
-            value = round(datastructure.edge_attribute(edge, attr), 2)
-            color = i_to_rgb(value/v_range)
-            labels.append({'pos': pos, 'text': str(value), 'color': color})
-
-        guids = compas_rhino.draw_labels(labels, layer='Default', clear=False, redraw=True) # noqa E501
-        guid_lable = dict(zip(guids, edges_unselected))
+        guid_lable = dict(zip(guids, keys))
         self._guid_lable.update(guid_lable)
 
     def clear_label(self):
@@ -267,11 +349,11 @@ class Tree_Table(forms.TreeGridView):
 class Tree_Tab(forms.TabPage):
 
     @classmethod
-    def from_sceneNode(cls, sceneNode, tab_type, edges):
+    def from_sceneNode(cls, sceneNode, tab_type, keys):
         tab = cls()
         tab.Text = tab_type
         create_table = getattr(Tree_Table, "create_%s_table" % tab_type)
-        tab.Content = create_table(sceneNode, edges)
+        tab.Content = create_table(sceneNode, keys)
         return tab
 
     def apply(self):
@@ -284,20 +366,20 @@ class Tree_Tab(forms.TabPage):
 class ModifyAttributesForm(forms.Dialog[bool]):
 
     @classmethod
-    def from_sceneNode(cls, sceneNode, edges):
+    def from_sceneNode(cls, sceneNode, tab_type, keys):
         attributesForm = cls()
-        attributesForm.setup(sceneNode, edges)
+        attributesForm.setup(sceneNode, tab_type, keys)
         Rhino.UI.EtoExtensions.ShowSemiModal(attributesForm, Rhino.RhinoDoc.ActiveDoc, Rhino.UI.RhinoEtoApp.MainWindow)
         return attributesForm
 
-    def setup(self, sceneNode, edges):
+    def setup(self, sceneNode, tab_type, keys):
         self.Title = "Property - " + sceneNode.name
         self.sceneNode = sceneNode
 
         control = forms.TabControl()
         control.TabPosition = forms.DockPosition.Top
 
-        tab = Tree_Tab.from_sceneNode(sceneNode, 'edges', edges)
+        tab = Tree_Tab.from_sceneNode(sceneNode, tab_type, keys)
         control.Pages.Add(tab)
 
         self.TabControl = control
