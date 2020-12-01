@@ -27,11 +27,10 @@ class ThrustObject(MeshObject):
         'show.edges': False,
         'show.faces': True,
 
-        'show.reactions': True,
-        'show.residuals': False,
         'show.selfweight': False,
         'show.loads': False,
-
+        'show.residuals': False,
+        'show.reactions': True,
         'show.pipes': False,
 
         'color.vertices': [255, 0, 255],
@@ -39,18 +38,21 @@ class ThrustObject(MeshObject):
         'color.vertices:is_anchor': [255, 0, 0],
 
         'color.edges': [255, 0, 255],
-        'color.loads': [0, 150, 0],
-        'color.reactions': [0, 80, 0],
+        'color.selfweight': [0, 80, 0],
+        'color.loads': [0, 80, 0],
         'color.residuals': [0, 255, 255],
+        'color.reactions': [0, 80, 0],
 
         'color.faces': [255, 0, 255],
         'color.pipes': [0, 0, 255],
         'color.invalid': [100, 255, 100],
 
+        'scale.selfweight': 0.1,
         'scale.externalforces': 0.1,
         'scale.residuals': 1.0,
         'scale.pipes': 0.01,
 
+        'tol.selfweight': 1e-3,
         'tol.externalforces': 1e-3,
         'tol.residuals': 1e-3,
         'tol.pipes': 1e-3,
@@ -62,6 +64,7 @@ class ThrustObject(MeshObject):
         self._guid_anchor = {}
         self._guid_reaction = {}
         self._guid_residual = {}
+        self._guid_selfweight = {}
         self._guid_load = {}
         self._guid_pipe = {}
 
@@ -103,12 +106,12 @@ class ThrustObject(MeshObject):
         self._guid_anchor = dict(values)
 
     @property
-    def guid_reaction(self):
-        return self._guid_reaction
+    def guid_selfweight(self):
+        return self._guid_selfweight
 
-    @guid_reaction.setter
-    def guid_reaction(self, values):
-        self._guid_reaction = dict(values)
+    @guid_selfweight.setter
+    def guid_selfweight(self, values):
+        self._guid_selfweight = dict(values)
 
     @property
     def guid_load(self):
@@ -127,6 +130,14 @@ class ThrustObject(MeshObject):
         self._guid_residual = dict(values)
 
     @property
+    def guid_reaction(self):
+        return self._guid_reaction
+
+    @guid_reaction.setter
+    def guid_reaction(self, values):
+        self._guid_reaction = dict(values)
+
+    @property
     def guid_pipe(self):
         return self._guid_pipe
 
@@ -139,6 +150,7 @@ class ThrustObject(MeshObject):
         guids = []
         guids += list(self.guid_free)
         guids += list(self.guid_anchor)
+        guids += list(self.guid_selfweight)
         guids += list(self.guid_reaction)
         guids += list(self.guid_load)
         guids += list(self.guid_residual)
@@ -146,9 +158,10 @@ class ThrustObject(MeshObject):
         compas_rhino.delete_objects(guids, purge=True)
         self._guid_free = {}
         self._guid_anchor = {}
-        self._guid_reaction = {}
+        self._guid_selfweight = {}
         self._guid_load = {}
         self._guid_residual = {}
+        self._guid_reaction = {}
         self._guid_pipe = {}
 
     def draw(self):
@@ -267,6 +280,14 @@ class ThrustObject(MeshObject):
         # Color overlays for various display modes.
         # ======================================================================
 
+        if self.settings['_is.valid'] and self.settings['show.selfweight']:
+            tol = self.settings['tol.selfweight']
+            vertices = list(self.mesh.vertices())
+            color = self.settings['color.selfweight']
+            scale = self.settings['scale.selfweight']
+            guids = self.artist.draw_selfweight(vertices, color, scale, tol)
+            self.guid_selfweight = zip(guids, vertices)
+
         if self.settings['_is.valid'] and self.settings['show.loads']:
             tol = self.settings['tol.externalforces']
             vertices = list(self.mesh.vertices())
@@ -275,14 +296,6 @@ class ThrustObject(MeshObject):
             guids = self.artist.draw_loads(vertices, color, scale, tol)
             self.guid_load = zip(guids, vertices)
 
-        if self.settings['_is.valid'] and self.settings['show.reactions']:
-            tol = self.settings['tol.externalforces']
-            anchors = list(self.mesh.vertices_where({'is_anchor': True}))
-            color = self.settings['color.reactions']
-            scale = self.settings['scale.externalforces']
-            guids = self.artist.draw_reactions(anchors, color, scale, tol)
-            self.guid_reaction = zip(guids, anchors)
-
         if self.settings['_is.valid'] and self.settings['show.residuals']:
             tol = self.settings['tol.residuals']
             vertices = list(self.mesh.vertices_where({'is_anchor': False}))
@@ -290,6 +303,14 @@ class ThrustObject(MeshObject):
             scale = self.settings['scale.residuals']
             guids = self.artist.draw_residuals(vertices, color, scale, tol)
             self.guid_residual = zip(guids, vertices)
+
+        if self.settings['_is.valid'] and self.settings['show.reactions']:
+            tol = self.settings['tol.externalforces']
+            anchors = list(self.mesh.vertices_where({'is_anchor': True}))
+            color = self.settings['color.reactions']
+            scale = self.settings['scale.externalforces']
+            guids = self.artist.draw_reactions(anchors, color, scale, tol)
+            self.guid_reaction = zip(guids, anchors)
 
         if self.settings['_is.valid'] and self.settings['show.pipes']:
             tol = self.settings['tol.pipes']
