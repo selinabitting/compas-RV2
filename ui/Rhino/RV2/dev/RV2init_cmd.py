@@ -11,7 +11,8 @@ from compas_cloud import Proxy  # noqa: E402
 from compas_rv2.web import Browser  # noqa: E402
 from compas_rv2.scene import Scene  # noqa: E402
 from compas_rv2.rhino import ErrorHandler  # noqa: E402
-
+from compas_rv2.activate import check
+from compas_rv2.activate import activate
 
 __commandname__ = "RV2init"
 
@@ -42,10 +43,21 @@ CWD = HERE or HOME
 
 def RunCommand(is_interactive):
 
+    if check():
+        print("Current plugin is already activated")
+    else:
+        compas_rhino.rs.MessageBox("Detected environment change, re-activating plugin", 0, "Re-activating Needed")
+        if activate():
+            compas_rhino.rs.MessageBox("Restart Rhino for the change to take effect", 0, "Restart Rhino")
+        else:
+            compas_rhino.rs.MessageBox("Someting wrong during re-activation", 0, "Error")
+        return
+
     Browser()
 
     errorHandler = ErrorHandler(title="Server side Error", showLocalTraceback=False)
     sc.sticky["RV2.proxy"] = Proxy(errorHandler=errorHandler)
+    sc.sticky["RV2.proxy"].restart()
 
     sc.sticky["RV2.system"] = {
         "session.dirname": CWD,

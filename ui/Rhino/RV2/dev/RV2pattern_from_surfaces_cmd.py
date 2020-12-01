@@ -41,12 +41,15 @@ def RunCommand(is_interactive):
     if not scene:
         return
 
-    # skeleton from single point or a set of lines
+    # get untrimmed surface(s) -------------------------------------------------
     guid = compas_rhino.select_surface(message='select an untrimmed surface or a polysurface')
 
     if not guid:
         return
 
+    compas_rhino.rs.HideObjects(guid)
+
+    # make subd object ---------------------------------------------------------
     subdobject = SubdObject.from_guid(guid)
 
     if not subdobject:
@@ -57,11 +60,15 @@ def RunCommand(is_interactive):
     subdobject.get_draw_default_subd()
     subdobject.draw_subd()
 
-    # modify skeleton
+    # interactively  modify subdivision ----------------------------------------
     while True:
         menu = CommandMenu(config)
         action = menu.select_action()
-        if not action:
+
+        if not action or action is None:
+            subdobject.clear()
+            print("Pattern from surface(s) aborted!")
+            compas_rhino.rs.ShowObjects(guid)
             return
 
         if action['name'] == 'Finish':
@@ -69,7 +76,7 @@ def RunCommand(is_interactive):
 
         action['action'](subdobject)
 
-    # make pattern
+    # make pattern -------------------------------------------------------------
     mesh = subdobject.subd
     xyz = mesh.vertices_attributes('xyz')
     faces = [mesh.face_vertices(fkey) for fkey in mesh.faces()]
@@ -78,14 +85,13 @@ def RunCommand(is_interactive):
     # clear skeleton
     layer = subdobject.settings['layer']
     subdobject.clear()
-    # compas_rhino.rs.ShowObjects(guids)
     compas_rhino.delete_layers([layer])
 
     scene.clear()
     scene.add(pattern, name='pattern')
     scene.update()
 
-    print("Pattern object successfully created. Input lines have been hidden.")
+    print("Pattern object successfully created. Input surface(s) have been hidden.")
 
 
 # ==============================================================================

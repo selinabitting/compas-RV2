@@ -162,7 +162,7 @@ class SubdObject(BaseObject):
         'color.edges': (0, 0, 0),
         'color.faces': (0, 0, 0),
         'color.mesh': (0, 0, 0),
-        'color.subd.edges': (180, 180, 180),
+        'color.subd.edges': (120, 120, 120),
         'show.mesh': True,
         'show.vertices': True,
         'show.edges': True,
@@ -383,10 +383,9 @@ class SubdObject(BaseObject):
         layer = self.settings['layer.subd']
         color = self.settings['color.subd.edges']
         artist.layer = layer
-        guids = artist.draw_edges(color=color)
-        self.guid_subd_edge = zip(guids, list(self.subd.edges()))
-
-        # self.draw_strips_division_num()
+        edges = [edge for edge in self.subd.edges() if not self.subd.is_edge_on_boundary(edge[0], edge[1])]
+        guids = artist.draw_edges(edges, color=color)
+        self.guid_subd_edge = zip(guids, edges)
         artist.redraw()
 
     def _draw_strips_label(self):

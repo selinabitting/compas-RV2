@@ -169,7 +169,7 @@ settings = {
     'show.forces': True,
     'show.reactions': True,
     'scale.forces': 0.01,
-    'scale.reactions': 0.1
+    'scale.externalforces': 0.1
 }
 
 form.draw(layer='TNA::FormDiagram', clear_layer=True, settings=settings)

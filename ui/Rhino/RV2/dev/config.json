@@ -83,7 +83,7 @@
             {"name": "RV2pattern_from_lines",           "menu_text": "From Lines",                      "icon": 9},
             {"name": "RV2pattern_from_mesh",            "menu_text": "From Mesh",                       "icon": 10},
             {"name": "RV2pattern_from_surface",         "menu_text": "From Surface",                    "icon": 11},
-            {"name": "RV2pattern_from_polysurface",     "menu_text": "From PolySurface",                "icon": 11},
+            {"name": "RV2pattern_from_surfaces",        "menu_text": "From PolySurface",                "icon": 11},
             {"name": "RV2pattern_from_skeleton",        "menu_text": "From Skeleton",                   "icon": 12},
             {"name": "RV2pattern_from_triangulation",   "menu_text": "From Triangulation",              "icon": 13},
             {"name": "RV2pattern_from_features",        "menu_text": "From Features",                   "icon": 14},

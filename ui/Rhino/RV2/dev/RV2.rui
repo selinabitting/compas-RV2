@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RhinoUI major_ver="3" minor_ver="0" guid="a7baa414-5d6a-4a11-85c5-838ad36810e5" localize="False" default_language_id="1033" dpi_scale="150">
+<RhinoUI major_ver="3" minor_ver="0" guid="a7baa414-5d6a-4a11-85c5-838ad36810e5" localize="False" default_language_id="1033" dpi_scale="200">
   <extend_rhino_menus>
     <menu guid="4e28702d-106c-4f1a-b746-ec8bad4493bd">
       <text>
@@ -199,7 +199,7 @@
     </menu>
   </menus>
   <tool_bar_groups>
-    <tool_bar_group guid="c36ad3a2-9dc8-4e09-aefc-854fac234f51" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="6b5e7b23-6604-480a-8057-c817f8ce390b" active_tool_bar_group="c0fd59a5-f44f-4f69-941b-9dc4c2373d8b" single_file="False" hide_single_tab="False" point_floating="-2147483648,0">
+    <tool_bar_group guid="c36ad3a2-9dc8-4e09-aefc-854fac234f51" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="6b5e7b23-6604-480a-8057-c817f8ce390b" active_tool_bar_group="c0fd59a5-f44f-4f69-941b-9dc4c2373d8b" single_file="False" hide_single_tab="False" point_floating="1251,509">
       <text>
         <locale_1033>RV2</locale_1033>
       </text>
@@ -209,7 +209,7 @@
         </text>
         <tool_bar_id>4f969d13-b63a-406c-b4d9-d5e1797598c1</tool_bar_id>
       </tool_bar_group_item>
-      <dock_bar_info dpi_scale="150" dock_bar="False" docking="True" horz="False" visible="True" floating="False" mru_float_style="4096" bar_id="59475" mru_width="868" point_pos="0,0" float_point="-2147483648,0" rect_mru_dock_pos="0,0,55,1274" dock_location_u="59420" dock_location="left" float_size="72,52" />
+      <dock_bar_info dpi_scale="200" dock_bar="False" docking="True" horz="False" visible="True" floating="False" mru_float_style="8192" bar_id="59478" mru_width="1157" point_pos="1224,363" float_point="1251,509" rect_mru_dock_pos="1224,363,2522,445" dock_location_u="59419" dock_location="top" float_size="1201,128" />
     </tool_bar_group>
   </tool_bar_groups>
   <tool_bars>
@@ -1197,9 +1197,9 @@
       <bitmap_item guid="1055799b-6215-4d3e-8aa7-7e7c8a71bbd5" index="35" />
       <bitmap_item guid="6d31a8cc-39dd-431a-8886-5a5bbd62cb70" index="36" />
       <bitmap_item guid="3a908059-c039-4cf8-b422-102507d53d3d" index="37" />
-      <bitmap>iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOvAAADrwBlbxySQAAABNJREFUOE9jGAWjYBSMAjBgYAAABBAAAadEfGMAAAAASUVORK5CYIIA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      <bitmap>iVBORw0KGgoAAAANSUhEUgAAABAAAAJwCAYAAACAmOESAAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAdhQAAHYUB8Bsy7AAAAD5JREFUeF7twTEBAAAAwqD1T20HbyAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAONZ5wAAGrp+jSAAAAAElFTkSuQmCCAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==</bitmap>
     </small_bitmap>

@@ -1,12 +1,14 @@
 import compas
 import compas_rhino
 from compas_rhino.install import install
-from compas_rhino.uninstall import uninstall
 from compas_rhino.install_plugin import install_plugin
 from compas_rhino.uninstall_plugin import uninstall_plugin
 import argparse
 import os
 import json
+import sys
+
+PLUGIN_NAME = "RV2"
 
 if __name__ == '__main__':
 
@@ -44,15 +46,20 @@ if __name__ == '__main__':
 
     print("\n", "-"*10, "Installing RV2 python plugin", "-"*10)
     if args.dev:
-        plugin_path = os.path.join(os.path.dirname(__file__), "..", "..", 'ui/Rhino/RV2')
-        plugin_path = os.path.abspath(plugin_path)
+        rpy_plugin_path = os.path.join(os.path.dirname(__file__), "..", "..", 'ui/Rhino/RV2')
+        rpy_plugin_path = os.path.abspath(rpy_plugin_path)
     elif args.plugin_path:
-        plugin_path = args.plugin_path
-
-    if os.path.exists(plugin_path):
-        install_plugin(plugin_path, version="6.0")
+        rpy_plugin_path = os.path.abspath(args.plugin_path)
     else:
-        raise RuntimeError("%s does not exist" % plugin_path)
+        rpy_plugin_path = os.path.dirname(__file__)
+        rpy_plugin_path = os.path.join(rpy_plugin_path, "..", "..", "..", "..", "..")
+        rpy_plugin_path = os.path.abspath(rpy_plugin_path)
+        print(rpy_plugin_path)
+
+    if os.path.exists(rpy_plugin_path):
+        install_plugin(rpy_plugin_path, version="6.0")
+    else:
+        raise RuntimeError("%s does not exist" % rpy_plugin_path)
 
     print("\n", "-"*10, "Installing COMPAS packages", "-"*10)
 
@@ -66,33 +73,43 @@ if __name__ == '__main__':
     register_json_path = os.path.join(compas.APPDATA, "compas_plugins.json")
     if os.path.exists(register_json_path):
         register_json = json.load(open(register_json_path))
+        if not isinstance(register_json["Plugins"], dict):
+            register_json["Plugins"] = {}
     else:
-        register_json = {"Plugins": [], "Current": "dev"}
+        register_json = {"Plugins": {}, "Current": None}
 
     if args.dev:
-        register_json["Current"] = "dev"
-        print("    Registered as dev installation")
+        plugin_path = os.path.dirname(__file__)
+        plugin_path = os.path.join(plugin_path, "..", "..")
+        plugin_path = os.path.abspath(plugin_path)
 
     else:
+        plugin_path = rpy_plugin_path
 
-        if args.plugin_path:
-            plugin_path = os.path.abspath(args.plugin_path)
-        else:
-            plugin_path = os.path.join(os.getcwd(), "..")
-            plugin_path = os.path.abspath(plugin_path)
+    plugin_info = {
+        "dev": args.dev,
+        "path": plugin_path,
+        "python": sys.executable,
+        "packages": {},
+    }
 
-        print("registering to", register_json_path)
+    for name in packages:
+        package = importlib.import_module(name)
+        plugin_info["packages"][name] = {"version": package.__version__}
 
-        if plugin_path not in register_json["Plugins"]:
-            register_json["Plugins"].append(plugin_path)
+    print(plugin_info)
 
-        register_json["Current"] = plugin_path
+    print("registering to", register_json_path)
 
-        print(" "*4, plugin_path, "is registered")
+    register_json["Plugins"][PLUGIN_NAME] = plugin_info
+    register_json["Current"] = PLUGIN_NAME
 
-    for plugin_path in register_json["Plugins"]:
-        if not os.path.exists(plugin_path):
-            register_json["Plugins"].remove(plugin_path)
+    print(" "*4, plugin_path, "is registered")
+
+    for name in register_json["Plugins"]:
+        plugin = register_json["Plugins"][name]
+        if not os.path.exists(plugin["path"]):
+            del register_json["Plugins"][name]
             print("    Removed un-existed path: ", plugin_path)
 
     json.dump(register_json, open(register_json_path, "w"), indent=4)

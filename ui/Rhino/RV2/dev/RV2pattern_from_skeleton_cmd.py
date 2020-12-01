@@ -20,33 +20,19 @@ def skeleton_move_skeleton_vertex(skeletonobject):
 
 
 def skeleton_move_mesh_vertex(skeletonobject):
-    skeletonobject.draw_mesh_vertices()
     skeletonobject.move_mesh_vertex()
-    skeletonobject.clear_mesh_vertices()
 
 
 def skeleton_dynamic_draw_nodewidth(skeletonobject):
-    if skeletonobject.skeleton.skeleton_vertices[0]:
-        skeletonobject.dynamic_draw_width('node_width')
-    else:
-        print("This skeleton doesn't have node vertices!")
-        return
+    skeletonobject.dynamic_draw_width('node_width')
 
 
 def skeleton_dynamic_draw_leafwidth(skeletonobject):
-    if skeletonobject.skeleton.skeleton_vertices[1]:
-        skeletonobject.dynamic_draw_width('leaf_width')
-    else:
-        print("This skeleton doesn't have leaf vertices!")
-        return
+    skeletonobject.dynamic_draw_width('leaf_width')
 
 
 def skeleton_dynamic_draw_leafextend(skeletonobject):
-    if skeletonobject.skeleton.skeleton_vertices[1]:
-        skeletonobject.dynamic_draw_width('leaf_extend')
-    else:
-        print("This skeleton doesn't have leaf vertices!")
-        return
+    skeletonobject.dynamic_draw_width('leaf_extend')
 
 
 def skeleton_add_lines(skeletonobject):
@@ -66,11 +52,11 @@ def skeleton_remove_lines(skeletonobject):
 
 
 def skeleton_subdivide(skeletonobject):
-    skeletonobject.skeleton.subdivide()
+    skeletonobject.skeleton_subdivide()
 
 
 def skeleton_merge(skeletonobject):
-    skeletonobject.skeleton.merge()
+    skeletonobject.skeleton_merge()
 
 
 config = {
@@ -172,14 +158,7 @@ def RunCommand(is_interactive):
     compas_rhino.rs.HideObjects(guids)
     skeletonobject = SkeletonObject(skeleton)
     skeletonobject.draw()
-    result = skeletonobject.dynamic_draw_widths()
-
-    if not result:
-        layer = skeletonobject.settings['layer']
-        skeletonobject.clear()
-        compas_rhino.rs.ShowObjects(guids)
-        compas_rhino.delete_layers([layer])
-        return
+    skeletonobject.dynamic_draw_widths()
 
     # modify skeleton
     while True:
@@ -203,7 +182,6 @@ def RunCommand(is_interactive):
     # clear skeleton
     layer = skeletonobject.settings['layer']
     skeletonobject.clear()
-    compas_rhino.rs.ShowObjects(guids)
     compas_rhino.delete_layers([layer])
 
     scene.clear()
