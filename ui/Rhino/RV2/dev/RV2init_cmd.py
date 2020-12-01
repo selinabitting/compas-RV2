@@ -46,7 +46,7 @@ def RunCommand(is_interactive):
     if check():
         print("Current plugin is already activated")
     else:
-        compas_rhino.rs.MessageBox("Env has changed, re-activating plugin", 0, "Re-activating Needed")
+        compas_rhino.rs.MessageBox("Detected environment change, re-activating plugin", 0, "Re-activating Needed")
         if activate():
             compas_rhino.rs.MessageBox("Restart Rhino for the change to take effect", 0, "Restart Rhino")
         else:
