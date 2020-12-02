@@ -13,6 +13,63 @@ from compas_rv2.rhino import rv2_undo
 __commandname__ = "RV2pattern_from_surface"
 
 
+
+class RhinoSurface(RhinoSurface):
+
+    def uv_to_compas(self, cls=None, density=(10, 10)):
+        """Convert the surface UV space to a COMPAS mesh.
+
+        Parameters
+        ----------
+        cls : :class:`compas.datastructures.Mesh`, optional
+            The type of mesh.
+        density : tuple of int, optional
+            The density in the U and V directions.
+            Default is ``u = 10`` and ``v = 10``.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+            The COMPAS mesh.
+        """
+        return self.heightfield_to_compas(cls=cls, density=density, over_space=True)
+
+    def heightfield_to_compas(self, cls=None, density=(10, 10), over_space=False):
+        """Convert a heightfiled of the surface to a COMPAS mesh.
+
+        Parameters
+        ----------
+        cls : :class:`compas.datastructures.Mesh`, optional
+            The type of mesh.
+        density : tuple of int, optional
+            The density in the two grid directions.
+            Default is ``u = 10`` and ``v = 10``.
+        over_space : bool, optional
+            Construct teh grid over the surface UV space instead of the XY axes.
+            Default is ``False``.
+
+        Returns
+        -------
+        :class:`compas.datastructures.Mesh`
+            The COMPAS mesh.
+        """
+        try:
+            u, v = density
+        except Exception:
+            u, v = density, density
+        vertices = self.heightfield(density=(u, v), over_space=over_space)
+        faces = []
+        for i in range(u - 1):
+            for j in range(v - 1):
+                face = [(i + 0) * v + j,
+                        (i + 1) * v + j,
+                        (i + 1) * v + j + 1,
+                        (i + 0) * v + j + 1]
+                faces.append(face)
+        cls = cls or Mesh
+        return cls.from_vertices_and_faces(vertices, faces)
+
+
 @rv2_undo
 def RunCommand(is_interactive):
 
