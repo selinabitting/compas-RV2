@@ -10,7 +10,7 @@ prune temp
 prune tests
 prune src/compas_rv2/web/electron
 prune src/compas_rv2/web/node_modules
-prune ui/Rhino/RV2/dev/icons/RhinoMac
+prune src/compas_rv2/ui/Rhino/RV2/dev/icons/RhinoMac
 
 include LICENSE
 include README.md
