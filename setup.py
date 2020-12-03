@@ -24,12 +24,12 @@ requirements = read('requirements.txt').split('\n')
 optional_requirements = {}
 
 setup(
-    name='compas_rv2',
+    name='compas-RV2',
     version='1.1.5',
     description='RhinoVault for Rhino 6 based on COMPAS',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/BlockResearchGroup/compas_rv2',
+    url='https://github.com/BlockResearchGroup/compas-RV2',
     author='tom van mele',
     author_email='van.mele@arch.ethz.ch',
     license='MIT license',
@@ -52,7 +52,7 @@ setup(
     project_urls={},
     packages=['compas_rv2'],
     package_dir={'': 'src'},
-    package_data={'': ['ui/Rhino/**']},
+    package_data={'': ['ui/**']},
     data_files=[],
     include_package_data=True,
     zip_safe=False,
