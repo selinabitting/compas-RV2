@@ -96,9 +96,12 @@ class Tree_Table(forms.TreeGridView):
         key = keys[0]
         for attr in attributes:
             if attr[0] != '_':
-                values = [str(attr), datastructure.vertex_attribute(key, attr)]
-                vertex_item = forms.TreeGridItem(Values=tuple(values))
-                treecollection.Add(vertex_item)
+                if datastructure.attributes['name'] == 'form' and attr == 'z':
+                    pass
+                else:
+                    values = [str(attr), datastructure.vertex_attribute(key, attr)]
+                    vertex_item = forms.TreeGridItem(Values=tuple(values))
+                    treecollection.Add(vertex_item)
 
         table.DataStore = treecollection
         table.Activated += table.SelectEvent(sceneNode, keys)
@@ -130,34 +133,26 @@ class Tree_Table(forms.TreeGridView):
         return table
 
     @classmethod
-    def create_faces_table(cls, sceneNode):
+    def create_faces_table(cls, sceneNode, faces):
         datastructure = sceneNode.datastructure
         table = cls(sceneNode=sceneNode, table_type='faces')
-        table.add_column('key')
-        table.add_column('vertices')
+        table.add_column('Name')
+        table.add_column('Value', Editable=True)
         attributes = list(datastructure.default_face_attributes.keys())
         attributes = table.sort_attributes(attributes)
-        for attr in attributes:
-            editable = attr[0] != '_'
-            checkbox = type(datastructure.default_face_attributes[attr]) == bool
-            if not editable:
-                attr = attr[1:]
-            table.add_column(attr, Editable=editable, checkbox=checkbox)
 
         treecollection = forms.TreeGridItemCollection()
-        for key in datastructure.faces():
-            values = [str(key), str(datastructure.face[key])]
-            for attr in attributes:
-                values.append(datastructure.face_attribute(key, attr))
+        face = faces[0]
+        for attr in attributes:
+            # if attr[0] != '_':  ## want to dispaly the attr '_is_loaded'
+            values = [str(attr), datastructure.face_attribute(face, attr)]
             face_item = forms.TreeGridItem(Values=tuple(values))
             treecollection.Add(face_item)
-            for v in datastructure.face[key]:
-                vertex_item = forms.TreeGridItem(Values=('', str(v)))
-                face_item.Children.Add(vertex_item)
+
         table.DataStore = treecollection
-        table.Activated += table.SelectEvent(sceneNode, 'guid_face', 'guid_vertex')
+        table.Activated += table.SelectEvent(sceneNode, faces)
         table.ColumnHeaderClick += table.HeaderClickEvent()
-        table.CellEdited += table.EditEvent()
+        table.CellEdited += table.EditEvent(sceneNode, faces)
         return table
 
     def sort_attributes(self, attributes):
@@ -175,6 +170,7 @@ class Tree_Table(forms.TreeGridView):
 
     def SelectEvent(self, sceneNode, keys):
         def on_selected(sender, event):
+            rs.UnselectAllObjects()
             attr = event.Item.Values[0]
             self.draw_values(sceneNode, keys, attr)
 
@@ -297,7 +293,17 @@ class Tree_Table(forms.TreeGridView):
                     color = [0, 0, 0]
                 else:
                     color = i_to_rgb(value/v_range)
-                pos = datastructure.edge_midpoint(*edge)
+
+                # project to xy plane
+                if datastructure.attributes['name'] == 'form':
+                    pos = [
+                        datastructure.edge_midpoint(*edge)[0],
+                        datastructure.edge_midpoint(*edge)[1],
+                        0
+                        ]
+                else:
+                    pos = datastructure.edge_midpoint(*edge)
+
                 value = '{:.3g}'.format(value)
                 labels.append({'pos': pos, 'text': value, 'color': color})
 
@@ -316,21 +322,57 @@ class Tree_Table(forms.TreeGridView):
 
             for vertex in vertices_to_draw:
                 value = datastructure.vertex_attribute(vertex, attr)
+
                 if vertex in vertices_selected:
                     color = [0, 0, 0]
                 else:
                     color = i_to_rgb(value/v_range)
-                pos = datastructure.vertex_coordinates(vertex)
+
+                # project to xy plane
+                if datastructure.attributes['name'] == 'form':
+                    pos = [
+                        datastructure.vertex_coordinates(vertex)[0],
+                        datastructure.vertex_coordinates(vertex)[1],
+                        0
+                        ]
+
+                else:
+                    pos = datastructure.vertex_coordinates(vertex)
+
                 value = '{:.3g}'.format(value)
                 labels.append({'pos': pos, 'text': value, 'color': color})
 
             return labels, vertices_to_draw
 
         def get_faces_lable():
-            raise NotImplementedError
+            is_not_loaded = list(datastructure.faces_where({'_is_loaded': False}))
+            faces_to_draw = list(set(list(datastructure.faces())) - set(is_not_loaded))
+            faces_selected = keys
+            faces_unselected = list(set(faces_to_draw) - set(faces_selected))  # noqa E501
+
+            labels = []
+            values = [datastructure.face_attribute(face, attr) for face in faces_to_draw]
+            v_max = max(values)
+            v_min = min(values)
+            v_range = v_max - v_min or v_max or 1
+
+            for face in faces_to_draw:
+                value = datastructure.face_attribute(face, attr)
+                if face in faces_selected:
+                    color = [0, 0, 0]
+                else:
+                    color = i_to_rgb(value/v_range)
+                pos = datastructure.face_centroid(face)
+                value = '{:.3g}'.format(value)
+                labels.append({'pos': pos, 'text': value, 'color': color})
+
+            return labels, faces_to_draw
 
         if self.table_type == 'vertices':
-            labels, keys = get_vertices_lable()
+            if attr == 'constraints':
+                return
+            else:
+                labels, keys = get_vertices_lable()
         elif self.table_type == 'edges':
             labels, keys = get_edges_lable()
         else:

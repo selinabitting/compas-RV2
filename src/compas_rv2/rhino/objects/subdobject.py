@@ -278,7 +278,12 @@ class SubdObject(BaseObject):
         def _random_color():
             return list(random.choice((range(256))) for _ in range(3))
 
-        target_length = compas_rhino.rs.GetReal('target edge length?')
+        # target_length = compas_rhino.rs.GetReal('target edge length?')
+        total_length = 0
+        for u, v in self.item.edges():
+            total_length += self.item.edge_length(u, v)
+        target_length = total_length/self.item.number_of_edges()/10.0
+
         for i, edges in self._edge_strips.items():
             edge0 = edges[0]
             n = int(round(self.item.edge_length(edge0[0], edge0[1]) / target_length))

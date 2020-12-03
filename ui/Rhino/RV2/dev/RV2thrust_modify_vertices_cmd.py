@@ -6,6 +6,7 @@ import compas_rhino
 from compas_rv2.rhino import get_scene
 from compas.utilities import flatten
 from compas_rv2.rhino import rv2_undo
+from compas_rv2.rhino import ModifyAttributesForm
 
 
 __commandname__ = "RV2thrust_modify_vertices"
@@ -54,17 +55,18 @@ def RunCommand(is_interactive):
         keys = thrust.select_vertices()
 
     if keys:
-        public = [name for name in thrust.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
-        defaults = [thrust.datastructure.default_vertex_attributes[name] for name in public]
-        if thrust.update_vertices_attributes(keys, names=public):
-            for key in keys:
-                # update the corresponding form diagram vertices
-                for name, default in zip(public, defaults):
-                    value = thrust.datastructure.vertex_attribute(key, name)
-                    # if value != default:
-                    form.datastructure.vertex_attribute(key, name, value)
+        ModifyAttributesForm.from_sceneNode(thrust, 'vertices', keys)
+        # public = [name for name in thrust.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
+        # defaults = [thrust.datastructure.default_vertex_attributes[name] for name in public]
+        # if thrust.update_vertices_attributes(keys, names=public):
+        #     for key in keys:
+        #         # update the corresponding form diagram vertices
+        #         for name, default in zip(public, defaults):
+        #             value = thrust.datastructure.vertex_attribute(key, name)
+        #             # if value != default:
+        #             form.datastructure.vertex_attribute(key, name, value)
 
-            thrust.settings['_is.valid'] = False
+        thrust.settings['_is.valid'] = False
 
     # the scene needs to be updated
     # even if the vertices where not modified
