@@ -52,7 +52,7 @@ setup(
     project_urls={},
     packages=['compas_rv2'],
     package_dir={'compas_rv2': 'src'},
-    package_data={'compas_rv2': ['../../ui/Rhino/NOTES']},
+    package_data={'compas_rv2': ['ui/Rhino/NOTES']},
     data_files=[],
     include_package_data=True,
     zip_safe=False,
