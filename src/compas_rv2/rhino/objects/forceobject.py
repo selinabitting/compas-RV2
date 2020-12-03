@@ -27,6 +27,7 @@ class ForceObject(MeshObject):
         'color.vertices': [0, 255, 255],
         'color.vertices:is_fixed': [0, 255, 255],
         'color.edges': [0, 0, 255],
+        'color.tension': [255, 0, 0]
     }
 
     @property
@@ -101,10 +102,16 @@ class ForceObject(MeshObject):
         # ======================================================================
 
         edges = list(self.mesh.edges())
-        color = {edge: self.settings['color.edges'] for edge in edges}
+        color = {}
+        for edge in edges:
+            primal = self.mesh.primal_edge(edge)
+            tension = self.mesh.primal.edge_attribute(primal, '_is_tension')
+            if tension:
+                color[edge] = self.settings['color.tension']
+            else:
+                color[edge] = self.settings['color.edges']
 
         # color analysis
-
         if self.scene and self.scene.settings['RV2']['show.forces']:
             lengths = [self.mesh.edge_length(*edge) for edge in edges]
             lmin = min(lengths)

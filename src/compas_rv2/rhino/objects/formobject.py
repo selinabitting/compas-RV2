@@ -28,6 +28,8 @@ class FormObject(MeshObject):
         'color.vertices:is_fixed': [0, 0, 255],
         'color.vertices:is_anchor': [255, 0, 0],
         'color.edges': [0, 127, 0],
+        'color.tension': [255, 0, 0],
+        'input_guids': []
     }
 
     @property
@@ -107,7 +109,7 @@ class FormObject(MeshObject):
         # ======================================================================
 
         edges = list(self.mesh.edges_where({'_is_edge': True}))
-        color = {edge: self.settings['color.edges'] for edge in edges}
+        color = {edge: self.settings['color.edges'] if not self.mesh.edge_attribute(edge, '_is_tension') else self.settings['color.tension'] for edge in edges}
 
         # color analysis
         if self.scene and self.scene.settings['RV2']['show.forces']:
