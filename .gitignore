@@ -124,5 +124,11 @@ electron/
 node_modules
 
 ui/Rhino/RV2/dev/icons/RhinoMac
+ui/Rhino/RV2/dev/data
+ui/Rhino/RV2/dev/__temp
+
+src/compas_rv2/ui/Rhino/RV2/dev/icons/RhinoMac
+src/compas_rv2/ui/Rhino/RV2/dev/data
+src/compas_rv2/ui/Rhino/RV2/dev/__temp
 
 Thumbs.db

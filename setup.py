@@ -52,13 +52,13 @@ setup(
     project_urls={},
     packages=['compas_rv2'],
     package_dir={'': 'src'},
-    package_data={'': ['ui/Rhino/NOTES']},
+    package_data={'': ['ui/Rhino/**']},
     data_files=[],
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
     dependency_links=[
-        'git+https://github.com/BlockResearchGroup/compas_singular.git@d2e0b23723d050916907bb5c77fd18616652a27e#egg=compas_singular'
+        # 'git+https://github.com/BlockResearchGroup/compas_singular.git@d2e0b23723d050916907bb5c77fd18616652a27e#egg=compas_singular'
     ],
     python_requires='>=3.6',
     extras_require=optional_requirements,
