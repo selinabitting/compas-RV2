@@ -53,7 +53,7 @@ setup(
     packages=['compas_rv2'],
     package_dir={'': 'src'},
     package_data={},
-    data_files=[('', ['ui/**'])],
+    data_files=[('./ui/Rhino', ['ui/Rhino/NOTES'])],
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
