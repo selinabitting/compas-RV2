@@ -6,6 +6,7 @@ from math import pi
 from math import sqrt
 
 import compas_rhino
+
 from compas.geometry import add_vectors
 from compas.geometry import scale_vector
 from compas.geometry import length_vector
@@ -45,7 +46,7 @@ class ThrustArtist(MeshArtist):
 
         for vertex in vertices:
             a = vertex_xyz[vertex]
-            area = self.mesh.tributary_area(vertex)
+            area = self.mesh.vertex_tributary_area(vertex)
             thickness = self.mesh.vertex_attribute(vertex, 't')
             weight = area * thickness
             load = scale_vector((0, 0, 1), scale * weight)

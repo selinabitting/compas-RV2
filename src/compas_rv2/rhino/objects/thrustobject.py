@@ -26,6 +26,7 @@ class ThrustObject(MeshObject):
         'show.vertices': True,
         'show.edges': False,
         'show.faces': True,
+        'show.stresses': False,
 
         'show.selfweight': False,
         'show.loads': False,
@@ -263,14 +264,41 @@ class ThrustObject(MeshObject):
         # Draw the faces and add them to the face group.
         # ======================================================================
 
-        faces = list(self.mesh.faces_where({'_is_loaded': True}))
-        color = {face: self.settings['color.faces'] if self.settings['_is.valid'] else self.settings['color.invalid'] for face in faces}
-        guids = self.artist.draw_faces(faces, color)
-        self.guid_face = zip(guids, faces)
-        compas_rhino.rs.AddObjectsToGroup(guids, group_faces)
+        if self.settings['show.faces']:
 
-        if self.settings.get('show.faces', True):
+            faces = list(self.mesh.faces_where({'_is_loaded': True}))
+
+            color = {face: self.settings['color.faces'] if self.settings['_is.valid'] else self.settings['color.invalid'] for face in faces}
+
+            if self.settings['show.stresses'] and self.settings['_is.valid']:
+
+                vertices = list(self.mesh.vertices())
+                vertex_colors = {vertex: self.settings['color.vertices'] if self.settings['_is.valid'] else self.settings['color.invalid'] for vertex in vertices}
+
+                stresses = [self.mesh.vertex_lumped_stress(vertex) for vertex in vertices]
+                smin = min(stresses)
+                smax = max(stresses)
+
+                for vertex, stress in zip(vertices, stresses):
+                    if smin != smax:
+                        vertex_colors[vertex] = i_to_rgb((stress - smin) / (smax - smin))
+
+                facets = []
+                for face in faces:
+                    facets.append({
+                        'points': self.mesh.face_coordinates(face),
+                        'name': "{}.face.{}".format(self.mesh.name, face),
+                        'vertexcolors': [vertex_colors[vertex] for vertex in self.mesh.face_vertices(face)]})
+
+                guids = compas_rhino.draw_faces(facets, layer=self.layer, clear=False, redraw=False)
+
+            else:
+                guids = self.artist.draw_faces(faces, color)
+
+            self.guid_face = zip(guids, faces)
+            compas_rhino.rs.AddObjectsToGroup(guids, group_faces)
             compas_rhino.rs.ShowGroup(group_faces)
+
         else:
             compas_rhino.rs.HideGroup(group_faces)
 
