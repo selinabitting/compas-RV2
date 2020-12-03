@@ -9,7 +9,7 @@ from compas_rv2.rhino import get_scene
 import RV2thrust_attributes_cmd
 import RV2thrust_modify_vertices_cmd
 import RV2thrust_move_supports_cmd
-
+import RV2thrust_modify_faces_cmd
 
 __commandname__ = "RV2toolbar_modify_thrust"
 
@@ -25,7 +25,7 @@ def RunCommand(is_interactive):
         print("There is no ThrustDiagram in the scene.")
         return
 
-    options = ["DiagramAttributes", "VerticesAttributes", "MoveSupports"]
+    options = ["DiagramAttributes", "VerticesAttributes", "FacesAttributes", "MoveSupports"]
     option = compas_rhino.rs.GetString("Modify thrust diagram:", strings=options)
 
     if not option:
@@ -36,6 +36,9 @@ def RunCommand(is_interactive):
 
     elif option == "VerticesAttributes":
         RV2thrust_modify_vertices_cmd.RunCommand(True)
+
+    elif option == "FacesAttributes":
+        RV2thrust_modify_faces_cmd.RunCommand(True)
 
     elif option == "MoveSupports":
         RV2thrust_move_supports_cmd.RunCommand(True)

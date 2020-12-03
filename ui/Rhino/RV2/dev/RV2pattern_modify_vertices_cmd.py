@@ -6,6 +6,7 @@ import compas_rhino
 from compas_rv2.rhino import get_scene
 from compas.utilities import flatten
 from compas_rv2.rhino import rv2_undo
+from compas_rv2.rhino import ModifyAttributesForm
 
 
 __commandname__ = "RV2pattern_modify_vertices"
@@ -46,9 +47,10 @@ def RunCommand(is_interactive):
             keys = pattern.select_vertices()
 
         if keys:
-            public = [name for name in pattern.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
-            if pattern.update_vertices_attributes(keys, names=public):
-                scene.update()
+            ModifyAttributesForm.from_sceneNode(pattern, 'vertices', keys)
+            # public = [name for name in pattern.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
+            # if pattern.update_vertices_attributes(keys, names=public):
+            scene.update()
 
 
 # ==============================================================================
