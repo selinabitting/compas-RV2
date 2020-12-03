@@ -55,7 +55,7 @@ setup(
     packages=['compas_rv2'],
     package_dir={'': 'src'},
     package_data={},
-    data_files=[],
+    data_files=[('.', ['ui'])],
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
