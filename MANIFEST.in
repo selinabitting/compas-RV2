@@ -1,5 +1,4 @@
 graft src
-graft ui
 graft scripts
 
 prune .github

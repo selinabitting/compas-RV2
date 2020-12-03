@@ -57,6 +57,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
+    dependency_links=[
+        'git+https://github.com/BlockResearchGroup/compas_singular.git@d2e0b23723d050916907bb5c77fd18616652a27e#egg=compas_singular-0'
+    ],
     python_requires='>=3.6',
     extras_require=optional_requirements,
     entry_points={
