@@ -57,7 +57,13 @@ def RunCommand(is_interactive):
         keys = form.select_vertices()
 
     if keys:
+        current = scene.settings['RV2']['show.angles']
+        scene.settings['RV2']['show.angles'] = False
+        scene.update()
+
         ModifyAttributesForm.from_sceneNode(form, 'vertices', keys)
+
+        scene.settings['RV2']['show.angles'] = current
         # public = [name for name in form.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
         # if form.update_vertices_attributes(keys, names=public):
         if thrust:

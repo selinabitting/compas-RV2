@@ -46,7 +46,13 @@ def RunCommand(is_interactive):
         keys = force.select_edges()
 
     if keys:
+        current = scene.settings['RV2']['show.angles']
+        scene.settings['RV2']['show.angles'] = False
+        scene.update()
+
         ModifyAttributesForm.from_sceneNode(force, 'edges', keys)
+
+        scene.settings['RV2']['show.angles'] = current
         # public = [name for name in force.datastructure.default_edge_attributes.keys() if not name.startswith("_")]
         # if force.update_edges_attributes(keys, names=public):
         if thrust:
