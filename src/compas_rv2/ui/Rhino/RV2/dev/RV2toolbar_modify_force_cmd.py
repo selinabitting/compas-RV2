@@ -10,6 +10,8 @@ import RV2force_attributes_cmd
 import RV2force_modify_vertices_cmd
 import RV2force_modify_edges_cmd
 import RV2force_move_vertices_cmd
+import RV2force_flip_edges_cmd
+
 
 __commandname__ = "RV2toolbar_modify_force"
 
@@ -25,7 +27,7 @@ def RunCommand(is_interactive):
         print("There is no ForceDiagram in the scene.")
         return
 
-    options = ["DiagramAttributes", "VerticesAttributes", "EdgesAttributes", "MoveVertices"]
+    options = ["DiagramAttributes", "VerticesAttributes", "EdgesAttributes", "MoveVertices", "FlipEdges"]
     option = compas_rhino.rs.GetString("Modify force diagram:", strings=options)
 
     if not option:
@@ -43,6 +45,8 @@ def RunCommand(is_interactive):
     elif option == "MoveVertices":
         RV2force_move_vertices_cmd.RunCommand(True)
 
+    elif option == "FlipEdges":
+        RV2force_flip_edges_cmd.RunCommand(True)
 
 # ==============================================================================
 # Main
