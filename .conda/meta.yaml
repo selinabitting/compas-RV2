@@ -1,51 +1,38 @@
-{% set name = "compas_cgal" %}
-{% set version = "0.1.1" %}
-{% set hash = "c9a816ed3c5a903d62e6cab8d94d934329d536db4409fc1b549de43d25adf5c9" %}
+{% set name = "compas-RV2" %}
+{% set version = "1.1.5" %}
+{% set hash = "..." %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://github.com/compas-dev/{{ name }}/archive/v{{ version }}.tar.gz
+  url: https://github.com/blockresearchgroup/{{ name }}/archive/v{{ version }}.tar.gz
   sha256: {{ hash }}
 
 build:
   number: 0
-  skip: true  # [py<36]
-
-requirements:
-  build:
-    - {{ compiler('c') }}
-    - {{ compiler('cxx') }}
-    - eigen
-  host:
-    - pip
-    - python
-    - pybind11
-    - cgal-cpp >=5.0
-  run:
-    - python {{ python }}
-    - eigen
-    - cgal-cpp >=5.0
-    - boost-cpp
-    - mpir  # [win]
-    - gmp  # [not win]
-    - mpfr
+  skip: true  # [linux or py<36]
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
 
 test:
   imports:
-    - compas_cgal
+    - compas_rv2
+    - compas_tna
+    - compas_skeleton
+    - compas_singular
+    - compas_triangle
+    - compas_cloud
 
 about:
-  home: https://github.com/compas-dev/compas_cgal
-  license: LGPL-3.0-or-later
+  home: https://github.com/blockresearchgroup/compas-RV2
+  license: MIT
   license_file: LICENSE
-  summary: 'COMPAS friendly wrappers for CGAL algorithms.'
-  dev_url: https://github.com/compas-dev/compas_cgal
-  doc_url: https://github.com/compas-dev/compas_cgal
+  summary: 'Funicular Form Finding with TNA based on COMPAS.'
+  dev_url: https://github.com/blockresearchgroup/compas-RV2
+  doc_url: https://blockresearchgroup.gitbook.io/rv2/
 
 extra:
   recipe-maintainers:
     - brgcode
-    - gonzalocasas
+    - licini
