@@ -17,13 +17,15 @@ if __name__ == '__main__':
     import importlib
 
     print("\n", "-"*10, "Checking packages", "-"*10)
+
     for p in packages:
         try:
             importlib.import_module(p)
-            print('   {} {}'.format(p.ljust(20), "OK"))
-        except ImportError as e:
+        except ImportError:
             print(p, "ERROR: cannot be imported, make sure it is installed")
-            raise ImportError(e)
+            raise
+        else:
+            print('   {} {}'.format(p.ljust(20), "OK"))
 
     parser = argparse.ArgumentParser(
         description='RhinoVault2 Installation command-line utility.')
@@ -45,8 +47,10 @@ if __name__ == '__main__':
     # uninstall()
 
     print("\n", "-"*10, "Installing RV2 python plugin", "-"*10)
+
     if args.dev:
-        rpy_plugin_path = os.path.join(os.path.dirname(__file__), "..", "..", 'ui/Rhino/RV2')
+        rpy_plugin_path = os.path.dirname(__file__)
+        rpy_plugin_path = os.path.join(rpy_plugin_path, 'ui/Rhino/RV2')
         rpy_plugin_path = os.path.abspath(rpy_plugin_path)
     elif args.plugin_path:
         rpy_plugin_path = os.path.abspath(args.plugin_path)
@@ -71,6 +75,7 @@ if __name__ == '__main__':
 
     os.makedirs(compas.APPDATA, exist_ok=True)
     register_json_path = os.path.join(compas.APPDATA, "compas_plugins.json")
+
     if os.path.exists(register_json_path):
         register_json = json.load(open(register_json_path))
         if not isinstance(register_json["Plugins"], dict):
