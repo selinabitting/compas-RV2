@@ -64,7 +64,7 @@ def RunCommand(is_interactive):
 
         elif option2 == "Corners":
             angle = compas_rhino.rs.GetInteger('Angle tolerance for non-quad face corners:', 170, 1, 180)
-            keys  = pattern.datastructure.corner_vertices(tol=angle)
+            keys = pattern.datastructure.corner_vertices(tol=angle)
 
         elif option2 == "ByContinuousEdges":
             edges = pattern.select_edges()
