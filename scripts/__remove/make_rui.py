@@ -2,8 +2,8 @@ import os
 import json
 
 HERE = os.path.dirname(__file__)
-FILE_I = os.path.join(HERE, "../ui/Rhino/RV2/dev/config.json")
-FILE_O = os.path.join(HERE, "../ui/Rhino/RV2/dev/RV2.rui")
+FILE_I = os.path.join(HERE, "../src/compas_rv2/ui/Rhino/RV2/dev/config.json")
+FILE_O = os.path.join(HERE, "../src/compas_rv2/ui/Rhino/RV2/dev/RV2.rui")
 
 
 def main():
