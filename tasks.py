@@ -170,7 +170,6 @@ def prepare_changelog(ctx):
         ctx.run('git add CHANGELOG.md && git commit -m "Prepare changelog for next release"')
 
 
-
 @task(help={
       'release_type': 'Type of release follows semver rules. Must be one of: major, minor, patch.'})
 def release(ctx, release_type):
@@ -179,7 +178,7 @@ def release(ctx, release_type):
         raise Exit('The release type parameter is invalid.\nMust be one of: major, minor, patch')
 
     # Run checks
-    ctx.run('invoke check test')
+    ctx.run('invoke check')
 
     # Bump version and git tag it
     ctx.run('bumpversion %s --verbose' % release_type)
