@@ -88,9 +88,8 @@ def RunCommand(is_interactive):
         # ModifyAttributesForm.from_sceneNode(pattern, 'edges', keys)
         # scene.update()
         public = [name for name in pattern.datastructure.default_edge_attributes.keys() if not name.startswith('_')]
-        pattern.update_edges_attributes(keys, names=public)
-
-    scene.update()
+        if pattern.update_edges_attributes(keys, names=public):
+            scene.update()
 
 
 # ==============================================================================

@@ -83,8 +83,8 @@ def RunCommand(is_interactive):
     if keys:
         # ModifyAttributesForm.from_sceneNode(pattern, 'vertices', keys)
         # scene.update()
-        public = [name for name in pattern.datastructure.default_edge_attributes.keys() if not name.startswith('_')]
-        if pattern.update_edges_attributes(keys, names=public):
+        public = [name for name in pattern.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
+        if pattern.update_vertices_attributes(keys, names=public):
             scene.update()
 
 
