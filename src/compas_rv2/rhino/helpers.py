@@ -28,7 +28,9 @@ __all__ = [
     "select_vertices",
     "select_edges",
     "select_faces",
-    "rv2_undo"
+    "rv2_undo",
+    "save_session",
+    "load_session",
 ]
 
 
