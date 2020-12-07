@@ -228,7 +228,7 @@ class MeshObject(MeshObject):
             nbrs = self.datastructure.vertex_neighbors(key)
             for nbr in nbrs:
                 b = self.datastructure.vertex_coordinates(nbr)
-                line = [Point3d(*a), Point3d(*b)]
+                line = [Point3d(a[0], a[1], 0), Point3d(b[0], b[1], 0)]
                 if nbr in keys:
                     lines.append(line)
                 else:

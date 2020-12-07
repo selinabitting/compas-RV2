@@ -88,7 +88,7 @@ def RunCommand(is_interactive):
         keys = form.select_vertices()
 
     if keys:
-        if form.move_vertices(keys):
+        if form.move_vertices_horizontal(keys):
             if form.datastructure.dual:
                 form.datastructure.dual.update_angle_deviations()
             if thrust:
