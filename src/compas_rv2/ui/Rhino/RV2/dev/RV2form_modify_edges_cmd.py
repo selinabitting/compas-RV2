@@ -8,7 +8,7 @@ import compas_rhino
 
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
-from compas_rv2.rhino import ModifyAttributesForm
+# from compas_rv2.rhino import ModifyAttributesForm
 
 
 __commandname__ = "RV2form_modify_edges"
@@ -30,6 +30,7 @@ def RunCommand(is_interactive):
 
     options = ["All", "Continuous", "Parallel", "Manual"]
     option = compas_rhino.rs.GetString("Selection Type.", strings=options)
+
     if not option:
         return
 
@@ -88,16 +89,22 @@ def RunCommand(is_interactive):
         keys = form.select_edges()
 
     if keys:
-        current = scene.settings['RV2']['show.angles']
-        scene.settings['RV2']['show.angles'] = False
-        scene.update()
+        # current = scene.settings['RV2']['show.angles']
+        # scene.settings['RV2']['show.angles'] = False
+        # scene.update()
 
-        ModifyAttributesForm.from_sceneNode(form, 'edges', keys)
+        # ModifyAttributesForm.from_sceneNode(form, 'edges', keys)
 
-        scene.settings['RV2']['show.angles'] = current
-        if thrust:
-            thrust.settings['_is.valid'] = False
-        scene.update()
+        # scene.settings['RV2']['show.angles'] = current
+        # if thrust:
+        #     thrust.settings['_is.valid'] = False
+        # scene.update()
+        public = [name for name in form.datastructure.default_edge_attributes.keys() if not name.startswith('_')]
+        if form.update_edges_attributes(keys, names=public):
+            if thrust:
+                thrust.settings['_is.valid'] = False
+
+    scene.update()
 
 
 # ==============================================================================

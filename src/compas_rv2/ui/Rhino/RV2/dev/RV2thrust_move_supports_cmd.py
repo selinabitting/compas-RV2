@@ -52,9 +52,6 @@ def RunCommand(is_interactive):
                 form.datastructure.vertex_attribute(key, 'z', z)
             thrust.settings['_is.valid'] = False
 
-    # the scene needs to be updated
-    # in any case
-    # to reset object visualisation
     scene.update()
 
 

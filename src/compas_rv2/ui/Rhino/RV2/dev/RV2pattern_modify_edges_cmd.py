@@ -6,7 +6,7 @@ import compas_rhino
 from compas_rv2.rhino import get_scene
 from compas.utilities import flatten
 from compas_rv2.rhino import rv2_undo
-from compas_rv2.rhino import ModifyAttributesForm
+# from compas_rv2.rhino import ModifyAttributesForm
 
 
 __commandname__ = "RV2pattern_modify_edges"
@@ -85,8 +85,12 @@ def RunCommand(is_interactive):
         keys = pattern.select_edges()
 
     if keys:
-        ModifyAttributesForm.from_sceneNode(pattern, 'edges', keys)
-        scene.update()
+        # ModifyAttributesForm.from_sceneNode(pattern, 'edges', keys)
+        # scene.update()
+        public = [name for name in pattern.datastructure.default_edge_attributes.keys() if not name.startswith('_')]
+        pattern.update_edges_attributes(keys, names=public)
+
+    scene.update()
 
 
 # ==============================================================================

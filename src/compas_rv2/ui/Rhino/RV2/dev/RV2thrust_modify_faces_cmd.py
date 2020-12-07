@@ -5,7 +5,7 @@ from __future__ import division
 import compas_rhino
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
-from compas_rv2.rhino import ModifyAttributesForm
+# from compas_rv2.rhino import ModifyAttributesForm
 
 
 __commandname__ = "RV2thrust_modify_faces"
@@ -43,12 +43,9 @@ def RunCommand(is_interactive):
         keys = thrust.select_faces()
 
     if keys:
-        ModifyAttributesForm.from_sceneNode(thrust, 'faces', keys)
-        thrust.settings['_is.valid'] = False
-
-    # the scene needs to be updated
-    # even if the vertices where not modified
-    # to reset group visibility to the configuration of settings
+        public = [name for name in form.datastructure.default_face_attributes.keys() if not name.startswith('_')]
+        if form.update_faces_attributes(keys, names=public):
+            thrust.settings['_is.valid'] = False
 
     scene.update()
 

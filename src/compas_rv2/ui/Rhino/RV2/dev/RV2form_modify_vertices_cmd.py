@@ -6,7 +6,7 @@ import compas_rhino
 from compas_rv2.rhino import get_scene
 from compas.utilities import flatten
 from compas_rv2.rhino import rv2_undo
-from compas_rv2.rhino import ModifyAttributesForm
+# from compas_rv2.rhino import ModifyAttributesForm
 
 
 __commandname__ = "RV2form_modify_vertices"
@@ -42,6 +42,7 @@ def RunCommand(is_interactive):
     # selection options
     options = ["All", "ByContinuousEdges", "Manual"]
     option = compas_rhino.rs.GetString("Selection Type.", strings=options)
+
     if not option:
         scene.update()
         return
@@ -92,19 +93,21 @@ def RunCommand(is_interactive):
         keys = form.select_vertices()
 
     if keys:
-        current = scene.settings['RV2']['show.angles']
-        scene.settings['RV2']['show.angles'] = False
-        scene.update()
+        # current = scene.settings['RV2']['show.angles']
+        # scene.settings['RV2']['show.angles'] = False
+        # scene.update()
 
-        ModifyAttributesForm.from_sceneNode(form, 'vertices', keys)
+        # ModifyAttributesForm.from_sceneNode(form, 'vertices', keys)
 
-        scene.settings['RV2']['show.angles'] = current
-        if thrust:
-            thrust.settings['_is.valid'] = False
+        # scene.settings['RV2']['show.angles'] = current
+        # if thrust:
+        #     thrust.settings['_is.valid'] = False
+        # scene.update()
+        public = [name for name in form.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
+        if form.update_vertices_attributes(keys, names=public):
+            if thrust:
+                thrust.settings['_is.valid'] = False
 
-    # the scene needs to be updated
-    # even if the vertices where not modified
-    # to reset group visibility to the configuration of settings
     scene.update()
 
 

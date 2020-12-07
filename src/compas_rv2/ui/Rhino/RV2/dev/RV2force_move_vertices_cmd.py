@@ -43,7 +43,11 @@ def RunCommand(is_interactive):
                 force.datastructure.update_angle_deviations()
             if thrust:
                 thrust.settings['_is.valid'] = False
-            scene.update()
+
+    # the scene needs to be updated
+    # even if the vertices where not modified
+    # to reset group visibility to the configuration of settings
+    scene.update()
 
 
 # ==============================================================================

@@ -6,7 +6,7 @@ import compas_rhino
 from compas_rv2.rhino import get_scene
 from compas.utilities import flatten
 from compas_rv2.rhino import rv2_undo
-from compas_rv2.rhino import ModifyAttributesForm
+# from compas_rv2.rhino import ModifyAttributesForm
 
 
 __commandname__ = "RV2thrust_modify_vertices"
@@ -55,12 +55,10 @@ def RunCommand(is_interactive):
         keys = thrust.select_vertices()
 
     if keys:
-        ModifyAttributesForm.from_sceneNode(thrust, 'vertices', keys)
-        thrust.settings['_is.valid'] = False
+        public = [name for name in form.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
+        if form.update_vertices_attributes(keys, names=public):
+            thrust.settings['_is.valid'] = False
 
-    # the scene needs to be updated
-    # even if the vertices where not modified
-    # to reset group visibility to the configuration of settings
     scene.update()
 
 
