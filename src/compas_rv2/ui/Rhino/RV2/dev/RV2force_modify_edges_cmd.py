@@ -87,8 +87,8 @@ def RunCommand(is_interactive):
         # find corrresponding edges on the force
         keys = []
         for (u, v) in force.datastructure.edges():
-            primal = force.datastructure.primal_edge(u, v)
-            if primal in keys_form:
+            uf, vf = force.datastructure.primal_edge((u, v))
+            if ((uf, vf) in keys_form) or ((vf, uf) in keys_form):
                 keys.append((u, v))
 
     elif option == "Manual":

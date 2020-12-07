@@ -91,7 +91,7 @@ def RunCommand(is_interactive):
         scene.update()
 
         ModifyAttributesForm.from_sceneNode(form, 'edges', keys)
-        
+
         scene.settings['RV2']['show.angles'] = current
         # public = [name for name in form.datastructure.default_edge_attributes.keys() if not name.startswith("_")]
         # if form.update_edges_attributes(keys, names=public):
