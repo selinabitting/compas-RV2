@@ -48,7 +48,7 @@ def RunCommand(is_interactive):
         compas_rhino.rs.ShowObjects(guids)
 
         def custom_filter(rhino_object, geometry, component_index):
-            if str(rhino_object.Attributes.ObjectId) in guids:
+            if str(rhino_object.Id) in guids:
                 return True
             return False
 
@@ -66,10 +66,6 @@ def RunCommand(is_interactive):
 
         keys = []
         for guid in constraints:
-            # for key, attr in pattern.datastructure.vertices(data=True):
-            #     if attr['constraints']:
-            #         if str(guid) in attr['constraints']:
-            #             keys.append(key)
             for key in pattern.datastructure.vertices():
                 if if_constraints(pattern.datastructure, key, guid):
                     keys.append(key)

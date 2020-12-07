@@ -5,12 +5,13 @@ from __future__ import division
 import os
 import json
 
+from compas.utilities import DataEncoder
+
 import compas_rhino
 from compas_rv2.rhino import get_system
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import select_filepath_save
 from compas_rv2.rhino import save_session
-from compas.utilities import DataEncoder
 
 
 __commandname__ = "RV2file_save"

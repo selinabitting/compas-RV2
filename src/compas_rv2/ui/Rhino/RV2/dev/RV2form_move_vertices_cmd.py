@@ -64,7 +64,7 @@ def RunCommand(is_interactive):
         compas_rhino.rs.ShowObjects(guids)
 
         def custom_filter(rhino_object, geometry, component_index):
-            if str(rhino_object.Attributes.ObjectId) in guids:
+            if str(rhino_object.Id) in guids:
                 return True
             return False
 

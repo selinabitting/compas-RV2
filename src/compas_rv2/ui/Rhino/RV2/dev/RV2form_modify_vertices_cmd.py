@@ -68,7 +68,7 @@ def RunCommand(is_interactive):
         compas_rhino.rs.ShowObjects(guids)
 
         def custom_filter(rhino_object, geometry, component_index):
-            if str(rhino_object.Attributes.ObjectId) in guids:
+            if str(rhino_object.Id) in guids:
                 return True
             return False
 
@@ -99,8 +99,6 @@ def RunCommand(is_interactive):
         ModifyAttributesForm.from_sceneNode(form, 'vertices', keys)
 
         scene.settings['RV2']['show.angles'] = current
-        # public = [name for name in form.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
-        # if form.update_vertices_attributes(keys, names=public):
         if thrust:
             thrust.settings['_is.valid'] = False
 

@@ -3,15 +3,19 @@ from __future__ import absolute_import
 from __future__ import division
 
 from functools import partial
+
 import compas_rhino
-from compas_rv2.rhino import get_scene
-from compas_rv2.rhino import get_proxy
-from compas.utilities import pairwise
+
 from compas.geometry import centroid_points
 from compas.geometry import distance_point_point_xy
 from compas.geometry import intersection_line_line_xy
 from compas.geometry import midpoint_point_point_xy
+from compas.utilities import pairwise
+
+from compas_rv2.rhino import get_scene
+from compas_rv2.rhino import get_proxy
 from compas_rv2.rhino import rv2_undo
+
 
 __commandname__ = "RV2boundary_boundaries"
 

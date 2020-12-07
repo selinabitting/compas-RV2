@@ -56,7 +56,7 @@ def RunCommand(is_interactive):
         compas_rhino.rs.ShowObjects(guids)
 
         def custom_filter(rhino_object, geometry, component_index):
-            if str(rhino_object.Attributes.ObjectId) in guids:
+            if str(rhino_object.Id) in guids:
                 return True
             return False
 
@@ -85,10 +85,7 @@ def RunCommand(is_interactive):
         keys = pattern.select_edges()
 
     if keys:
-        print(keys)
         ModifyAttributesForm.from_sceneNode(pattern, 'edges', keys)
-        # public = [name for name in pattern.datastructure.default_edge_attributes.keys() if not name.startswith('_')]
-        # if pattern.update_edges_attributes(keys, names=public):
         scene.update()
 
 

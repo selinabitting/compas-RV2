@@ -5,13 +5,15 @@ from __future__ import division
 import os
 import json
 
+from compas.utilities import DataDecoder
+
 import compas_rhino
 from compas_rv2.rhino import get_system
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import select_filepath_open
 from compas_rv2.rhino.helpers import load_session
-from compas.utilities import DataDecoder
 from compas_rv2.rhino import rv2_undo
+
 
 __commandname__ = "RV2file_open"
 

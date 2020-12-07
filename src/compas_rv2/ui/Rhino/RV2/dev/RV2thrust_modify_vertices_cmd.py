@@ -56,16 +56,6 @@ def RunCommand(is_interactive):
 
     if keys:
         ModifyAttributesForm.from_sceneNode(thrust, 'vertices', keys)
-        # public = [name for name in thrust.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
-        # defaults = [thrust.datastructure.default_vertex_attributes[name] for name in public]
-        # if thrust.update_vertices_attributes(keys, names=public):
-        #     for key in keys:
-        #         # update the corresponding form diagram vertices
-        #         for name, default in zip(public, defaults):
-        #             value = thrust.datastructure.vertex_attribute(key, name)
-        #             # if value != default:
-        #             form.datastructure.vertex_attribute(key, name, value)
-
         thrust.settings['_is.valid'] = False
 
     # the scene needs to be updated

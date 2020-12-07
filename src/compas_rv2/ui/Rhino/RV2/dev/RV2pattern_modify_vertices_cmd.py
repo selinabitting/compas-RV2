@@ -58,7 +58,7 @@ def RunCommand(is_interactive):
             compas_rhino.rs.ShowObjects(guids)
 
             def custom_filter(rhino_object, geometry, component_index):
-                if str(rhino_object.Attributes.ObjectId) in guids:
+                if str(rhino_object.Id) in guids:
                     return True
                 return False
 
@@ -83,8 +83,6 @@ def RunCommand(is_interactive):
 
         if keys:
             ModifyAttributesForm.from_sceneNode(pattern, 'vertices', keys)
-            # public = [name for name in pattern.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
-            # if pattern.update_vertices_attributes(keys, names=public):
             scene.update()
 
 

@@ -54,6 +54,7 @@ def RunCommand(is_interactive):
     thrust = scene.get("thrust")[0]
 
     # temporarily hide angle deviations ----------------------------------------
+
     draw_dots = scene.settings['RV2']['show.angles']
     draw_vertices = force.settings['show.vertices']
     if draw_dots:

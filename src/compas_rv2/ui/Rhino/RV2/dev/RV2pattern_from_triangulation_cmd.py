@@ -58,7 +58,6 @@ def RunCommand(is_interactive):
                     gkey_constraints[gkey] = []
                 gkey_constraints[gkey].append(segment)
             boundary.extend(points)
-        # compas_rhino.delete_objects(segments, purge=True)
         compas_rhino.rs.HideObjects(segments)
         compas_rhino.rs.EnableRedraw(True)
 
@@ -93,7 +92,6 @@ def RunCommand(is_interactive):
     area = target_length ** 2 * 0.5 * 0.5 * 1.732
 
     vertices, faces = conforming_delaunay_triangulation(boundary, polylines=polylines, polygons=polygons, angle=30, area=area)
-    # vertices, faces = constrained_delaunay_triangulation(boundary, polylines=polylines, polygons=polygons)
     vertices[:] = [[float(x), float(y), float(z)] for x, y, z in vertices]
 
     pattern = Pattern.from_vertices_and_faces(vertices, faces)

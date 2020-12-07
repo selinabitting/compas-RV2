@@ -2,9 +2,10 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+from compas.utilities import flatten
+
 import compas_rhino
 from compas_rv2.rhino import get_scene
-from compas.utilities import flatten
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import ModifyAttributesForm
 
@@ -59,7 +60,7 @@ def RunCommand(is_interactive):
         compas_rhino.rs.ShowObjects(guids)
 
         def custom_filter(rhino_object, geometry, component_index):
-            if str(rhino_object.Attributes.ObjectId) in guids:
+            if str(rhino_object.Id) in guids:
                 return True
             return False
 
@@ -102,8 +103,6 @@ def RunCommand(is_interactive):
         ModifyAttributesForm.from_sceneNode(force, 'edges', keys)
 
         scene.settings['RV2']['show.angles'] = current
-        # public = [name for name in force.datastructure.default_edge_attributes.keys() if not name.startswith("_")]
-        # if force.update_edges_attributes(keys, names=public):
         if thrust:
             thrust.settings['_is.valid'] = False
         scene.update()
