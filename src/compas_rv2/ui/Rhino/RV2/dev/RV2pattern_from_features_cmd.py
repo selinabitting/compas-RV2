@@ -39,6 +39,8 @@ def RunCommand(is_interactive):
     point_guids = compas_rhino.select_points("Select points to include in the decomposition.")
     curve_guids = []
 
+    compas_rhino.rs.HideObjects([surf_guid] + point_guids + curve_guids)
+
     surface = RhinoSurface.from_guid(surf_guid)
     curves = [RhinoCurve.from_guid(guid) for guid in curve_guids]
     points = [RhinoPoint.from_guid(guid) for guid in point_guids]
