@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import compas_rhino
+
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
 # from compas_rv2.rhino import ModifyAttributesForm
@@ -42,9 +43,13 @@ def RunCommand(is_interactive):
     if option == "Manual":
         keys = thrust.select_faces()
 
+    thrust_name = thrust.name
+
     if keys:
         public = [name for name in form.datastructure.default_face_attributes.keys() if not name.startswith('_')]
         if form.update_faces_attributes(keys, names=public):
+            thrust.datastructure.data = form.datastructure.data
+            thrust.name = thrust_name
             thrust.settings['_is.valid'] = False
 
     scene.update()

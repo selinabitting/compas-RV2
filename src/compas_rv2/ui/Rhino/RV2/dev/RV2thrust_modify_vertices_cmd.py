@@ -2,9 +2,11 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-import compas_rhino
-from compas_rv2.rhino import get_scene
 from compas.utilities import flatten
+
+import compas_rhino
+
+from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
 # from compas_rv2.rhino import ModifyAttributesForm
 
@@ -54,9 +56,13 @@ def RunCommand(is_interactive):
     elif option == "Manual":
         keys = thrust.select_vertices()
 
+    thrust_name = thrust.name
+
     if keys:
         public = [name for name in form.datastructure.default_vertex_attributes.keys() if not name.startswith('_')]
         if form.update_vertices_attributes(keys, names=public):
+            thrust.datastructure.data = form.datastructure.data
+            thrust.name = thrust_name
             thrust.settings['_is.valid'] = False
 
     scene.update()
