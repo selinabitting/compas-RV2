@@ -52,8 +52,10 @@ if __name__ == '__main__':
         rpy_plugin_path = os.path.dirname(__file__)
         rpy_plugin_path = os.path.join(rpy_plugin_path, 'ui/Rhino/RV2')
         rpy_plugin_path = os.path.abspath(rpy_plugin_path)
+
     elif args.plugin_path:
         rpy_plugin_path = os.path.abspath(args.plugin_path)
+
     else:
         rpy_plugin_path = os.path.dirname(__file__)
         rpy_plugin_path = os.path.join(rpy_plugin_path, "..", "..", "..", "..", "..")
