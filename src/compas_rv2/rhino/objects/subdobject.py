@@ -2,6 +2,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+from copy import deepcopy
+
 import compas_rhino
 from compas_rhino.objects import BaseObject
 from compas_rhino.artists import MeshArtist
@@ -9,8 +11,9 @@ from compas_rhino.geometry import RhinoSurface
 from compas_rhino import delete_objects
 from compas.datastructures import Mesh
 from compas.utilities import pairwise
-from copy import deepcopy
+
 import rhinoscriptsyntax as rs
+
 
 __all__ = ['SubdObject']
 
@@ -128,7 +131,7 @@ def mesh_split_edges(mesh, edges, n):
     return subd
 
 
-def mesh_sbudivide_strip(mesh, uv, n):
+def mesh_subdivide_strip(mesh, uv, n):
 
     edges = edge_strip(mesh, uv)
     subd = mesh_split_edges(mesh, edges, n)
@@ -189,9 +192,10 @@ class SubdObject(BaseObject):
         if settings:
             self.settings.update(settings)
 
-# --------------------------------------------------------------------------
-# properties
-# --------------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    # properties
+    # ----------------------------------------------------------------------
+
     @property
     def coarse(self):
         return self.item
@@ -252,10 +256,9 @@ class SubdObject(BaseObject):
     def guid_strip_division(self, values):
         self._guid_strip_division = dict(values)
 
-
-# --------------------------------------------------------------------------
-# constructors
-# --------------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    # constructors
+    # ----------------------------------------------------------------------
 
     @classmethod
     def from_guid(cls, guid):
@@ -266,9 +269,9 @@ class SubdObject(BaseObject):
 
         return subdobject
 
-# --------------------------------------------------------------------------
-# modification
-# --------------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    # modification
+    # ----------------------------------------------------------------------
 
     def get_default_strip_subdvision(self):
         """get subdivision number for each strip by user input target length"""
@@ -296,7 +299,7 @@ class SubdObject(BaseObject):
         subd = mesh_fast_copy(self.item)
         for i, edges in self._edge_strips.items():
             n = self._strip_division[i][0]
-            subd = mesh_sbudivide_strip(subd, edges[0], n)
+            subd = mesh_subdivide_strip(subd, edges[0], n)
 
         self.subd = subd
 
@@ -326,7 +329,7 @@ class SubdObject(BaseObject):
             preselect=False,
             select=True,
             custom_filter=custom_filter
-            )
+        )
         if not guid:
             return
 
@@ -354,9 +357,9 @@ class SubdObject(BaseObject):
             self.draw_strips_division_num()
             self.draw_subd()
 
-# --------------------------------------------------------------------------
-# visualize
-# --------------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    # visualize
+    # ----------------------------------------------------------------------
 
     def move(self):
         pass

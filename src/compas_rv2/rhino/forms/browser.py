@@ -1,17 +1,12 @@
-
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
 import os
-import compas
 
-try:
-    import System
-    import Eto.Drawing as drawing
-    import Eto.Forms as forms
-except Exception:
-    compas.raise_if_ironpython()
+import System
+import Eto.Drawing as drawing
+import Eto.Forms as forms
 
 
 class BrowserForm(forms.Form):

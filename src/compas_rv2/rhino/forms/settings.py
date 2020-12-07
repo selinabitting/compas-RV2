@@ -2,17 +2,12 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-
-import compas
 from compas_rv2.rhino import get_scene
 from collections import OrderedDict
 
-try:
-    import Eto.Drawing as drawing
-    import Eto.Forms as forms
-    import Rhino.UI
-except Exception:
-    compas.raise_if_ironpython()
+import Eto.Drawing as drawing
+import Eto.Forms as forms
+import Rhino.UI
 
 
 __all__ = ["SettingsForm", "Settings_Tab"]

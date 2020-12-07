@@ -2,24 +2,20 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-
-import compas
 import ast
+
 import compas_rhino
 from compas_rhino import delete_objects
 from compas.utilities import i_to_rgb
 from compas_rv2.rhino import get_scene
-from compas_rv2.rhino.forms.settings import Settings_Tab
 
-try:
-    import rhinoscriptsyntax as rs
-    import scriptcontext as sc
-    find_object = sc.doc.Objects.Find
-    import Eto.Drawing as drawing
-    import Eto.Forms as forms
-    import Rhino
-except Exception:
-    compas.raise_if_ironpython()
+import rhinoscriptsyntax as rs
+import scriptcontext as sc
+import Eto.Drawing as drawing
+import Eto.Forms as forms
+import Rhino
+
+find_object = sc.doc.Objects.Find
 
 
 __all__ = ["ModifyAttributesForm"]

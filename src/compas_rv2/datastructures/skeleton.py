@@ -8,7 +8,7 @@ __all__ = ['Skeleton']
 
 
 class Skeleton(Skeleton):
-    """ Skeleton is a low poly mesh typologically generated from a group of lines."""
+    """Skeleton is a low poly mesh typologically generated from a group of lines."""
 
     # def to_pattern(self):
     #     """ Generate a form pattern mesh for compas_rv2 and compas_tna. """

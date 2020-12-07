@@ -11,7 +11,7 @@ import compas_rhino
 from compas_singular.algorithms import boundary_triangulation
 from compas_singular.algorithms import SkeletonDecomposition
 
-from compas_rv2.datastructures.meshmixin import MeshMixin
+from .meshmixin import MeshMixin
 
 
 __all__ = ['Pattern']

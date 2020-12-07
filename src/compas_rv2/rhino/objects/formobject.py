@@ -3,8 +3,6 @@ from __future__ import absolute_import
 from __future__ import division
 
 from compas.utilities import i_to_rgb
-from compas.utilities import i_to_blue
-from compas.utilities import i_to_red
 from compas.geometry import Point
 from compas.geometry import Scale
 from compas.geometry import Translation

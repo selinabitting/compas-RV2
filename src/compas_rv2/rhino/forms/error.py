@@ -1,21 +1,17 @@
-
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-import compas
 import sys
 import traceback
 
-try:
-    import Eto.Drawing as drawing
-    import Eto.Forms as forms
-    import Rhino.UI
-except Exception:
-    compas.raise_if_ironpython()
+import Eto.Drawing as drawing
+import Eto.Forms as forms
+import Rhino.UI
 
 
 __all__ = ["ErrorForm", "ErrorHandler"]
+
 
 from functools import wraps
 
@@ -68,7 +64,6 @@ class ErrorForm(forms.Dialog):
 
         self.ShowModal(Rhino.UI.RhinoEtoApp.MainWindow)
 
-
     @property
     def cancel(self):
         self.AbortButton = forms.Button(Text='Close')
@@ -85,6 +80,5 @@ if __name__ == "__main__":
     @ErrorHandler()
     def break_func():
         raise RuntimeError("some error message")
-
 
     break_func()

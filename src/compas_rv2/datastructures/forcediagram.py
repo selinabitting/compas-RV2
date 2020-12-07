@@ -6,7 +6,7 @@ from compas.geometry import angle_vectors_xy
 from compas.geometry import cross_vectors
 
 from compas_tna.diagrams import ForceDiagram
-from compas_rv2.datastructures.meshmixin import MeshMixin
+from .meshmixin import MeshMixin
 
 
 __all__ = ['ForceDiagram']

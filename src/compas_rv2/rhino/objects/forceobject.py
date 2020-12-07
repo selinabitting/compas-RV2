@@ -7,8 +7,6 @@ from compas.geometry import Scale
 from compas.geometry import Translation
 from compas.geometry import Rotation
 from compas.utilities import i_to_rgb
-from compas.utilities import i_to_blue
-from compas.utilities import i_to_red
 
 import compas_rhino
 
