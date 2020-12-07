@@ -95,7 +95,7 @@ class Tree_Table(forms.TreeGridView):
         treecollection = forms.TreeGridItemCollection()
         key = keys[0]
         for attr in attributes:
-            if attr[0] != '_':
+            if attr[0] != '_' and attr != 'constraints':
                 if datastructure.attributes['name'] == 'form' and attr == 'z':
                     pass
                 else:

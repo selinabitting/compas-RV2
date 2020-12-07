@@ -23,10 +23,11 @@ def RunCommand(is_interactive):
     if not force:
         print("There is no ForceDiagram in the scene.")
         return
+    form = scene.get("form")[0]
 
     thrust = scene.get("thrust")[0]
 
-    options = ["All", "Continuous", "Parallel", "Manual"]
+    options = ["All", "Continuous", "Parallel", "ByConstraints", "Manual"]
     option = compas_rhino.rs.GetString("Selection Type.", strings=options)
     if not option:
         return
@@ -41,6 +42,54 @@ def RunCommand(is_interactive):
     elif option == "Parallel":
         temp = force.select_edges()
         keys = list(set(flatten([force.datastructure.edge_strip(key) for key in temp])))
+
+    elif option == "ByConstraints":
+        # find the formdiagram edge on the constraints
+        guids = form.datastructure.vertices_attribute('constraints')
+        guids = list(set(list(flatten(list(filter(None, guids))))))
+
+        if not guids:
+            print('there are no constraints in this form')
+            return
+
+        current = form.settings['color.edges']
+        form.settings['color.edges'] = [120, 120, 120]
+        scene.update()
+
+        compas_rhino.rs.ShowObjects(guids)
+
+        def custom_filter(rhino_object, geometry, component_index):
+            if str(rhino_object.Attributes.ObjectId) in guids:
+                return True
+            return False
+
+        constraints = compas_rhino.rs.GetObjects('select constraints', custom_filter=custom_filter)
+
+        if not constraints:
+            return
+
+        def if_constraints(datastructure, key, guid):
+            constraints = datastructure.vertex_attribute(key, 'constraints')
+            if constraints:
+                if str(guid) in constraints:
+                    return True
+            return False
+
+        keys_form = []
+        for guid in constraints:
+            for (u, v) in form.datastructure.edges():
+                if if_constraints(form.datastructure, u, guid) and if_constraints(form.datastructure, v, guid):
+                    keys_form.append((u, v))
+
+        compas_rhino.rs.HideObjects(guids)
+        form.settings['color.edges'] = current
+
+        # find corrresponding edges on the force
+        keys = []
+        for (u, v) in force.datastructure.edges():
+            primal = force.datastructure.primal_edge(u, v)
+            if primal in keys_form:
+                keys.append((u, v))
 
     elif option == "Manual":
         keys = force.select_edges()

@@ -58,7 +58,8 @@ def RunCommand(is_interactive):
                     gkey_constraints[gkey] = []
                 gkey_constraints[gkey].append(segment)
             boundary.extend(points)
-        compas_rhino.delete_objects(segments, purge=True)
+        # compas_rhino.delete_objects(segments, purge=True)
+        compas_rhino.rs.HideObjects(segments)
         compas_rhino.rs.EnableRedraw(True)
 
     # constraint polylines

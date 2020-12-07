@@ -24,7 +24,7 @@ def RunCommand(is_interactive):
         print("There is no Pattern in the scene.")
         return
 
-    options = ["All", "Continuous", "Parallel", "Manual"]
+    options = ["All", "Continuous", "Parallel", "ByConstraints", "Manual"]
     option = compas_rhino.rs.GetString("Selection Type", strings=options)
 
     if not option:
@@ -41,10 +41,51 @@ def RunCommand(is_interactive):
         temp = pattern.select_edges()
         keys = list(set(flatten([pattern.datastructure.edge_strip(key) for key in temp])))
 
+    elif option == "ByConstraints":
+        guids = pattern.datastructure.vertices_attribute('constraints')
+        guids = list(set(list(flatten(list(filter(None, guids))))))
+
+        if not guids:
+            print('there are no constraints in this pattern')
+            return
+
+        current = pattern.settings['color.edges']
+        pattern.settings['color.edges'] = [120, 120, 120]
+        scene.update()
+
+        compas_rhino.rs.ShowObjects(guids)
+
+        def custom_filter(rhino_object, geometry, component_index):
+            if str(rhino_object.Attributes.ObjectId) in guids:
+                return True
+            return False
+
+        constraints = compas_rhino.rs.GetObjects('select constraints', custom_filter=custom_filter)
+
+        if not constraints:
+            return
+
+        def if_constraints(datastructure, key, guid):
+            constraints = datastructure.vertex_attribute(key, 'constraints')
+            if constraints:
+                if str(guid) in constraints:
+                    return True
+            return False
+
+        keys = []
+        for guid in constraints:
+            for (u, v) in pattern.datastructure.edges():
+                if if_constraints(pattern.datastructure, u, guid) and if_constraints(pattern.datastructure, v, guid):
+                    keys.append((u, v))
+
+        compas_rhino.rs.HideObjects(guids)
+        pattern.settings['color.edges'] = current
+
     elif option == "Manual":
         keys = pattern.select_edges()
 
     if keys:
+        print(keys)
         ModifyAttributesForm.from_sceneNode(pattern, 'edges', keys)
         # public = [name for name in pattern.datastructure.default_edge_attributes.keys() if not name.startswith('_')]
         # if pattern.update_edges_attributes(keys, names=public):
