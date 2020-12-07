@@ -322,7 +322,7 @@ class SubdObject(BaseObject):
             return False
 
         guid = rs.GetObject(
-            message='select the edge change subdivision',
+            message='select the edge to change subdivision',
             preselect=False,
             select=True,
             custom_filter=custom_filter
