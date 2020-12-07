@@ -99,6 +99,7 @@ def RunCommand(is_interactive):
     scene.settings['RV2']['show.angles'] = draw_dots
     force.settings['show.vertices'] = draw_vertices
 
+    force.datastructure.update_angle_deviations()
     scene.update()
 
 

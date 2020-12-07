@@ -3,6 +3,8 @@ from __future__ import absolute_import
 from __future__ import division
 
 from compas.utilities import i_to_rgb
+from compas.utilities import i_to_blue
+from compas.utilities import i_to_red
 from compas.geometry import Point
 from compas.geometry import Scale
 from compas.geometry import Translation
@@ -109,10 +111,20 @@ class FormObject(MeshObject):
         # ======================================================================
 
         edges = list(self.mesh.edges_where({'_is_edge': True}))
-        color = {edge: self.settings['color.edges'] if not self.mesh.edge_attribute(edge, '_is_tension') else self.settings['color.tension'] for edge in edges}
+        colors = {}
+        t_colors = {}
+
+        for edge in edges:
+            if self.mesh.edge_attribute(edge, '_is_tension'):
+                colors[edge] = self.settings['color.tension']
+            else:
+                colors[edge] = self.settings['color.edges']
+
+        colors.update(t_colors)
 
         # color analysis
         if self.scene and self.scene.settings['RV2']['show.forces']:
+
             if self.mesh.dual:
                 _edges = list(self.mesh.dual.edges())
                 lengths = [self.mesh.dual.edge_length(*edge) for edge in _edges]
@@ -121,9 +133,40 @@ class FormObject(MeshObject):
                 lmax = max(lengths)
                 for edge, length in zip(edges, lengths):
                     if lmin != lmax:
-                        color[edge] = i_to_rgb((length - lmin) / (lmax - lmin))
+                        colors[edge] = i_to_rgb((length - lmin) / (lmax - lmin))
 
-        guids = self.artist.draw_edges(edges, color)
+                # c_dual_edges = []
+                # t_dual_edges = []
+
+                # for edge in list(self.mesh.dual.edges()):
+                #     primal = self.mesh.dual.primal_edge(edge)
+                #     if self.mesh.edge_attribute(primal, '_is_tension'):
+                #         t_dual_edges.append(edge)
+                #     else:
+                #         c_dual_edges.append(edge)
+
+                # c_lengths = [self.mesh.dual.edge_length(*edge) for edge in c_dual_edges]
+                # c_min = min(c_lengths)
+                # c_max = max(c_lengths)
+
+                # if t_colors:
+
+                #     t_lengths = [self.mesh.dual.edge_length(*edge) for edge in t_dual_edges]
+                #     t_min = min(t_lengths)
+                #     t_max = max(t_lengths)
+
+                #     for edge, length in zip(colors.keys(), c_lengths):
+                #         if c_min != c_max:
+                #             colors[edge] = i_to_blue((length - c_min) / (c_max - c_min))
+                #     for edge, length in zip(t_colors.keys(), t_lengths):
+                #         if t_min != t_max:
+                #             colors[edge] = i_to_red((length - t_min) / (t_max - t_min))
+                # else:
+                #     for edge, length in zip(colors.keys(), c_lengths):
+                #         if c_min != c_max:
+                #             colors[edge] = i_to_rgb((length - c_min) / (c_max - c_min))
+
+        guids = self.artist.draw_edges(edges, colors)
         self.guid_edge = zip(guids, edges)
         compas_rhino.rs.AddObjectsToGroup(guids, group_edges)
 

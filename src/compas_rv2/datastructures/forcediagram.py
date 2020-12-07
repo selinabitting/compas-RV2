@@ -57,6 +57,8 @@ class ForceDiagram(MeshMixin, ForceDiagram):
             uv = self.edge_vector(*edge)
             uv_ = self.primal.edge_vector(*edge_)
             a = angle_vectors_xy(uv, cross_vectors(uv_, (0, 0, 1)), deg=True)
+            if self.primal.edge_attribute(edge_, '_is_tension'):
+                a = 180 - a
             self.edge_attribute(edge, '_a', a)
             self.primal.edge_attribute(edge_, '_a', a)
 
