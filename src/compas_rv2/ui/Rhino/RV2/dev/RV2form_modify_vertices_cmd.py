@@ -40,7 +40,7 @@ def RunCommand(is_interactive):
     compas_rhino.rs.Redraw()
 
     # selection options
-    options = ["All", "ByContinuousEdges", "ByConstraints", "Manual"]
+    options = ["All", "ByContinuousEdges", "Manual"]
     option = compas_rhino.rs.GetString("Selection Type.", strings=options)
     if not option:
         scene.update()
@@ -53,40 +53,40 @@ def RunCommand(is_interactive):
         temp = form.select_edges()
         keys = list(set(flatten([form.datastructure.vertices_on_edge_loop(key) for key in temp])))
 
-    elif option == "ByConstraints":
-        guids = form.datastructure.vertices_attribute('constraints')
-        guids = list(set(list(flatten(list(filter(None, guids))))))
+    # elif option == "ByConstraints":
+    #     guids = form.datastructure.vertices_attribute('constraints')
+    #     guids = list(set(list(flatten(list(filter(None, guids))))))
 
-        if not guids:
-            print('there are no constraints in this form')
-            return
+    #     if not guids:
+    #         print('there are no constraints in this form')
+    #         return
 
-        current = form.settings['color.edges']
-        form.settings['color.edges'] = [120, 120, 120]
-        scene.update()
+    #     current = form.settings['color.edges']
+    #     form.settings['color.edges'] = [120, 120, 120]
+    #     scene.update()
 
-        compas_rhino.rs.ShowObjects(guids)
+    #     compas_rhino.rs.ShowObjects(guids)
 
-        def custom_filter(rhino_object, geometry, component_index):
-            if str(rhino_object.Id) in guids:
-                return True
-            return False
+    #     def custom_filter(rhino_object, geometry, component_index):
+    #         if str(rhino_object.Id) in guids:
+    #             return True
+    #         return False
 
-        constraints = compas_rhino.rs.GetObjects('select constraints', custom_filter=custom_filter)
+    #     constraints = compas_rhino.rs.GetObjects('select constraints', custom_filter=custom_filter)
 
-        if not constraints:
-            return
+    #     if not constraints:
+    #         return
 
-        keys = []
-        for guid in constraints:
-            for key, attr in form.datastructure.vertices(data=True):
-                if attr['constraints']:
-                    if str(guid) in attr['constraints']:
-                        keys.append(key)
-        keys = list(set(keys))
+    #     keys = []
+    #     for guid in constraints:
+    #         for key, attr in form.datastructure.vertices(data=True):
+    #             if attr['constraints']:
+    #                 if str(guid) in attr['constraints']:
+    #                     keys.append(key)
+    #     keys = list(set(keys))
 
-        compas_rhino.rs.HideObjects(guids)
-        form.settings['color.edges'] = current
+    #     compas_rhino.rs.HideObjects(guids)
+    #     form.settings['color.edges'] = current
 
     elif option == "Manual":
         keys = form.select_vertices()

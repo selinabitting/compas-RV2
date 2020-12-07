@@ -48,6 +48,7 @@ def RunCommand(is_interactive):
     elif option == "FlipEdges":
         RV2force_flip_edges_cmd.RunCommand(True)
 
+
 # ==============================================================================
 # Main
 # ==============================================================================

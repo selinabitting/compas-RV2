@@ -50,7 +50,7 @@ class Tree_Table(forms.TreeGridView):
                     sub_setting_key = sub_setting_str[-1]
                     items_where = getattr(sceneNode.datastructure, '%s_where' % table_type)
                     color.update({str(key): settings.get(full_setting_key) for key in items_where({sub_setting_key: True})})
-                    color.update({str(key): settings.get(full_setting_key) for key in items_where({'_'+sub_setting_key: True})})  # including read-only ones
+                    color.update({str(key): settings.get(full_setting_key) for key in items_where({'_' + sub_setting_key: True})})  # including read-only ones
 
         def OnCellFormatting(sender, e):
             try:
@@ -63,7 +63,7 @@ class Tree_Table(forms.TreeGridView):
                     key = e.Item.Values[0]
                     if key in color:
                         rgb = color[key]
-                        rgb = [c/255. for c in rgb]
+                        rgb = [c / 255.0 for c in rgb]
                         e.BackgroundColor = drawing.Color(*rgb)
 
             except Exception as exc:
@@ -221,7 +221,6 @@ class Tree_Table(forms.TreeGridView):
     def HeaderClickEvent(self):
         def on_hearderClick(sender, event):
             try:
-                # print(event.Column.HeaderText)
                 sender.sort(event.Column.HeaderText)
             except Exception as e:
                 print(e)
@@ -296,7 +295,7 @@ class Tree_Table(forms.TreeGridView):
                         datastructure.edge_midpoint(*edge)[0],
                         datastructure.edge_midpoint(*edge)[1],
                         0
-                        ]
+                    ]
                 else:
                     pos = datastructure.edge_midpoint(*edge)
 
@@ -330,8 +329,7 @@ class Tree_Table(forms.TreeGridView):
                         datastructure.vertex_coordinates(vertex)[0],
                         datastructure.vertex_coordinates(vertex)[1],
                         0
-                        ]
-
+                    ]
                 else:
                     pos = datastructure.vertex_coordinates(vertex)
 
@@ -374,7 +372,7 @@ class Tree_Table(forms.TreeGridView):
         else:
             labels, keys = get_faces_lable()
 
-        guids = compas_rhino.draw_labels(labels, layer='Default', clear=False, redraw=True) # noqa E501
+        guids = compas_rhino.draw_labels(labels, layer='Default', clear=False, redraw=True)  # noqa E501
         guid_lable = dict(zip(guids, keys))
         self._guid_lable.update(guid_lable)
 

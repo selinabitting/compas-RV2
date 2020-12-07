@@ -21,6 +21,7 @@ __all__ = ["AttributesForm"]
 
 
 class Tree_Table(forms.TreeGridView):
+
     def __init__(self, ShowHeader=True, sceneNode=None, table_type=None):
         self.ShowHeader = ShowHeader
         self.Height = 300

@@ -24,7 +24,7 @@ def RunCommand(is_interactive):
         print("There is no Pattern in the scene.")
         return
 
-    options = ["AllBoundaryVertices", "Corners", "ByContinuousEdges", "ByConstraints", "Manual"]
+    options = ["AllBoundaryVertices", "Corners", "ByContinuousEdges", "Manual"]
 
     while True:
         option = compas_rhino.rs.GetString("Selection mode:", strings=options)
@@ -43,40 +43,40 @@ def RunCommand(is_interactive):
             temp = pattern.select_edges()
             keys = list(set(flatten([pattern.datastructure.vertices_on_edge_loop(key) for key in temp])))
 
-        elif option == "ByConstraints":
-            guids = pattern.datastructure.vertices_attribute('constraints')
-            guids = list(set(list(flatten(list(filter(None, guids))))))
+        # elif option == "ByConstraints":
+        #     guids = pattern.datastructure.vertices_attribute('constraints')
+        #     guids = list(set(list(flatten(list(filter(None, guids))))))
 
-            if not guids:
-                print('there are no constraints in this pattern')
-                return
+        #     if not guids:
+        #         print('there are no constraints in this pattern')
+        #         return
 
-            current = pattern.settings['color.edges']
-            pattern.settings['color.edges'] = [120, 120, 120]
-            scene.update()
+        #     current = pattern.settings['color.edges']
+        #     pattern.settings['color.edges'] = [120, 120, 120]
+        #     scene.update()
 
-            compas_rhino.rs.ShowObjects(guids)
+        #     compas_rhino.rs.ShowObjects(guids)
 
-            def custom_filter(rhino_object, geometry, component_index):
-                if str(rhino_object.Id) in guids:
-                    return True
-                return False
+        #     def custom_filter(rhino_object, geometry, component_index):
+        #         if str(rhino_object.Id) in guids:
+        #             return True
+        #         return False
 
-            constraints = compas_rhino.rs.GetObjects('select constraints', custom_filter=custom_filter)
+        #     constraints = compas_rhino.rs.GetObjects('select constraints', custom_filter=custom_filter)
 
-            if not constraints:
-                return
+        #     if not constraints:
+        #         return
 
-            keys = []
-            for guid in constraints:
-                for key, attr in pattern.datastructure.vertices(data=True):
-                    if attr['constraints']:
-                        if str(guid) in attr['constraints']:
-                            keys.append(key)
-            keys = list(set(keys))
+        #     keys = []
+        #     for guid in constraints:
+        #         for key, attr in pattern.datastructure.vertices(data=True):
+        #             if attr['constraints']:
+        #                 if str(guid) in attr['constraints']:
+        #                     keys.append(key)
+        #     keys = list(set(keys))
 
-            compas_rhino.rs.HideObjects(guids)
-            pattern.settings['color.edges'] = current
+        #     compas_rhino.rs.HideObjects(guids)
+        #     pattern.settings['color.edges'] = current
 
         elif option == "Manual":
             keys = pattern.select_vertices()
