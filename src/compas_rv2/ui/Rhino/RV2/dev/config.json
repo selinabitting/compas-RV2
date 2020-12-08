@@ -128,7 +128,8 @@
             {"name": "RV2toolbar_modify_thrust",        "menu_text": "Modify Thrust Diagram",           "icon": 31,     "tooltip": "Modify Thrust Diagram"},
 
             {"name": "RV2redraw",                       "menu_text": "Redraw",                          "icon": 36,     "tooltip": "Refresh Scene"},
-            {"name": "RV2clear_all",                    "menu_text": "Clear All",                       "icon": 37,     "tooltip": "Clear Scene"}
+            {"name": "RV2clear_all",                    "menu_text": "Clear All",                       "icon": 37,     "tooltip": "Clear Scene"},
+            {"name": "RV2rui",                          "menu_text": "Load RUI"                                   }
         ],
 
         "menus":
