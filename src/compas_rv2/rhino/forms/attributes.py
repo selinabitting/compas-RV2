@@ -2,27 +2,26 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-
-import compas
 import ast
+
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino.forms.settings import Settings_Tab
 
-try:
-    import rhinoscriptsyntax as rs
-    import scriptcontext as sc
-    find_object = sc.doc.Objects.Find
-    import Eto.Drawing as drawing
-    import Eto.Forms as forms
-    import Rhino
-except Exception:
-    compas.raise_if_ironpython()
+import rhinoscriptsyntax as rs
+import scriptcontext as sc
+
+import Eto.Drawing as drawing
+import Eto.Forms as forms
+import Rhino
+
+find_object = sc.doc.Objects.Find
 
 
 __all__ = ["AttributesForm"]
 
 
 class Tree_Table(forms.TreeGridView):
+
     def __init__(self, ShowHeader=True, sceneNode=None, table_type=None):
         self.ShowHeader = ShowHeader
         self.Height = 300

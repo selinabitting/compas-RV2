@@ -1,6 +1,7 @@
-compas
-compas_cloud
-compas_tna
-compas_skeleton
-compas_triangle
-compas_singular
+COMPAS==0.17.2
+compas_cloud==0.1.0
+compas_tna==0.1.5
+compas_triangle==1.0.1
+compas_skeleton==1.0.0
+compas_singular @ git+git://github.com/BlockResearchGroup/compas_singular.git@d2e0b23723d050916907bb5c77fd18616652a27e
+numpy==1.19.2

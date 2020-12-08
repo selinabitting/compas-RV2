@@ -7,29 +7,46 @@ from compas_rhino.uninstall_plugin import uninstall_plugin
 import argparse
 import os
 import json
+import sys
+import importlib
+
+
+PLUGIN_NAME = "RV2"
+PACKAGES = ['compas', 'compas_rhino', 'compas_tna', 'compas_cloud', 'compas_skeleton', 'compas_singular', 'compas_rv2']
+
+
+def is_editable(project_name):
+    """Is distribution an editable install?"""
+    for path_item in sys.path:
+        egg_link = os.path.join(path_item, "%s.egg-link" % project_name)
+        if os.path.isfile(egg_link):
+            return True
+    return False
+
 
 if __name__ == '__main__':
 
-    packages = ['compas', 'compas_rhino', 'compas_tna', 'compas_cloud', 'compas_skeleton', 'compas_singular', 'compas_rv2']
+    parser = argparse.ArgumentParser(
+    description='RhinoVault2 Installation command-line utility.')
 
-    import importlib
+    parser.add_argument('--remove_plugins', action='store_true', help="remove all existing plugins")
+    parser.add_argument('--remove_packages', action='store_true', help="remove all existing compas packages")
+    args = parser.parse_args()
 
     print("\n", "-"*10, "Checking packages", "-"*10)
-    for p in packages:
+
+    for p in PACKAGES:
         try:
             importlib.import_module(p)
-            print('   {} {}'.format(p.ljust(20), "OK"))
-        except ImportError as e:
+        except ImportError:
             print(p, "ERROR: cannot be imported, make sure it is installed")
-            raise ImportError(e)
+            raise
+        else:
+            print('   {} {}'.format(p.ljust(20), "OK"))
 
-    parser = argparse.ArgumentParser(
-        description='RhinoVault2 Installation command-line utility.')
+    is_dev = is_editable("compas-RV2")
+    print("RV2 is editable install: ", is_dev)
 
-    parser.add_argument('--dev', action='store_true', help="install dev version of RV2 from current env")
-    parser.add_argument('--remove_plugins', action='store_true', help="remove all existing plugins")
-    parser.add_argument('--plugin_path', help="The path to the plugin directory.")
-    args = parser.parse_args()
 
     if args.remove_plugins:
         print("\n", "-"*10, "Removing existing plugins", "-"*10)
@@ -39,24 +56,26 @@ if __name__ == '__main__':
         for p in plugins:
             uninstall_plugin(p, version="6.0")
 
-    # print("\n", "-"*10, "Removing existing packages", "-"*10)
-    # uninstall()
+    if args.remove_packages:
+        print("\n", "-"*10, "Removing existing packages", "-"*10)
+        uninstall()
 
     print("\n", "-"*10, "Installing RV2 python plugin", "-"*10)
-    if args.dev:
-        plugin_path = os.path.join(os.path.dirname(__file__), "..", "..", 'ui/Rhino/RV2')
-        plugin_path = os.path.abspath(plugin_path)
-    elif args.plugin_path:
-        plugin_path = args.plugin_path
+
+    plugin_path = os.path.dirname(__file__)
+    plugin_path = os.path.join(plugin_path, 'ui/Rhino/RV2')
+    plugin_path = os.path.abspath(plugin_path)
 
     if os.path.exists(plugin_path):
+        python_plugins_path = compas_rhino._get_python_plugins_path("6.0")
+        print("Plugin path:", python_plugins_path)
         install_plugin(plugin_path, version="6.0")
     else:
         raise RuntimeError("%s does not exist" % plugin_path)
 
     print("\n", "-"*10, "Installing COMPAS packages", "-"*10)
 
-    install(packages=packages)
+    install(packages=PACKAGES)
 
     print("\n", "-"*10, "Installation is successful", "-"*10)
 
@@ -64,35 +83,39 @@ if __name__ == '__main__':
 
     os.makedirs(compas.APPDATA, exist_ok=True)
     register_json_path = os.path.join(compas.APPDATA, "compas_plugins.json")
+
     if os.path.exists(register_json_path):
         register_json = json.load(open(register_json_path))
+        if not isinstance(register_json["Plugins"], dict):
+            register_json["Plugins"] = {}
     else:
-        register_json = {"Plugins": [], "Current": "dev"}
+        register_json = {"Plugins": {}, "Current": None}
 
-    if args.dev:
-        register_json["Current"] = "dev"
-        print("    Registered as dev installation")
 
-    else:
+    plugin_info = {
+        "dev": is_dev,
+        "path": plugin_path,
+        "python": sys.executable,
+        "packages": {},
+    }
 
-        if args.plugin_path:
-            plugin_path = os.path.abspath(args.plugin_path)
-        else:
-            plugin_path = os.path.join(os.getcwd(), "..")
-            plugin_path = os.path.abspath(plugin_path)
+    for name in PACKAGES:
+        package = importlib.import_module(name)
+        plugin_info["packages"][name] = {"version": package.__version__}
 
-        print("registering to", register_json_path)
+    print(plugin_info)
 
-        if plugin_path not in register_json["Plugins"]:
-            register_json["Plugins"].append(plugin_path)
+    print("registering to", register_json_path)
 
-        register_json["Current"] = plugin_path
+    register_json["Plugins"][PLUGIN_NAME] = plugin_info
+    register_json["Current"] = PLUGIN_NAME
 
-        print(" "*4, plugin_path, "is registered")
+    print(" "*4, plugin_path, "is registered")
 
-    for plugin_path in register_json["Plugins"]:
-        if not os.path.exists(plugin_path):
-            register_json["Plugins"].remove(plugin_path)
+    for name in register_json["Plugins"]:
+        plugin = register_json["Plugins"][name]
+        if not os.path.exists(plugin["path"]):
+            del register_json["Plugins"][name]
             print("    Removed un-existed path: ", plugin_path)
 
     json.dump(register_json, open(register_json_path, "w"), indent=4)

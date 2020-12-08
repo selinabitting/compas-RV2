@@ -10,7 +10,6 @@ compas_rv2
     :maxdepth: 1
 
     compas_rv2.datastructures
-    compas_rv2.equilibrium
     compas_rv2.rhino
     compas_rv2.scene
 
@@ -25,7 +24,7 @@ __author__ = ['tom van mele <van.mele@arch.ethz.ch>']
 __copyright__ = 'Block Research Group - ETH Zurich'
 __license__ = 'MIT License'
 __email__ = 'van.mele@arch.ethz.ch'
-__version__ = '0.1.0'
+__version__ = '1.1.7'
 
 
 HERE = os.path.dirname(__file__)

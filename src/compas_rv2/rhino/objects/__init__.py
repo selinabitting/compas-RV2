@@ -14,6 +14,7 @@ from .patternobject import PatternObject
 from .formobject import FormObject
 from .forceobject import ForceObject
 from .thrustobject import ThrustObject
+from .subdobject import SubdObject  # noqa: F401
 
 MeshObject.register(Skeleton, SkeletonObject)
 MeshObject.register(Pattern, PatternObject)

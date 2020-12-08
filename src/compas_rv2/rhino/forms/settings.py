@@ -2,17 +2,12 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-
-import compas
 from compas_rv2.rhino import get_scene
 from collections import OrderedDict
 
-try:
-    import Eto.Drawing as drawing
-    import Eto.Forms as forms
-    import Rhino.UI
-except Exception:
-    compas.raise_if_ironpython()
+import Eto.Drawing as drawing
+import Eto.Forms as forms
+import Rhino.UI
 
 
 __all__ = ["SettingsForm", "Settings_Tab"]
@@ -71,8 +66,8 @@ class Settings_Tab(forms.TabPage):
                     control = forms.NumericUpDown()
                     if type(value) == float:
                         digits = len(str(value).split('.')[-1])
-                        control.DecimalPlaces = digits
-                        control.Increment = 0.1 ** digits
+                        control.DecimalPlaces = (digits+1)
+                        control.Increment = 0.1 ** (digits+1)
                     control.Value = value
                     control.ValueChanged += tab.EditEvent(key)
                 else:
@@ -236,5 +231,5 @@ class SettingsForm(forms.Dialog[bool]):
 if __name__ == "__main__":
 
     scene = get_scene()
-    SettingsForm.from_scene(scene)
-    # SettingsForm.from_settings(scene.settings, "solver")
+    SettingsForm.from_scene(scene, object_types=["PatternObject", "FormObject", "ForceObject", "ThrustObject"], global_settings=["RV2", "Solvers"])
+    scene.update()

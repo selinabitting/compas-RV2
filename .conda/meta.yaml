@@ -1,0 +1,38 @@
+{% set name = "compas-RV2" %}
+{% set version = "1.1.5" %}
+{% set hash = "..." %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/blockresearchgroup/{{ name }}/archive/v{{ version }}.tar.gz
+  sha256: {{ hash }}
+
+build:
+  number: 0
+  skip: true  # [linux or py<36]
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
+
+test:
+  imports:
+    - compas_rv2
+    - compas_tna
+    - compas_skeleton
+    - compas_singular
+    - compas_triangle
+    - compas_cloud
+
+about:
+  home: https://github.com/blockresearchgroup/compas-RV2
+  license: MIT
+  license_file: LICENSE
+  summary: 'Funicular Form Finding with TNA based on COMPAS.'
+  dev_url: https://github.com/blockresearchgroup/compas-RV2
+  doc_url: https://blockresearchgroup.gitbook.io/rv2/
+
+extra:
+  recipe-maintainers:
+    - brgcode
+    - licini

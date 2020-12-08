@@ -8,20 +8,30 @@ import argparse
 
 parser = argparse.ArgumentParser(description='RhinoVault2 release package tool.')
 parser.add_argument('--skip_packing', action='store_true', help="skip packaging to dist folder")
-parser.add_argument('--rhi', action='store_true', help="pack into rhi installer")
 parser.add_argument('--version', default="v0.0.0", help="version number")
 
 args = parser.parse_args()
 
+HERE = os.path.dirname(__file__)
+
+if os.path.exists("dist"):
+    shutil.rmtree("dist")
+os.makedirs("dist/RV2")
 
 start = time.time()
-conda_pack.pack(output="env.zip", verbose=True, n_threads=-1, force=True)
+conda_pack.pack(output="dist/env.zip", verbose=True, n_threads=-1, force=True)
 
-print('unpacking to ui/Rhino/RV2/dev/env')
-shutil.unpack_archive("env.zip", "ui/Rhino/RV2/dev/env")
+print('unpacking to dist/env')
+shutil.unpack_archive("dist/env.zip", "dist/RV2/env")
+
+print("copy install.bat")
+shutil.copyfile(os.path.join(HERE, "install.bat"), "dist/RV2/install.bat")
+
+print("copy rui")
+shutil.copyfile(os.path.join(HERE, "..", "src/compas_rv2/ui/Rhino/RV2/dev/RV2.rui"), "dist/RV2/RV2.rui")
 
 print('removing unnecessary files')
-for root, dirs, files in os.walk("ui/Rhino/RV2/dev/env"):
+for root, dirs, files in os.walk("dist/RV2/env"):
 
     for d in dirs:
         if d.find("node_modules") >= 0:
@@ -39,19 +49,10 @@ if args.skip_packing:
 
 else:
 
-    os.remove("env.zip")
+    os.remove("dist/env.zip")
     print('re-packing whole plugin')
 
-    if os.path.exists("dist"):
-        shutil.rmtree("dist")
-        os.mkdir("dist")
-
-    if args.rhi:
-        shutil.make_archive("dist/RV2", "zip", "ui/Rhino/RV2/dev")
-        os.rename("dist/RV2.zip", "dist/RV2.rhi")
-    else:
-        shutil.make_archive(f"dist/RV2_{args.version}", "zip", "ui/Rhino/RV2")
-
-    shutil.rmtree("ui/Rhino/RV2/dev/env")
+    shutil.make_archive(f"dist/RV2_{args.version}", "zip", "dist/RV2")
+    shutil.rmtree("dist/RV2")
 
     print('finished, took %s s' % (time.time()-start))

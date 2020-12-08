@@ -6,7 +6,7 @@ from compas.geometry import angle_vectors_xy
 from compas.geometry import cross_vectors
 
 from compas_tna.diagrams import ForceDiagram
-from compas_rv2.datastructures.meshmixin import MeshMixin
+from .meshmixin import MeshMixin
 
 
 __all__ = ['ForceDiagram']
@@ -57,6 +57,8 @@ class ForceDiagram(MeshMixin, ForceDiagram):
             uv = self.edge_vector(*edge)
             uv_ = self.primal.edge_vector(*edge_)
             a = angle_vectors_xy(uv, cross_vectors(uv_, (0, 0, 1)), deg=True)
+            if self.primal.edge_attribute(edge_, '_is_tension'):
+                a = 180 - a
             self.edge_attribute(edge, '_a', a)
             self.primal.edge_attribute(edge_, '_a', a)
 
