@@ -40,7 +40,7 @@ def RunCommand(is_interactive):
     compas_rhino.rs.Redraw()
 
     # selection options
-    options = ["All", "ByContinuousEdges", "Manual"]
+    options = ["All", "AllBoundaries", "ByContinuousEdges", "Manual"]
     option = compas_rhino.rs.GetString("Selection Type.", strings=options)
 
     if not option:
@@ -49,6 +49,9 @@ def RunCommand(is_interactive):
 
     if option == "All":
         keys = list(form.datastructure.vertices())
+
+    elif option == "AllBoundaries":
+        keys = list(set(flatten([form.datastructure.face_vertices(face) for face in form.datastructure.faces() if form.datastructure.is_face_on_boundary(face)])))
 
     elif option == "ByContinuousEdges":
         temp = form.select_edges()
