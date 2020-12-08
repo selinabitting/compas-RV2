@@ -52,7 +52,7 @@ setup(
     project_urls={},
     packages=['compas_rv2'],
     package_dir={'': 'src'},
-    package_data={'': ['ui/**']},
+    package_data={'': ['ui/**', 'web/electron.zip']},
     data_files=[],
     include_package_data=True,
     zip_safe=False,
