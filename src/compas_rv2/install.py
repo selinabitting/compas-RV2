@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
     print("\n", "-"*10, "Installing COMPAS packages", "-"*10)
 
-    install(packages=PACKAGES)
+    install(packages=PACKAGES, version=args.rhino_version)
 
     print("\n", "-"*10, "Installation is successful", "-"*10)
 
