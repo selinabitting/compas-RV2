@@ -23,6 +23,5 @@ exclude requirements-dev.txt
 exclude pytest.ini .bumpversion.cfg .editorconfig
 exclude tasks.py
 exclude CONTRIBUTING.md
-exclude src/compas_rv2/web/electron.zip
 
 global-exclude *.py[cod] __pycache__ *.dylib *.nb[ic] .DS_Store Thumbs.db
