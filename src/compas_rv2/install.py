@@ -27,7 +27,7 @@ def is_editable(project_name):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
-    description='RhinoVault2 Installation command-line utility.')
+        description='RhinoVault2 Installation command-line utility.')
 
     parser.add_argument('--remove_plugins', action='store_true', help="remove all existing plugins")
     parser.add_argument('--remove_packages', action='store_true', help="remove all existing compas packages")
@@ -46,7 +46,6 @@ if __name__ == '__main__':
 
     is_dev = is_editable("compas-RV2")
     print("RV2 is editable install: ", is_dev)
-
 
     if args.remove_plugins:
         print("\n", "-"*10, "Removing existing plugins", "-"*10)
@@ -90,7 +89,6 @@ if __name__ == '__main__':
             register_json["Plugins"] = {}
     else:
         register_json = {"Plugins": {}, "Current": None}
-
 
     plugin_info = {
         "dev": is_dev,
