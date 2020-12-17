@@ -35,20 +35,20 @@ def skeleton_dynamic_draw_leafextend(skeletonobject):
     skeletonobject.dynamic_draw_width('leaf_extend')
 
 
-# def skeleton_add_lines(skeletonobject):
-#     if skeletonobject.skeleton.skeleton_branches:
-#         skeletonobject.add_lines()
-#     else:
-#         print("cannot add lines to a dome skeleton!")
-#         return
+def skeleton_add_lines(skeletonobject):
+    if skeletonobject.skeleton.skeleton_branches:
+        skeletonobject.add_lines()
+    else:
+        print("cannot add lines to a dome skeleton!")
+        return
 
 
-# def skeleton_remove_lines(skeletonobject):
-#     if skeletonobject.skeleton.skeleton_branches:
-#         skeletonobject.remove_lines()
-#     else:
-#         print("no lines to be removed!")
-#         return
+def skeleton_remove_lines(skeletonobject):
+    if skeletonobject.skeleton.skeleton_branches:
+        skeletonobject.remove_lines()
+    else:
+        print("no lines to be removed!")
+        return
 
 
 def skeleton_subdivide(skeletonobject):
@@ -93,16 +93,16 @@ config = {
             "message": "Leaf_Extend",
             "action": skeleton_dynamic_draw_leafextend
         },
-        # {
-        #     "name": "AddLines",
-        #     "message": "Add_Lines",
-        #     "action": skeleton_add_lines
-        # },
-        # {
-        #     "name": "RemoveLines",
-        #     "message": "Remove_Lines",
-        #     "action": skeleton_remove_lines
-        # },
+        {
+            "name": "AddLines",
+            "message": "Add_Lines",
+            "action": skeleton_add_lines
+        },
+        {
+            "name": "RemoveLines",
+            "message": "Remove_Lines",
+            "action": skeleton_remove_lines
+        },
         {
             "name": "Subdivide",
             "message": "Subdivide",
