@@ -33,9 +33,13 @@ def RunCommand(is_interactive):
     boundary_guids = compas_rhino.select_curves('Select outer boundary.')
     if not boundary_guids:
         return
+    compas_rhino.rs.UnselectAllObjects()
 
     hole_guids = compas_rhino.select_curves('Select inner boundaries.')
+    compas_rhino.rs.UnselectAllObjects()
+
     segments_guids = compas_rhino.select_curves('Select constraint curves.')
+    compas_rhino.rs.UnselectAllObjects()
 
     target_length = rs.GetReal('Specifiy target edge length.', 1.0)
     if not target_length:
