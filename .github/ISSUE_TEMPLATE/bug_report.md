@@ -26,7 +26,7 @@ If applicable, add screenshots or video record to help explain your problem.
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
  - Rhino version [e.g. 6, 7]
- - Rhino Vault2 version [e.g. 1.1.7]
+ - RhinoVault2 version [e.g. 1.1.7]
 
 **Additional context**
 Add any other context about the problem here.
