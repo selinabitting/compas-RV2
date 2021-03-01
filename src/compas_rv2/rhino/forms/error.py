@@ -8,7 +8,9 @@ import traceback
 import Eto.Drawing as drawing
 import Eto.Forms as forms
 import Rhino.UI
-
+import compas_rv2
+import compas
+import Rhino
 
 __all__ = ["ErrorForm", "ErrorHandler"]
 
@@ -34,6 +36,42 @@ def ErrorHandler(title="Error", showLocalTraceback=True):
     return outer
 
 
+ISSUE_TEMPLATE = """---
+name: Bug report
+about: Create a report to help us improve
+
+---
+<!-- The link below shows a list of known-issues and how to fix them -->
+<!-- https://blockresearchgroup.gitbook.io/rv2/documentation/known-issues -->
+<!-- If the error you encounter is not in the list, please describe it as following -->
+<!-- We thank you on the feedback -->
+
+**Describe the bug**
+```bash
+%s
+```
+
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Please provide an input 3dm file
+2. Describe the command that causes the error
+3. A screenshot of error behavior
+
+**Expected behavior**
+A clear and concise description of what you expected to happen.
+
+**Screenshots**
+If applicable, add screenshots or video record to help explain your problem.
+
+**Desktop (please complete the following information):**
+ - OS: %s
+ - Rhino version %s
+ - RhinoVault2 version %s
+
+**Additional context**
+Add any other context about the problem here.
+"""
+
 class ErrorForm(forms.Dialog):
 
     def __init__(self, error="Unknown", title="Error", width=800, height=400):
@@ -54,7 +92,7 @@ class ErrorForm(forms.Dialog):
 
         sub_layout = forms.DynamicLayout()
         sub_layout.Spacing = drawing.Size(5, 0)
-        sub_layout.AddRow(None, self.cancel)
+        sub_layout.AddRow(None, self.report, self.cancel)
         layout.Items.Add(forms.StackLayoutItem(sub_layout))
 
         self.Content = layout
@@ -72,6 +110,27 @@ class ErrorForm(forms.Dialog):
 
     def on_cancel(self, sender, event):
         self.Close()
+
+    @property
+    def report(self):
+        self.AbortButton = forms.Button(Text='Report Issue')
+        self.AbortButton.Click += self.on_report
+        return self.AbortButton
+
+    def on_report(self, sender, event):
+        import webbrowser
+        title = self.m_textarea.Text.split("\n")[-1] or self.m_textarea.Text.split("\n")[-2]
+
+        _os = "UNKNOWN"
+        if compas.WINDOWS:
+            _os = "Windows"
+        if compas.OSX:
+            _os = "OSX"
+
+        body = ISSUE_TEMPLATE % (self.m_textarea.Text, _os, Rhino.RhinoApp.Version, compas_rv2.__version__)
+        url = 'https://github.com/BlockResearchGroup/compas-RV2/issues/new?title=%s&labels=help wanted&body=%s'% (title, body)
+        url = url.replace("\n", "%0A")
+        webbrowser.open_new_tab(url)
 
 
 if __name__ == "__main__":
