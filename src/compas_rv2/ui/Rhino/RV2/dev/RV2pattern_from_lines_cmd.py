@@ -6,11 +6,13 @@ import compas_rhino
 from compas_rv2.datastructures import Pattern
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
+from compas_rv2.rhino import ErrorHandler
 
 
 __commandname__ = "RV2pattern_from_lines"
 
 
+@ErrorHandler()
 @rv2_undo
 def RunCommand(is_interactive):
 

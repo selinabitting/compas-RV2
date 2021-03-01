@@ -8,11 +8,13 @@ from compas_rv2.datastructures import ForceDiagram
 
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
+from compas_rv2.rhino import ErrorHandler
 
 
 __commandname__ = "RV2force"
 
 
+@ErrorHandler()
 @rv2_undo
 def RunCommand(is_interactive):
 

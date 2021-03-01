@@ -5,6 +5,7 @@ from __future__ import division
 import compas_rhino
 
 from compas_rv2.rhino import get_scene
+from compas_rv2.rhino import ErrorHandler
 
 import RV2pattern_modify_vertices_cmd
 import RV2pattern_modify_edges_cmd
@@ -17,6 +18,7 @@ import RV2pattern_smooth_cmd
 __commandname__ = "RV2toolbar_modify_pattern"
 
 
+@ErrorHandler()
 def RunCommand(is_interactive):
 
     scene = get_scene()

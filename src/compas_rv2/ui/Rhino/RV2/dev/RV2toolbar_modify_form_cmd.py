@@ -5,6 +5,7 @@ from __future__ import division
 import compas_rhino
 
 from compas_rv2.rhino import get_scene
+from compas_rv2.rhino import ErrorHandler
 
 import RV2form_attributes_cmd
 import RV2form_modify_vertices_cmd
@@ -17,6 +18,7 @@ import RV2form_relax_cmd
 __commandname__ = "RV2toolbar_modify_form"
 
 
+@ErrorHandler()
 def RunCommand(is_interactive):
 
     scene = get_scene()

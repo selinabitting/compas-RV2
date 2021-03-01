@@ -4,11 +4,13 @@ from __future__ import division
 
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import AttributesForm
+from compas_rv2.rhino import ErrorHandler
 
 
 __commandname__ = "RV2form_attributes"
 
 
+@ErrorHandler()
 def RunCommand(is_interactive):
 
     scene = get_scene()

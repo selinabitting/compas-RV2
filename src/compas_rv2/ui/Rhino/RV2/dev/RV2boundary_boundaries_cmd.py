@@ -15,6 +15,7 @@ from compas.utilities import pairwise
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import get_proxy
 from compas_rv2.rhino import rv2_undo
+from compas_rv2.rhino import ErrorHandler
 
 
 __commandname__ = "RV2boundary_boundaries"
@@ -94,6 +95,7 @@ def _draw_labels(pattern, openings):
 TOL2 = 0.001 ** 2
 
 
+@ErrorHandler()
 @rv2_undo
 def RunCommand(is_interactive):
     scene = get_scene()

@@ -6,11 +6,13 @@ import compas_rhino
 from compas_rv2.rhino import get_scene
 from compas.utilities import flatten
 from compas_rv2.rhino import rv2_undo
+from compas_rv2.rhino import ErrorHandler
 
 
 __commandname__ = "RV2force_move_vertices"
 
 
+@ErrorHandler()
 @rv2_undo
 def RunCommand(is_interactive):
 
