@@ -8,13 +8,13 @@ from compas.geometry import Translation
 from compas_tna.equilibrium import horizontal_nodal
 from compas_rv2.rhino import HorizontalConduit
 from compas_rv2.rhino.helpers import rv2_undo
-from compas_rv2.rhino import ErrorHandler
+from compas_rv2.rhino import rv2_error
 
 
 __commandname__ = "RV2tna_horizontal"
 
 
-@ErrorHandler()
+@rv2_error()
 @rv2_undo
 def RunCommand(is_interactive):
 

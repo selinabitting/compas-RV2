@@ -8,7 +8,7 @@ from compas_rv2.rhino import get_proxy
 from compas.geometry import subtract_vectors
 from compas.geometry import length_vector
 from compas_rv2.rhino import rv2_undo
-from compas_rv2.rhino import ErrorHandler
+from compas_rv2.rhino import rv2_error
 
 # import Rhino
 
@@ -16,7 +16,7 @@ from compas_rv2.rhino import ErrorHandler
 __commandname__ = "RV2tna_vertical"
 
 
-@ErrorHandler()
+@rv2_error()
 @rv2_undo
 def RunCommand(is_interactive):
 

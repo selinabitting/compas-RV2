@@ -12,13 +12,13 @@ import compas_rv2
 import compas
 import Rhino
 
-__all__ = ["ErrorForm", "ErrorHandler"]
-
-
 from functools import wraps
 
 
-def ErrorHandler(title="Error", showLocalTraceback=True):
+__all__ = ["rv2_error"]
+
+
+def rv2_error(title="Error", showLocalTraceback=True):
     def outer(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -71,6 +71,7 @@ If applicable, add screenshots or video record to help explain your problem.
 **Additional context**
 Add any other context about the problem here.
 """
+
 
 class ErrorForm(forms.Dialog):
 
@@ -136,7 +137,7 @@ class ErrorForm(forms.Dialog):
 if __name__ == "__main__":
     # error = ErrorForm("TEST")
 
-    @ErrorHandler()
+    @rv2_error()
     def break_func():
         raise RuntimeError("some error message")
 

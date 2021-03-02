@@ -4,13 +4,13 @@ from __future__ import division
 
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import SettingsForm
-from compas_rv2.rhino import ErrorHandler
+from compas_rv2.rhino import rv2_error
 
 
 __commandname__ = "RV2settings"
 
 
-@ErrorHandler()
+@rv2_error()
 def RunCommand(is_interactive):
 
     scene = get_scene()

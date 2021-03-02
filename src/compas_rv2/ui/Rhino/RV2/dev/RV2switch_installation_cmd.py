@@ -9,7 +9,7 @@ import json
 import os
 import compas
 from compas_rv2.rhino import select_filepath_open
-from compas_rv2.rhino import ErrorHandler
+from compas_rv2.rhino import rv2_error
 
 
 try:
@@ -38,7 +38,7 @@ def find_conda(conda_exe):
                 return conda_exe
 
 
-@ErrorHandler()
+@rv2_error()
 def run(cmd):
     # p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=compas._os.prepare_environment())

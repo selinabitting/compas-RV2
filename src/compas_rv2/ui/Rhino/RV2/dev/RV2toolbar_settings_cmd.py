@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 from compas_rv2.rhino import get_scene
-from compas_rv2.rhino import ErrorHandler
+from compas_rv2.rhino import rv2_error
 
 import RV2settings_cmd
 
@@ -11,7 +11,7 @@ import RV2settings_cmd
 __commandname__ = "RV2toolbar_settings"
 
 
-@ErrorHandler()
+@rv2_error()
 def RunCommand(is_interactive):
 
     scene = get_scene()
