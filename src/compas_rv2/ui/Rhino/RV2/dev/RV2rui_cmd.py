@@ -7,6 +7,8 @@ import os
 import compas
 import compas_rhino
 import compas_rv2
+from compas_rv2.rhino import rv2_error
+
 
 
 __commandname__ = "RV2rui"
@@ -16,6 +18,7 @@ LIB = os.path.dirname(compas_rv2.__file__)
 FILE = os.path.join(LIB, 'ui', 'Rhino', 'RV2', 'dev', 'RV2.rui')
 
 
+@rv2_error()
 def RunCommand(is_interactive):
 
     if not compas.WINDOWS:

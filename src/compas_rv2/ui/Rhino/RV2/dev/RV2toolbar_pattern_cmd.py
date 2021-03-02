@@ -5,6 +5,7 @@ from __future__ import division
 import compas_rhino
 
 from compas_rv2.rhino import get_scene
+from compas_rv2.rhino import rv2_error
 
 import RV2pattern_from_lines_cmd
 import RV2pattern_from_mesh_cmd
@@ -17,6 +18,7 @@ import RV2pattern_from_features_cmd
 __commandname__ = "RV2toolbar_pattern"
 
 
+@rv2_error()
 def RunCommand(is_interactive):
 
     scene = get_scene()
