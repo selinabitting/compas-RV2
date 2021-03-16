@@ -25,8 +25,7 @@ class MenuForm(forms.Dialog[bool]):
         self.Title = "RhinoVault2"
         layout = forms.StackLayout()
         layout.Spacing = 5
-        layout.HorizontalContentAlignment = forms.HorizontalAlignment.Stretch
-        # layout.Items.Add(tab_items)
+        # layout.HorizontalContentAlignment = forms.HorizontalAlignment.Stretch
         self.load_config(layout)
         self.Width = 300
         self.Height = 900
@@ -46,15 +45,33 @@ class MenuForm(forms.Dialog[bool]):
             if "command" in item:
                 layout.Items.Add(forms.Button(Text=item["command"]))
             if "items" in item:
-                groupbox = forms.GroupBox(Text=item["name"])
+                sub_layout = forms.DynamicLayout()
+                sub_layout.Spacing = drawing.Size(5, 0)
+                collapseButton = forms.Button(Text="+", MinimumSize = drawing.Size.Empty)
+                sub_layout.AddRow(forms.Label(Text=item["name"]), collapseButton)
+                layout.Items.Add(forms.StackLayoutItem(sub_layout))
+                groupbox = forms.GroupBox()
                 groupbox.Padding = drawing.Padding(5)
                 grouplayout = forms.StackLayout()
                 self.add_items(item["items"], grouplayout)
                 groupbox.Content = grouplayout
                 layout.Items.Add(groupbox)
+                groupbox.Visible = False
+
+                def on_click(groupbox):
+                    def _on_click(sender, e):
+                        if groupbox.Visible:
+                            groupbox.Visible = False
+                            sender.Text = "+"
+                        else:
+                            groupbox.Visible = True
+                            sender.Text = "-"
+                    return _on_click
                 
+                collapseButton.Click += on_click(groupbox)
+
             if "type" in item and item["type"] == "separator":
-                layout.Items.Add(forms.Label(Text="-"*20))
+                layout.Items.Add(forms.Label(Text="_"*30))
 
     def show(self):
         Rhino.UI.EtoExtensions.ShowSemiModal(self, Rhino.RhinoDoc.ActiveDoc, Rhino.UI.RhinoEtoApp.MainWindow)
