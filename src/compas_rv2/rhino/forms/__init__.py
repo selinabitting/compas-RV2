@@ -7,5 +7,6 @@ from .attributes import AttributesForm  # noqa: F401 F403
 from .settings import SettingsForm  # noqa: F401 F403
 from .error import rv2_error  # noqa: F401 F403
 from .modifyattributes import ModifyAttributesForm  # noqa: F401 F403
+from .menu import MenuForm  # noqa: F401 F403
 
 __all__ = [name for name in dir() if not name.startswith('_')]
