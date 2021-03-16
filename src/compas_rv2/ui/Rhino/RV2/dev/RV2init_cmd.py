@@ -55,8 +55,8 @@ def RunCommand(is_interactive):
 
     Browser()
 
-    rv2_error = rv2_error(title="Server side Error", showLocalTraceback=False)
-    sc.sticky["RV2.proxy"] = Proxy(rv2_error=rv2_error)
+    errorHandler = rv2_error(title="Server side Error", showLocalTraceback=False)
+    sc.sticky["RV2.proxy"] = Proxy(errorHandler=errorHandler)
     sc.sticky["RV2.proxy"].restart()
 
     sc.sticky["RV2.system"] = {
