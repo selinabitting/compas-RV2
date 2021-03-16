@@ -11,24 +11,25 @@ import Rhino.UI
 
 import json
 import os
+import importlib
+import sys
 
 
 __all__ = ["MenuForm"]
 
 HERE = os.path.dirname(__file__)
 UI_FOLDER = os.path.join(HERE, "..", "..", "ui/Rhino/RV2/dev")
+sys.path.append(UI_FOLDER)
 
 class MenuForm(forms.Form):
 
     def setup(self):
-
+        self.Owner = Rhino.UI.RhinoEtoApp.MainWindow
         self.Title = "RhinoVault2"
         layout = forms.StackLayout()
         layout.Spacing = 5
-        # layout.HorizontalContentAlignment = forms.HorizontalAlignment.Stretch
         self.load_config(layout)
         self.Width = 300
-        self.Height = 900
 
         self.Content = forms.Scrollable()
         self.Content.Content = layout
@@ -38,25 +39,36 @@ class MenuForm(forms.Form):
     def load_config(self, layout):
         config = json.load(open(os.path.join(UI_FOLDER, "config.json")))
         menu = config["ui"]["menus"][0]
-        self.add_items(menu["items"], layout)
+        commands = {cmd["name"]:cmd for cmd in config["ui"]["commands"]}
+        self.add_items(menu["items"], layout, commands)
 
-    def add_items(self, items, layout):
+    def add_items(self, items, layout, commands):
         for item in items:
             if "command" in item:
-                layout.Items.Add(forms.Button(Text=item["command"]))
+                cmd = commands[item["command"]]
+                button = forms.Button(Text=cmd["menu_text"])
+                layout.Items.Add(button)
+                package = importlib.import_module("%s_cmd"%item["command"])
+                def on_click(package):
+                    def _on_click(sender, e):
+                        package.RunCommand(True)
+                    return _on_click
+
+                button.Click += on_click(package)
+
             if "items" in item:
                 sub_layout = forms.DynamicLayout()
                 sub_layout.Spacing = drawing.Size(5, 0)
                 collapseButton = forms.Button(Text="+", MinimumSize = drawing.Size.Empty)
                 sub_layout.AddRow(forms.Label(Text=item["name"]), collapseButton)
                 layout.Items.Add(forms.StackLayoutItem(sub_layout))
-                groupbox = forms.GroupBox()
+                groupbox = forms.GroupBox(Visible=False)
                 groupbox.Padding = drawing.Padding(5)
                 grouplayout = forms.StackLayout()
-                self.add_items(item["items"], grouplayout)
+                self.add_items(item["items"], grouplayout, commands)
                 groupbox.Content = grouplayout
                 layout.Items.Add(groupbox)
-                groupbox.Visible = False
+               
 
                 def on_click(groupbox):
                     def _on_click(sender, e):
@@ -73,17 +85,12 @@ class MenuForm(forms.Form):
             if "type" in item and item["type"] == "separator":
                 layout.Items.Add(forms.Label(Text="_"*30))
 
-    # def show(self):
-    #     Rhino.UI.EtoExtensions.ShowSemiModal(self, Rhino.RhinoDoc.ActiveDoc, Rhino.UI.RhinoEtoApp.MainWindow)
-
 
 
 if __name__ == "__main__":
 
     m = MenuForm()
     m.setup()
-
-    m.Owner = Rhino.UI.RhinoEtoApp.MainWindow
     m.Show()
 
     # m.show()
