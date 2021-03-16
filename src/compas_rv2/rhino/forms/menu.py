@@ -18,7 +18,7 @@ __all__ = ["MenuForm"]
 HERE = os.path.dirname(__file__)
 UI_FOLDER = os.path.join(HERE, "..", "..", "ui/Rhino/RV2/dev")
 
-class MenuForm(forms.Dialog[bool]):
+class MenuForm(forms.Form):
 
     def setup(self):
 
@@ -73,8 +73,8 @@ class MenuForm(forms.Dialog[bool]):
             if "type" in item and item["type"] == "separator":
                 layout.Items.Add(forms.Label(Text="_"*30))
 
-    def show(self):
-        Rhino.UI.EtoExtensions.ShowSemiModal(self, Rhino.RhinoDoc.ActiveDoc, Rhino.UI.RhinoEtoApp.MainWindow)
+    # def show(self):
+    #     Rhino.UI.EtoExtensions.ShowSemiModal(self, Rhino.RhinoDoc.ActiveDoc, Rhino.UI.RhinoEtoApp.MainWindow)
 
 
 
@@ -82,4 +82,8 @@ if __name__ == "__main__":
 
     m = MenuForm()
     m.setup()
-    m.show()
+
+    m.Owner = Rhino.UI.RhinoEtoApp.MainWindow
+    m.Show()
+
+    # m.show()
