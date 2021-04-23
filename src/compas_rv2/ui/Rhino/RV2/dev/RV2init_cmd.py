@@ -10,7 +10,7 @@ import compas_rhino
 from compas_cloud import Proxy  # noqa: E402
 from compas_rv2.web import Browser  # noqa: E402
 from compas_rv2.scene import Scene  # noqa: E402
-from compas_rv2.rhino import ErrorHandler  # noqa: E402
+from compas_rv2.rhino import rv2_error  # noqa: E402
 from compas_rv2.activate import check
 from compas_rv2.activate import activate
 
@@ -40,7 +40,7 @@ HERE = compas_rhino.get_document_dirname()
 HOME = os.path.expanduser('~')
 CWD = HERE or HOME
 
-
+@rv2_error()
 def RunCommand(is_interactive):
 
     if check():
@@ -55,7 +55,7 @@ def RunCommand(is_interactive):
 
     Browser()
 
-    errorHandler = ErrorHandler(title="Server side Error", showLocalTraceback=False)
+    errorHandler = rv2_error(title="Server side Error", showLocalTraceback=False)
     sc.sticky["RV2.proxy"] = Proxy(errorHandler=errorHandler)
     sc.sticky["RV2.proxy"].restart()
 

@@ -11,6 +11,7 @@ import compas_rhino
 from compas_rv2.rhino import get_system
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import select_filepath_save
+from compas_rv2.rhino import rv2_error
 
 
 __commandname__ = "RV2file_save_as"
@@ -19,6 +20,7 @@ __commandname__ = "RV2file_save_as"
 HERE = compas_rhino.get_document_dirname()
 
 
+@rv2_error()
 def RunCommand(is_interactive):
 
     system = get_system()

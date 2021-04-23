@@ -1,4 +1,4 @@
-COMPAS>=0.19.3
+COMPAS>=1.5.0
 compas_cloud==0.1.0
 compas_tna==0.1.5
 compas_triangle==1.0.1
