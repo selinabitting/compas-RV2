@@ -10,7 +10,6 @@ import compas_rv2
 from compas_rv2.rhino import rv2_error
 
 
-
 __commandname__ = "RV2rui"
 
 

@@ -13,6 +13,7 @@ from compas_rv2.rhino import rv2_error
 
 __commandname__ = "RV2boundary_supports"
 
+
 @rv2_error()
 @rv2_undo
 def RunCommand(is_interactive):
@@ -64,7 +65,7 @@ def RunCommand(is_interactive):
             return
 
         if option2 == "AllBoundaryVertices":
-            keys = pattern.datastructure.vertices_on_boundary()
+            keys = list(set(flatten(pattern.datastructure.vertices_on_boundaries())))
 
         elif option2 == "Corners":
             angle = compas_rhino.rs.GetInteger('Angle tolerance for non-quad face corners:', 170, 1, 180)

@@ -15,7 +15,6 @@ from compas_rv2.rhino import save_session
 from compas_rv2.rhino import rv2_error
 
 
-
 __commandname__ = "RV2file_save"
 
 

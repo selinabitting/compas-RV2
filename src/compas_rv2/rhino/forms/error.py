@@ -129,7 +129,7 @@ class ErrorForm(forms.Dialog):
             _os = "OSX"
 
         body = ISSUE_TEMPLATE % (self.m_textarea.Text, _os, Rhino.RhinoApp.Version, compas_rv2.__version__)
-        url = 'https://github.com/BlockResearchGroup/compas-RV2/issues/new?title=%s&labels=help wanted&body=%s'% (title, body)
+        url = 'https://github.com/BlockResearchGroup/compas-RV2/issues/new?title=%s&labels=help wanted&body=%s' % (title, body)
         url = url.replace("\n", "%0A")
         webbrowser.open_new_tab(url)
 

@@ -40,6 +40,7 @@ HERE = compas_rhino.get_document_dirname()
 HOME = os.path.expanduser('~')
 CWD = HERE or HOME
 
+
 @rv2_error()
 def RunCommand(is_interactive):
 

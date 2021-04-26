@@ -16,7 +16,6 @@ from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
 
 
-
 __commandname__ = "RV2file_open"
 
 

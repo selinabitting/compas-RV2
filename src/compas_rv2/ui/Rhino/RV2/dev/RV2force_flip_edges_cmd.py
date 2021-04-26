@@ -35,6 +35,7 @@ def _draw_labels(form, force):
 # Command
 # ==============================================================================
 
+
 @rv2_error()
 @rv2_undo
 def RunCommand(is_interactive):
