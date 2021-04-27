@@ -3,4 +3,4 @@ compas_cloud>=0.1.0
 compas_tna>=0.1.5
 compas_triangle>=1.0.1
 compas_skeleton>=1.0.0
-compas_singular>=0.1.4
+compas_singular>=0.1.5

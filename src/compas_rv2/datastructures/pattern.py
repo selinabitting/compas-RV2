@@ -94,31 +94,31 @@ class Pattern(MeshMixin, Mesh):
         """
         from compas_singular.rhino import RhinoSurface
 
-        compas.PRECISION = '2f'
+        compas.PRECISION = '1f'
 
-        AddInterpCrvOnSrfUV = compas_rhino.rs.AddInterpCrvOnSrfUV
         compas_rhino.rs.EnableRedraw(False)
         surface = RhinoSurface.from_guid(surf_guid)
         result = surface.discrete_mapping(discretisation, crv_guids=curve_guids, pt_guids=point_guids)
-        outer_boundary, inner_boundaries, polyline_features, point_features = result
         trimesh = boundary_triangulation(*result, delaunay=delaunay)
         decomposition = SkeletonDecomposition.from_mesh(trimesh)
-        coarsemesh = decomposition.decomposition_mesh(point_features)
+        coarsemesh = decomposition.decomposition_mesh(result[-1])
+
+        surface.mesh_uv_to_xyz(trimesh)
+        surface.mesh_uv_to_xyz(decomposition)
+        surface.mesh_uv_to_xyz(coarsemesh)
+
         gkey_vertex = coarsemesh.gkey_key()
         edge_curve = {}
         curves = []
+
         for polyline in decomposition.polylines:
+            polyline = surface.polyline_uv_to_xyz(polyline)
             a = geometric_key(polyline[0])
             b = geometric_key(polyline[-1])
             u = gkey_vertex[a]
             v = gkey_vertex[b]
-            points = [point[:2] for point in polyline]
-            curve = AddInterpCrvOnSrfUV(surf_guid, points)
-            curves.append(curve)
-            edge_curve[u, v] = [
-                compas_rhino.rs.EvaluateCurve(curve, compas_rhino.rs.CurveParameter(curve, t))
-                for t in linspace(0, 1, 100)
-            ]
+            edge_curve[u, v] = polyline
+
         coarsemesh.collect_strips()
         coarsemesh.set_strips_density_target(target_edge_length)
         coarsemesh.densification(edges_to_curves=edge_curve)
@@ -127,7 +127,6 @@ class Pattern(MeshMixin, Mesh):
         compas_rhino.rs.EnableRedraw(True)
         compas_rhino.rs.Redraw()
         return cls.from_vertices_and_faces(*densemesh.to_vertices_and_faces())
-        # return cls.from_vertices_and_faces(*trimesh.to_vertices_and_faces())
 
     def collapse_small_edges(self, tol=1e-2):
         for key in list(self.edges()):
