@@ -20,6 +20,11 @@ jobs:
         uses: dawidd6/action-get-tag@v1
         id: tagName
 
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
       - uses: actions/checkout@v2
 
       - uses: conda-incubator/setup-miniconda@v2.0.0
@@ -32,6 +37,12 @@ jobs:
         shell: PowerShell
         run: |
           conda install conda-pack cython -y
+
+      - name: build-front-page
+        run: |
+          cd src/compas_rv2/web
+          npm install
+          npm run build
 
       - name: rv2-install
         run: |
@@ -48,11 +59,6 @@ jobs:
         with:
           repository: BlockResearchGroup/compas_installer
           path: compas_installer
-
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
 
       - name: wrap installer
         run: |
