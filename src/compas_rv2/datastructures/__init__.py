@@ -38,6 +38,7 @@ from .pattern import Pattern  # noqa: F401
 from .formdiagram import FormDiagram  # noqa: F401
 from .forcediagram import ForceDiagram  # noqa: F401
 from .thrustdiagram import ThrustDiagram  # noqa: F401
+from .subd import Subd  # noqa: F401
 
 
 __all__ = [name for name in dir() if not name.startswith('_')]
