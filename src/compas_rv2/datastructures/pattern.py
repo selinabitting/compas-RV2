@@ -6,7 +6,6 @@ import compas
 from compas.datastructures import Mesh
 from compas.datastructures import mesh_smooth_area
 from compas.utilities import geometric_key
-from compas.utilities import linspace
 
 import compas_rhino
 
