@@ -32,7 +32,7 @@ def RunCommand(is_interactive):
     if not proxy:
         return
 
-    delaunay = proxy.function('compas.geometry.delaunay_from_points_numpy')
+    delaunay = proxy.function('compas_triangle.delaunay.constrained_delaunay_triangulation')
 
     # Get input data.
     surf_guid = compas_rhino.select_surface("Select a surface to decompose.")

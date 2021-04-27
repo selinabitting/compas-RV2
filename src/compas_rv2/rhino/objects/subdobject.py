@@ -5,7 +5,7 @@ from __future__ import division
 from copy import deepcopy
 
 import compas_rhino
-from compas_rhino.objects import Object
+from compas_rhino.objects import BaseObject
 from compas_rhino.artists import MeshArtist
 from compas_rhino.geometry import RhinoSurface
 from compas_rhino import delete_objects
@@ -155,7 +155,7 @@ def mesh_subdivide_strip(mesh, uv, n):
     return subd
 
 
-class SubdObject(Object):
+class SubdObject(BaseObject):
 
     SETTINGS = {
         'layer': "RV2::Subd",

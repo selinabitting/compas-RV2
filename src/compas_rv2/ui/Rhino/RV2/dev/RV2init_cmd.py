@@ -5,6 +5,7 @@ from __future__ import division
 import os
 import scriptcontext as sc
 
+import compas
 import compas_rhino
 
 from compas_cloud import Proxy  # noqa: E402
@@ -39,6 +40,8 @@ SETTINGS = {
 HERE = compas_rhino.get_document_dirname()
 HOME = os.path.expanduser('~')
 CWD = HERE or HOME
+
+compas.PRECISION = '3f'
 
 
 @rv2_error()
