@@ -181,24 +181,7 @@ def release(ctx, release_type):
     ctx.run('invoke check')
 
     # Bump version and git tag it
-    ctx.run('bumpversion %s --verbose' % release_type)
-
-    # Build project
-    ctx.run('python setup.py clean --all sdist bdist_wheel')
-
-    # Upload to pypi
-    if confirm('You are about to upload the release to pypi.org. Are you sure? [y/N]'):
-        files = ['dist/*.whl', 'dist/*.gz', 'dist/*.zip']
-        dist_files = ' '.join([pattern for f in files for pattern in glob.glob(f)])
-
-        if len(dist_files):
-            ctx.run('twine upload --skip-existing %s' % dist_files)
-
-            prepare_changelog(ctx)
-        else:
-            raise Exit('No files found to release')
-    else:
-        raise Exit('Aborted release')
+    ctx.run('bump2version %s --verbose' % release_type)
 
 
 @contextlib.contextmanager

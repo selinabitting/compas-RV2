@@ -2,16 +2,14 @@ graft src
 graft scripts
 
 prune .github
+prune .conda
 
 prune data
 prune docs
 prune examples
 prune temp
 prune tests
-prune src/compas_rv2/web/node_modules
-prune src/compas_rv2/ui/Rhino/RV2/dev/icons/RhinoMac
-prune src/compas_rv2/ui/Rhino/RV2/dev/__temp
-prune src/compas_rv2/ui/Rhino/RV2/dev/data
+prune src/compas_rv2/web
 
 include LICENSE
 include README.md
