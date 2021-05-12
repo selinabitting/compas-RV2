@@ -73,8 +73,7 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Installer
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -83,6 +82,16 @@ jobs:
           asset_path: compas_installer/dist/RhinoVault2 Setup 0.0.1.exe
           asset_name: RhinoVault2_${{ steps.tagName.outputs.tag }}.exe
           asset_content_type: application/octet-stream
+
+      - name: Upload Archive
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: compas_installer/src/plugins/RV2.zip
+          asset_name: RhinoVault2_${{ steps.tagName.outputs.tag }}.zip
+          asset_content_type: application/zip
 
   Publish:
 
