@@ -1,16 +1,10 @@
-
-# This is a basic workflow to help you get started with Actions
-
 name: Release
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   Installer:
     name: Release-Windows
@@ -56,7 +50,7 @@ jobs:
           python scripts/pack.py --version ${{ steps.tagName.outputs.tag }}
 
       - name: Check out compas_installer
-        uses: actions/checkout@master
+        uses: actions/checkout@main
         with:
           repository: BlockResearchGroup/compas_installer
           path: compas_installer
