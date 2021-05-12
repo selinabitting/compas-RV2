@@ -1,5 +1,5 @@
 const packager = require('electron-packager')
-const zipFolder = require('zip-folder')
+const zip = require('zip-a-folder').zip
 const fs = require('fs')
 
 
@@ -21,13 +21,9 @@ async function bundleElectronApp(options) {
   if (process.platform === "darwin") return
   
   if (fs.existsSync(zip_path)) fs.unlinkSync(zip_path)
-  zipFolder(electron_app_path, zip_path, err => {
-    if (err) {
-      console.log('zip failed', err)
-    } else {
-      console.log('zipped at', zip_path)
-    }
-  })
+
+  await zip(electron_app_path, zip_path)
+  console.log('zipped at', zip_path)
 
 }
 
