@@ -26,35 +26,15 @@
 
     </div>
 
+    <script src="./jquery-3.4.1.slim.min.js"></script>
+
     <script>
-
-        $ = require("./jquery-3.4.1.slim.min.js")
-
-        // let closing = setInterval(() => {
-        //     seconds = counter.text()
-        //     if( seconds <= 0) window.close()
-        //     counter.text(seconds - 1)
-        // }, 1000)
-
-        // function stop_counting(){
-        //     $("#exit").text('close the window')
-        //     clearInterval(closing)
-        // }
 
         $("a").click(function(el){
             el.preventDefault()
             let w = window.open($(this).attr("href"), '_blank', 'frame=true', 'autoHideMenuBar=true','maximize=true')
-            // stop_counting()
             
         })
-
-        // $("#exit").click(()=>{
-        //     window.close()
-        // })
-
-        // let counter = $("#exit a")
-
-        // $(document.body).mouseover(stop_counting)
 
         $( "#yes" ).unbind()
         $( "#no" ).unbind()
