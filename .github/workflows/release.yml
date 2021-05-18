@@ -25,6 +25,7 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
 
   InstallerWin:
+    needs: Release
     runs-on: "windows-latest"
     steps:
       - name: Get the tag version
@@ -111,6 +112,7 @@ jobs:
           asset_content_type: application/zip
 
   InstallerMac:
+    needs: Release
     runs-on: "macos-latest"
     steps:
       - name: Get the tag version
