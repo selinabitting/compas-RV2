@@ -133,17 +133,19 @@ jobs:
           python-version: 3.7
 
       - name: conda-install
-        shell: PowerShell
+        shell: bash -l {0}
         run: |
           conda install conda-pack cython -y
 
       - name: build-front-page
+        shell: bash -l {0}
         run: |
           cd src/compas_rv2/web
           npm install
           npm run build
 
       - name: rv2-install
+        shell: bash -l {0}
         run: |
           python scripts/unzip_electron.py
           python src/compas_rv2/ui/Rhino/RV2/dev/rui.py
@@ -151,6 +153,7 @@ jobs:
           pip install .
 
       - name: rv2-pack
+        shell: bash -l {0}
         run: |
           python scripts/pack.py --version ${{ steps.tagName.outputs.tag }}
 
