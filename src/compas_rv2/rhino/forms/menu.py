@@ -28,12 +28,12 @@ class MenuForm(forms.Form):
         self.Title = "RhinoVault2"
         layout = forms.StackLayout()
         layout.Spacing = 5
+        layout.Padding = drawing.Padding(5)
         self.load_config(layout)
-        self.Width = 300
 
         self.Content = forms.Scrollable()
         self.Content.Content = layout
-        self.Padding = drawing.Padding(12)
+        self.Padding = drawing.Padding(0)
         self.Resizable = True
 
     def load_config(self, layout):
@@ -58,13 +58,13 @@ class MenuForm(forms.Form):
 
             if "items" in item:
                 sub_layout = forms.DynamicLayout()
-                sub_layout.Spacing = drawing.Size(5, 0)
-                collapseButton = forms.Button(Text="+", MinimumSize = drawing.Size.Empty)
-                sub_layout.AddRow(forms.Label(Text=item["name"]), collapseButton)
+                collapseButton = forms.Button(Text=item["name"] + "  >", MinimumSize = drawing.Size.Empty)
+                sub_layout.AddRow(collapseButton)
                 layout.Items.Add(forms.StackLayoutItem(sub_layout))
                 groupbox = forms.GroupBox(Visible=False)
-                groupbox.Padding = drawing.Padding(5)
+                groupbox.Padding = drawing.Padding(5, 1)
                 grouplayout = forms.StackLayout()
+                grouplayout.Spacing = 5
                 self.add_items(item["items"], grouplayout, commands)
                 groupbox.Content = grouplayout
                 layout.Items.Add(groupbox)
@@ -74,16 +74,19 @@ class MenuForm(forms.Form):
                     def _on_click(sender, e):
                         if groupbox.Visible:
                             groupbox.Visible = False
-                            sender.Text = "+"
+                            sender.Text = sender.Text.replace("-", ">")
                         else:
                             groupbox.Visible = True
-                            sender.Text = "-"
+                            sender.Text = sender.Text.replace(">", "-")
                     return _on_click
                 
                 collapseButton.Click += on_click(groupbox)
 
             if "type" in item and item["type"] == "separator":
-                layout.Items.Add(forms.Label(Text="_"*30))
+                label = Rhino.UI.Controls.Divider()
+                label.Width=250
+                layout.Items.Add(label)
+
 
 
 
