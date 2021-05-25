@@ -7,11 +7,13 @@ import os
 import System
 import Eto.Drawing as drawing
 import Eto.Forms as forms
+import Rhino
 
 
 class BrowserForm(forms.Form):
 
     def __init__(self, url=None, width=800, height=400):
+        self.Owner = Rhino.UI.RhinoEtoApp.MainWindow
         self.Title = 'RhinoVault2'
         self.Padding = drawing.Padding(0)
         self.Resizable = False
@@ -31,12 +33,18 @@ class BrowserForm(forms.Form):
         layout.EndVertical()
         self.Content = layout
 
-        self.WindowStyle = forms.WindowStyle.None
+        self.WindowStyle = forms.WindowStyle.None  # noqa E999
+        self.m_webview.DocumentLoading += self.action
+
+    def action(self, sender, e):
+        if e.Uri.Scheme == "action" and e.Uri.Host == "close":
+            self.Close()
 
 
 def Browser():
-    browser = BrowserForm()
-    browser.Show()
+    browserForm = BrowserForm()
+    browserForm.Show()
+
 
 if __name__ == "__main__":
     Browser()

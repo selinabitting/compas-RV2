@@ -83,7 +83,7 @@ if __name__ == '__main__':
     print("CONDA_PREFIX", os.environ["CONDA_PREFIX"])
     print("CONDA_DEFAULT_ENV", os.environ["CONDA_DEFAULT_ENV"])
     print("CONDA_EXE", os.environ["CONDA_EXE"])
-        
+
     install(packages=PACKAGES, version=args.rhino_version)
 
     print("\n", "-"*10, "Installation is successful", "-"*10)
