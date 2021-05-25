@@ -31,7 +31,12 @@ class BrowserForm(forms.Form):
         layout.EndVertical()
         self.Content = layout
 
+        self.WindowStyle = forms.WindowStyle.None
 
-if __name__ == "__main__":
+
+def Browser():
     browser = BrowserForm()
     browser.Show()
+
+if __name__ == "__main__":
+    Browser()

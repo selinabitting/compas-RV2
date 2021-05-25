@@ -1,0 +1,56 @@
+<html>
+<header>
+    <title>RhinoVault2</title>
+    <link rel="stylesheet" href="styles.css">
+</header>
+
+<body>
+    <img id="background" src="background.png">
+    <div id="content">
+
+        <div id="version">1.1.10rc4</div>
+
+        <div id="links">
+            <a href="https://blockresearchgroup.gitbook.io/rv2/">RV2 Documentation</a><br>
+            <a href="https://blockresearchgroup.gitbook.io/rv2/documentation/tutorial" target="_blank">Tutorials</a><br>
+            <a href="https://blockresearchgroup.gitbook.io/rv2/examples-1/basic" target="_blank">Examples</a><br>
+            <a href="https://github.com/BlockResearchGroup/compas-RV2" target="_blank">Github Repo</a><br>
+        </div>
+
+        <div id="terms">
+            By using RV2 I agree with following <a href="https://app.gitbook.com/@blockresearchgroup/s/rv2/legal-terms" target="_blank">Legal Terms</a>
+            <div id="agree"><a id="yes" href="NONE">YES</a>/<a id="no" href="NONE">NO</a></div>
+        </div>
+
+        <!-- <div id="exit">will close in <a>5</a>s</div> -->
+
+    </div>
+
+    <script src="./jquery-3.4.1.slim.min.js"></script>
+
+    <script>
+
+        $("a").click(function(el){
+            el.preventDefault()
+            let w = window.open($(this).attr("href"), '_blank', 'frame=true', 'autoHideMenuBar=true','maximize=true')
+            
+        })
+
+        $( "#yes" ).unbind()
+        $( "#no" ).unbind()
+
+        $("#yes").click(el=>{
+            el.preventDefault()
+            window.close()
+        })
+
+        $("#no").click(el=>{
+            el.preventDefault()
+            alert("Please Accept Terms & Conditions to continue.")
+        })
+    
+    </script>
+
+</body>
+
+</html>
