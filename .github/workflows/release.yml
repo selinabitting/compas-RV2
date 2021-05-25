@@ -58,6 +58,7 @@ jobs:
 
       - name: rv2-install
         run: |
+          python scripts/unzip_electron.py
           python src/compas_rv2/ui/Rhino/RV2/dev/rui.py
           Set-Content -Path MANIFEST.in -Value (get-content -Path MANIFEST.in | Select-String -Pattern 'prune src/compas_rv2/web' -NotMatch)
           pip install .
