@@ -8,6 +8,7 @@ import System
 import Eto.Drawing as drawing
 import Eto.Forms as forms
 import Rhino
+import compas
 
 
 class BrowserForm(forms.Form):
@@ -35,7 +36,8 @@ class BrowserForm(forms.Form):
 
         self.WindowStyle = forms.WindowStyle.None  # noqa E999
         self.m_webview.DocumentLoading += self.action
-        self.Location = drawing.Point(self.Owner.Location.X + self.Owner.Size.Width / 2 - 400, self.Owner.Location.Y + self.Owner.Size.Height / 2 - 200)
+        if compas.WINDOWS:
+            self.Location = drawing.Point(self.Owner.Location.X + self.Owner.Size.Width / 2 - 400, self.Owner.Location.Y + self.Owner.Size.Height / 2 - 200)
 
     def action(self, sender, e):
         if e.Uri.Scheme == "action" and e.Uri.Host == "close":
