@@ -9,7 +9,6 @@ prune docs
 prune examples
 prune temp
 prune tests
-prune src/compas_rv2/web
 
 include LICENSE
 include README.md

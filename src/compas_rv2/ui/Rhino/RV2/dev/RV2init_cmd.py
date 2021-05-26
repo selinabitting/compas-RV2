@@ -13,11 +13,8 @@ from compas_rv2.scene import Scene  # noqa: E402
 from compas_rv2.rhino import rv2_error  # noqa: E402
 from compas_rv2.activate import check
 from compas_rv2.activate import activate
+from compas_rv2.rhino import Browser
 
-if compas.MONO:
-    from compas_rv2.rhino import Browser
-else:
-    from compas_rv2.web import Browser
 
 __commandname__ = "RV2init"
 
