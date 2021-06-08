@@ -3,6 +3,10 @@ import json
 import compas
 import importlib
 import subprocess
+try:
+    import rhinoscriptsyntax as rs
+except ImportError:
+    rs = None
 
 PLUGIN_NAME = "RV2"
 
@@ -71,7 +75,10 @@ def activate():
     register_json = get_register_json()
     plugin_info = register_json["Plugins"][PLUGIN_NAME]
 
-    out, err, code = run("%s -m compas_rv2.install" % plugin_info["python"])
+    if rs and rs.ExeVersion() == "7":
+        out, err, code = run("%s -m compas_rv2.install --rhino_version 7.0" % plugin_info["python"])
+    else:
+        out, err, code = run("%s -m compas_rv2.install" % plugin_info["python"])
 
     if code == 0:
         print(out.decode())

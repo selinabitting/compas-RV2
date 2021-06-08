@@ -76,6 +76,8 @@ def RunCommand(is_interactive):
 
     sc.sticky["RV2.sessions"] = []
 
+    print("RV2 is successfully initiated!")
+
 
 # ==============================================================================
 # Main
