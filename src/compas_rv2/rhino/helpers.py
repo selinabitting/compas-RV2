@@ -261,6 +261,8 @@ def undo(sender, e):
 
 def rv2_undo(command):
     def wrapper(*args, **kwargs):
+        if not get_rv2():
+            return
         sc.doc.EndUndoRecord(sc.doc.CurrentUndoRecordSerialNumber)
         undoRecord = sc.doc.BeginUndoRecord("RV2 Undo")
         if undoRecord == 0:
