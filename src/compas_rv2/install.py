@@ -9,6 +9,7 @@ import os
 import json
 import sys
 import importlib
+from shutil import copyfile
 
 
 PLUGIN_NAME = "RV2"
@@ -31,7 +32,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--remove_plugins', action='store_true', help="remove all existing plugins")
     parser.add_argument('--remove_packages', action='store_true', help="remove all existing compas packages")
-    parser.add_argument('--rhino_version', default='6.0', choices=['6.0', '7.0'], help="remove all existing compas packages")
+    parser.add_argument('--rhino_version', default='7.0', choices=['6.0', '7.0'], help="remove all existing compas packages")
     args = parser.parse_args()
 
     print("\n", "-"*10, "Checking packages", "-"*10)
@@ -85,6 +86,9 @@ if __name__ == '__main__':
     print("CONDA_EXE", os.environ.get("CONDA_EXE"))
 
     install(packages=PACKAGES, version=args.rhino_version)
+
+    if compas.WINDOWS:
+        copyfile(os.path.join(plugin_path, 'ui/Rhino/RV2/dev/RV2.rui'), os.path.join(python_plugins_path, '..', '..', 'UI', 'RV2.rui'))
 
     print("\n", "-"*10, "Installation is successful", "-"*10)
 
