@@ -10,6 +10,7 @@ import json
 import sys
 import importlib
 from shutil import copyfile
+from subprocess import call
 
 
 PLUGIN_NAME = "RV2"
@@ -88,7 +89,8 @@ if __name__ == '__main__':
     install(packages=PACKAGES, version=args.rhino_version)
 
     if compas.WINDOWS:
-        copyfile(os.path.join(plugin_path, 'ui/Rhino/RV2/dev/RV2.rui'), os.path.join(python_plugins_path, '..', '..', 'UI', 'RV2.rui'))
+        call(sys.executable + " " + os.path.join(plugin_path, 'dev', 'rui.py'), shell=True)
+        copyfile(os.path.join(plugin_path, 'dev', 'RV2.rui'), os.path.join(python_plugins_path, '..', '..', 'UI', 'RV2.rui'))
 
     print("\n", "-"*10, "Installation is successful", "-"*10)
 
