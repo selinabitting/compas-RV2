@@ -22,7 +22,7 @@ __all__ = ['SurfaceObject']
 
 
 class SurfaceObject(BaseRhinoGeometry):
-    """Scene object for surface(s) or polysurface(s) in RV2.""" 
+    """Scene object for surface(s) or polysurface(s) in RV2."""
 
     SETTINGS = {
         'layer': "RV2::SurftoMesh",
@@ -80,7 +80,7 @@ class SurfaceObject(BaseRhinoGeometry):
             return self.object.Attributes.Name
         else:
             return self._name
-    
+
     @name.setter
     def name(self, value):
         if self.object:
@@ -119,7 +119,7 @@ class SurfaceObject(BaseRhinoGeometry):
         wrapper.object = rhinosurface
         wrapper.geometry = rhinosurface.Geometry
         return wrapper
-    
+
     @classmethod
     def from_selection(cls):
         guid = Rhino.select_surface()
@@ -129,7 +129,7 @@ class SurfaceObject(BaseRhinoGeometry):
     # modification
     # ----------------------------------------------------------------------
     def surface_type(self, density=(5,5)):
-        """Checks if selection is surface or polysurface. 
+        """Checks if selection is surface or polysurface.
         If polysurface explodes to surfaces
 
         Parameters
@@ -165,7 +165,7 @@ class SurfaceObject(BaseRhinoGeometry):
         list
             A list of UV parameter tuples.
         """
-        
+
         rs = Rhino.rs
         rs.EnableRedraw(False)
         try:
@@ -229,6 +229,8 @@ class SurfaceObject(BaseRhinoGeometry):
             raise Exception('Object is not a surface.')
         return curvature
 
+    def dummy():
+        pass
 
     def borders(self, border_type=1):
 
@@ -329,7 +331,7 @@ class SurfaceObject(BaseRhinoGeometry):
             guids = artist.draw_edges(edges, color=color)
             self.guid_subd_edge = zip(guids, edges)
             artist.redraw()
-    
+
 
 
 # ==============================================================================
