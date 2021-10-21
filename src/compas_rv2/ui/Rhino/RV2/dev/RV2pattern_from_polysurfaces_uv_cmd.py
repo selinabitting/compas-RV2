@@ -2,8 +2,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-import compas_rhino
-from compas_rv2.datastructures import Pattern
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
@@ -28,21 +26,17 @@ def RunCommand(is_interactive):
     # if not guid:
     #     return
 
-
     # 2. make mesh
     # mesh = artemis.function(guid)
     # or
     # vertices = [ ... ]
     # faces = [ ... ]
 
-
     # 3. turn mesh into a pattern object
     # pattern = Pattern.from_...
 
-
     # 4. hide input surface / polysurface ...
     # compas_rhino.rs.HideObject (guid)
-
 
     # 5. add the Pattern object to the Scene, then update/redraw
     # scene.clear()
