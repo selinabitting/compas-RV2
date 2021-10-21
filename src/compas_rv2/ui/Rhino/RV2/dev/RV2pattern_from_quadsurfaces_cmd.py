@@ -11,7 +11,7 @@ from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
 
 
-__commandname__ = "RV2pattern_from_polysurface"
+__commandname__ = "RV2pattern_from_quadsurfaces"
 
 
 def change_subdivision(subdobject):

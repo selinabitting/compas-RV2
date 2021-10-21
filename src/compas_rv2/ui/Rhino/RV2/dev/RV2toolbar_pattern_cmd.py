@@ -9,7 +9,7 @@ from compas_rv2.rhino import rv2_error
 
 import RV2pattern_from_lines_cmd
 import RV2pattern_from_mesh_cmd
-import RV2pattern_from_surfaces_cmd
+import RV2pattern_from_quadsurfaces_cmd
 import RV2pattern_from_skeleton_cmd
 import RV2pattern_from_triangulation_cmd
 import RV2pattern_from_features_cmd
@@ -25,7 +25,7 @@ def RunCommand(is_interactive):
     if not scene:
         return
 
-    options = ["FromLines", "FromMesh", "FromSurfaces", "FromSkeleton", "FromTriangulation", "FromFeatures"]
+    options = ["FromLines", "FromMesh", "FromQuadSurfaces", "FromSkeleton", "FromTriangulation", "FromFeatures"]
     option = compas_rhino.rs.GetString("Create Pattern:", strings=options)
 
     if not option:
@@ -37,8 +37,8 @@ def RunCommand(is_interactive):
     elif option == "FromMesh":
         RV2pattern_from_mesh_cmd.RunCommand(True)
 
-    elif option == "FromSurfaces":
-        RV2pattern_from_surfaces_cmd.RunCommand(True)
+    elif option == "FromQuadSurfaces":
+        RV2pattern_from_quadsurfaces_cmd.RunCommand(True)
 
     elif option == "FromSkeleton":
         RV2pattern_from_skeleton_cmd.RunCommand(True)

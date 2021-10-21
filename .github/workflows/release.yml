@@ -138,26 +138,14 @@ jobs:
           asset_name: RhinoVault2_${{ steps.tagName.outputs.tag }}_mac.zip
           asset_content_type: application/zip
 
-  # Publish:
-
-  #   needs: Installer
-
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: '3.x'
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install setuptools wheel twine
-  #   - name: Build and publish
-  #     env:
-  #       TWINE_USERNAME: __token__
-  #       TWINE_PASSWORD: ${{ secrets.PYPI }}
-  #     run: |
-  #       python setup.py sdist bdist_wheel
-  #       twine upload --verbose dist/*
+  Publish:
+    needs: Release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - uses: compas-dev/compas-actions.publish@v1.0.0
+      with:
+        token: ${{ secrets.PYPI }}
