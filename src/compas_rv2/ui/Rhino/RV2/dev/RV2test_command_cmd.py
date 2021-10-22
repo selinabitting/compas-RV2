@@ -31,17 +31,15 @@ def RunCommand(is_interactive):
 
     # select surface(?) object and convert to mesh ---------------------------------------------------------
 
-    surfobject = SurfaceObject.from_guid(guid)
+    surfaceobject = SurfaceObject.from_guid(guid)
 
-    if not surfobject:
-        surfobject = SurfaceObject.from_selection(guid)
-    else:
+    if not surfaceobject:
         return
 
-    meshobject = SurfaceObject.to_compas_mesh(surfobject)
+    surfaceobject.draw_uv_mesh()
 
-    compas_rhino.rs.HideObjects(guid)
-    meshobject.draw()
+    # here, we need to add now subdivision... so surfaceobject.to_compoas_mesh()...
+
 
     # interactively  modify subdivision ----------------------------------------
     """ NOT READY
@@ -63,7 +61,8 @@ def RunCommand(is_interactive):
     """
 
     # make pattern -------------------------------------------------------------
-    mesh = meshobject
+    mesh = surfaceobject.uv_mesh
+
     xyz = mesh.vertices_attributes('xyz')
     faces = [mesh.face_vertices(fkey) for fkey in mesh.faces()]
     pattern = Pattern.from_vertices_and_faces(xyz, faces)
