@@ -9,6 +9,8 @@ from compas.datastructures import meshes_join
 from compas_rhino.geometry import RhinoSurface
 from compas_rhino.objects import BaseObject
 from compas_rhino.artists import MeshArtist
+from compas_rhino import delete_objects
+
 
 from compas.geometry import angle_vectors
 from compas.geometry import distance_point_point
@@ -21,12 +23,13 @@ from compas_rhino.geometry._geometry import BaseRhinoGeometry
 __all__ = ['SurfaceObject']
 
 
-class SurfaceObject(BaseRhinoGeometry):
+class SurfaceObject(BaseObject):
     """Scene object for surface(s) or polysurface(s) in RV2."""
 
     SETTINGS = {
         'layer': "RV2::SurftoMesh",
         'layer.subd': "RV2::SurftoMesh::subdivided",
+        'layer.uv_mesh':  "RV2::SurftoMesh::uv_mesh",
         'color.vertices': (255, 255, 255),
         'color.edges': (0, 0, 0),
         'color.faces': (0, 0, 0),
@@ -38,11 +41,13 @@ class SurfaceObject(BaseRhinoGeometry):
         'show.faces': False,
     }
 
-    def __init__(self, scene=None, name=None, layer=None, visible=True, settings=None):
-        super(SurfaceObject, self).__init__(scene, name, layer, visible)
+    def __init__(self, uv_mesh=None, scene=None, name=None, layer=None, visible=True, settings=None):
+        super(SurfaceObject, self).__init__(uv_mesh, scene, name, layer, visible)
         self._guids = []
         self._guid_vertex = {}
         self._guid_edge = {}
+        self._guid_uv_mesh_edge = {}
+        self._guid_uv_mesh_vertex = {}
         self._guid_subdivided = {}
 
         self.guid = None
@@ -61,30 +66,50 @@ class SurfaceObject(BaseRhinoGeometry):
     # ----------------------------------------------------------------------
 
     @property
-    def type(self):
-        if self.object:
-            return self.object.ObjectType
-        else:
-            return self._type
+    def uv_mesh(self):
+        return self.item
 
-    @type.setter
-    def type(self, brep):
-        self._type = brep
+    @uv_mesh.setter
+    def uv_mesh(self, uv_mesh):
+        self.item = uv_mesh
+        self._guids = []
+        self._guid_uv_mesh_vertex = {}
+        self._guid_uv_mesh_edge = {}
 
     @property
-    def name(self):
-        if self.object:
-            return self.object.Attributes.Name
-        else:
-            return self._name
+    def guid_uv_mesh_edge(self):
+        return self._guid_uv_mesh_edge
 
-    @name.setter
-    def name(self, value):
-        if self.object:
-            self.object.Attributes.Name = value
-            self.object.CommitChanges()
-        else:
-            self._name = value
+    @guid_uv_mesh_edge.setter
+    def guid_uv_mesh_edge(self, values):
+        self._guid_uv_mesh_edge = dict(values)
+
+
+    # @property
+    # def type(self):
+    #     if self.object:
+    #         return self.object.ObjectType
+    #     else:
+    #         return self._type
+
+    # @type.setter
+    # def type(self, brep):
+    #     self._type = brep
+
+    # @property
+    # def name(self):
+    #     if self.object:
+    #         return self.object.Attributes.Name
+    #     else:
+    #         return self._name
+
+    # @name.setter
+    # def name(self, value):
+    #     if self.object:
+    #         self.object.Attributes.Name = value
+    #         self.object.CommitChanges()
+    #     else:
+    #         self._name = value
 
 
     # ----------------------------------------------------------------------
@@ -104,11 +129,13 @@ class SurfaceObject(BaseRhinoGeometry):
         :class:`compas_rhino.geometry.BaseRhinoGeometry`
           The Rhino object wrapper.
         """
-        
+
         rhinosurface = RhinoSurface.from_guid(guid)
         mesh = rhinosurface.to_compas(cleanup=False)
-        subdobject = cls(mesh)
-        subdobject.coarse = mesh
+        surfaceobject = cls(mesh)
+        surfaceobject.uv_mesh = mesh
+
+        return surfaceobject
 
     @classmethod
     def from_selection(cls):
@@ -185,15 +212,26 @@ class SurfaceObject(BaseRhinoGeometry):
     # visualize
     # ----------------------------------------------------------------------
 
-    def draw(self):
-            artist = MeshArtist(self.subd)
-            layer = self.settings['layer.subd']
-            color = self.settings['color.subd.edges']
-            artist.layer = layer
-            edges = [edge for edge in self.subd.edges() if not self.subd.is_edge_on_boundary(edge[0], edge[1])]
-            guids = artist.draw_edges(edges, color=color)
-            self.guid_subd_edge = zip(guids, edges)
-            artist.redraw()
+    def draw_uv_mesh(self):
+        self.artist.layer = self.settings['layer.uv_mesh']
+        color = self.settings['color.edges']
+        guids = self.artist.draw_edges(color=color)
+        self.guid_uv_mesh_edge = zip(guids, list(self.item.edges()))
+        self.artist.redraw()
+
+        # artist = MeshArtist(self.subd)
+        # layer = self.settings['layer.subd']
+        # color = self.settings['color.subd.edges']
+        # artist.layer = layer
+        # edges = [edge for edge in self.subd.edges() if not self.subd.is_edge_on_boundary(edge[0], edge[1])]
+        # guids = artist.draw_edges(edges, color=color)
+        # self.guid_subd_edge = zip(guids, edges)
+        # artist.redraw()
+
+    def clear_uv_mesh(self):
+        guid_uv_mesh_edge = list(self.guid_uv_mesh_edge.keys())
+        delete_objects(guid_uv_mesh_edge, purge=True)
+        self._guid_uv_mesh_edge = {}
 
 # ==============================================================================
 # Main
