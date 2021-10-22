@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 import compas_rhino as Rhino
 
+from compas_rhino.utilities import geometry
 from compas_rhino.artists import MeshArtist
 from compas.datastructures import Mesh
 from compas.datastructures import meshes_join
