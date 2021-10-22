@@ -40,12 +40,9 @@ class SurfaceObject(BaseRhinoGeometry):
 
     def __init__(self, scene=None, name=None, layer=None, visible=True, settings=None):
         super(SurfaceObject, self).__init__(scene, name, layer, visible)
-        self._subd = None
         self._guids = []
         self._guid_vertex = {}
         self._guid_edge = {}
-        self._guid_subd_edge = {}
-        self._guid_label = {}
         self._guid_subdivided = {}
 
         self.guid = None
@@ -71,8 +68,8 @@ class SurfaceObject(BaseRhinoGeometry):
             return self._type
 
     @type.setter
-    def type(self, surface):
-        self._type = surface
+    def type(self, brep):
+        self._type = brep
 
     @property
     def name(self):
@@ -95,7 +92,7 @@ class SurfaceObject(BaseRhinoGeometry):
     # ----------------------------------------------------------------------
 
     @classmethod
-    def from_guid(cls, guid=None):
+    def from_guid(cls, guid):
 
         """Construct a Rhino object wrapper from the GUID of an existing Rhino object.
         Parameters
@@ -107,18 +104,11 @@ class SurfaceObject(BaseRhinoGeometry):
         :class:`compas_rhino.geometry.BaseRhinoGeometry`
           The Rhino object wrapper.
         """
-        if guid and callable(guid):
-            surface = Rhino.select_surface(guid)
-        else:
-            surface = Rhino.find_object(guid)
-
-        rhinosurface = RhinoSurface.from_guid(surface)
-
-        wrapper = cls()
-        wrapper.guid = rhinosurface.Id
-        wrapper.object = rhinosurface
-        wrapper.geometry = rhinosurface.Geometry
-        return wrapper
+        
+        rhinosurface = RhinoSurface.from_guid(guid)
+        mesh = rhinosurface.to_compas(cleanup=False)
+        subdobject = cls(mesh)
+        subdobject.coarse = mesh
 
     @classmethod
     def from_selection(cls):
@@ -128,131 +118,6 @@ class SurfaceObject(BaseRhinoGeometry):
     # ----------------------------------------------------------------------
     # modification
     # ----------------------------------------------------------------------
-    def surface_type(self, density=(5,5)):
-        """Checks if selection is surface or polysurface.
-        If polysurface explodes to surfaces
-
-        Parameters
-        ----------
-        density : tuple, optional
-            The density in the U and V directions of the parameter space.
-            Default is ``10`` in both directions.
-        Returns
-        -------
-        list
-            A list of surfaces.
-        """
-        rs = Rhino.rs
-
-        if rs.IsPolysurface(self.guid):
-            faces = rs.ExplodePolysurfaces(self.guid)
-        elif rs.IsSurface(self.guid):
-            faces = [self.guid]
-        else:
-            raise Exception('Object is not a surface.')
-
-
-    def space(self, density=(10, 10)):
-
-        """Construct a parameter grid over the UV space of the surface.
-        Parameters
-        ----------
-        density : tuple, optional
-            The density in the U and V directions of the parameter space.
-            Default is ``10`` in both directions.
-        Returns
-        -------
-        list
-            A list of UV parameter tuples.
-        """
-
-        rs = Rhino.rs
-        rs.EnableRedraw(False)
-        try:
-            du, dv = density
-        except TypeError:
-            du = density
-            dv = density
-        density_u = int(du)
-        density_v = int(dv)
-        if rs.IsPolysurface(self.guid):
-            faces = rs.ExplodePolysurfaces(self.guid)
-        elif rs.IsSurface(self.guid):
-            faces = [self.guid]
-        else:
-            raise Exception('Object is not a surface.')
-        uv = []
-        for face in faces:
-            domain_u = rs.SurfaceDomain(face, 0)
-            domain_v = rs.SurfaceDomain(face, 1)
-            du = (domain_u[1] - domain_u[0]) / (density_u - 1)
-            dv = (domain_v[1] - domain_v[0]) / (density_v - 1)
-            # move to meshgrid function
-            for i in range(density_u):
-                for j in range(density_v):
-                    uv.append((domain_u[0] + i * du, domain_v[0] + j * dv))
-        if len(faces) > 1:
-            rs.DeleteObjects(faces)
-        rs.EnableRedraw(True)
-        return uv
-
-
-    def curvature(self, points=None):
-        """"""
-        rs = Rhino.rs
-        if not points:
-            points = self.heightfield()
-        curvature = []
-        if rs.IsPolysurface(self.guid):
-            rs.EnableRedraw(False)
-            faces = {}
-            for point in points:
-                bcp = rs.BrepClosestPoint(self.guid, point)
-                uv = bcp[1]
-                index = bcp[2][1]
-                try:
-                    face = faces[index]
-                except (TypeError, IndexError):
-                    face = rs.ExtractSurface(self.guid, index, True)
-                    faces[index] = face
-                props = rs.SurfaceCurvature(face, uv)
-                curvature.append((point, (props[1], props[3], props[5])))
-            rs.DeleteObjects(faces.values())
-            rs.EnableRedraw(False)
-        elif rs.IsSurface(self.guid):
-            for point in points:
-                bcp = rs.BrepClosestPoint(self.guid, point)
-                uv = bcp[1]
-                props = rs.SurfaceCurvature(self.guid, uv)
-                curvature.append((point, (props[1], props[3], props[5])))
-        else:
-            raise Exception('Object is not a surface.')
-        return curvature
-
-    def dummy():
-        pass
-
-    def borders(self, border_type=1):
-
-        """Duplicate the borders of the surface.
-        Parameters
-        ----------
-        border_type : {0, 1, 2}
-            The type of border.
-            * 0: All borders
-            * 1: The exterior borders.
-            * 2: The interior borders.
-        Returns
-        -------
-        list
-            The GUIDs of the extracted border curves.
-        """
-
-        rs = Rhino.rs
-        border = rs.DuplicateSurfaceBorder(self.guid, type=border_type)
-        curves = rs.ExplodeCurves(border, delete_input=True)
-        return curves
-
 
     def to_compas_mesh(self, nu, nv=None, weld=False, facefilter=None, cls=None):
         """Convert the surface to a COMPAS mesh.
@@ -316,8 +181,6 @@ class SurfaceObject(BaseRhinoGeometry):
 
         return meshes_join(meshes, cls=cls)
 
-
-
     # ----------------------------------------------------------------------
     # visualize
     # ----------------------------------------------------------------------
@@ -331,8 +194,6 @@ class SurfaceObject(BaseRhinoGeometry):
             guids = artist.draw_edges(edges, color=color)
             self.guid_subd_edge = zip(guids, edges)
             artist.redraw()
-
-
 
 # ==============================================================================
 # Main
