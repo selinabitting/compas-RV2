@@ -13,9 +13,6 @@ from compas.geometry import Rotation
 from .meshobject import MeshObject
 
 
-__all__ = ["ThrustObject"]
-
-
 class ThrustObject(MeshObject):
     """Scene object for thrust diagrams in RV2."""
 

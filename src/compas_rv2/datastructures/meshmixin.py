@@ -2,11 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-# from compas.utilities import pairwise
 from compas.geometry import angle_vectors
-
-
-__all__ = ['MeshMixin']
 
 
 class MeshMixin(object):
@@ -156,11 +152,3 @@ class MeshMixin(object):
                 if angle_vectors(u, v, deg=True) < tol:
                     vkeys.append(key)
         return vkeys
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

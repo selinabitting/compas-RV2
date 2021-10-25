@@ -47,7 +47,3 @@ class BrowserForm(forms.Form):
 def Browser():
     browserForm = BrowserForm()
     browserForm.Show()
-
-
-if __name__ == "__main__":
-    Browser()

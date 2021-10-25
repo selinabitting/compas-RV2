@@ -5,9 +5,6 @@ from __future__ import division
 from .meshartist import MeshArtist
 
 
-__all__ = ['FormArtist']
-
-
 class FormArtist(MeshArtist):
     """Artist for visualizing form diagrams in the Rhino model space."""
 

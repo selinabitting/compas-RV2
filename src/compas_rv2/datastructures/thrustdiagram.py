@@ -9,9 +9,6 @@ from compas.geometry import cross_vectors
 from .formdiagram import FormDiagram
 
 
-__all__ = ['ThrustDiagram']
-
-
 class ThrustDiagram(FormDiagram):
     """The RV2 ThrustDiagram."""
 
@@ -75,11 +72,3 @@ class ThrustDiagram(FormDiagram):
                 count += 1
 
         return stress / count
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

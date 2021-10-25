@@ -15,9 +15,6 @@ from compas_singular.algorithms import SkeletonDecomposition
 from .meshmixin import MeshMixin
 
 
-__all__ = ['Pattern']
-
-
 class Pattern(MeshMixin, Mesh):
     """Customised mesh data structure for RV2.
 
@@ -149,11 +146,3 @@ class Pattern(MeshMixin, Mesh):
         for key in self.vertices():
             index = key_index[key]
             self.vertex_attributes(key, 'xyz', xyz[index])
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass
