@@ -10,9 +10,6 @@ from compas_rv2.rhino import SettingsForm
 from compas_rv2.rhino import MeshObject
 
 
-__all__ = ['Scene']
-
-
 class Scene(object):
     """"""
 
@@ -68,33 +65,3 @@ class Scene(object):
     @property
     def registered_object_types(self):
         return MeshObject.registered_object_types()
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-
-    from compas.geometry import Point
-    from compas.geometry import Line
-    from compas.geometry import Frame
-
-    from compas.datastructures import Mesh
-
-    scene = Scene()
-
-    a = Point(1.0, 1.0, 0.0)
-    b = Point(5.0, 5.0, 0.0)
-    ab = Line(a, b)
-    world = Frame.worldXY()
-
-    mesh = Mesh.from_polyhedron(6)
-
-    scene.add(a, name="A", color=(0, 0, 0), layer="A")
-    scene.add(b, name="B", color=(255, 255, 255), layer="B")
-    scene.add(ab, name="AB", color=(128, 128, 128), layer="AB")
-    scene.add(world, name="World", layer="World")
-    scene.add(mesh, name="Cube", layer="Cube")
-
-    scene.update()

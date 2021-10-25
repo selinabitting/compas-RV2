@@ -22,5 +22,3 @@ MeshArtist.register(Pattern, MeshArtist)
 MeshArtist.register(FormDiagram, FormArtist)
 MeshArtist.register(ForceDiagram, ForceArtist)
 MeshArtist.register(ThrustDiagram, ThrustArtist)
-
-__all__ = [name for name in dir() if not name.startswith('_')]

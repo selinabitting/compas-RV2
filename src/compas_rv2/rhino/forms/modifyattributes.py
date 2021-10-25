@@ -18,9 +18,6 @@ import Rhino
 find_object = sc.doc.Objects.Find
 
 
-__all__ = ["ModifyAttributesForm"]
-
-
 class Tree_Table(forms.TreeGridView):
     def __init__(self, ShowHeader=True, sceneNode=None, table_type=None):
         self.ShowHeader = ShowHeader
@@ -489,11 +486,3 @@ class ModifyAttributesForm(forms.Dialog[bool]):
         except Exception as e:
             print(e)
         self.Close()
-
-
-if __name__ == "__main__":
-
-    scene = get_scene()
-
-    node = scene.get("form")[0]
-    ModifyAttributesForm.from_sceneNode(node, edges=None)

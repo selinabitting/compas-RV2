@@ -14,9 +14,6 @@ from compas.geometry import length_vector
 from .meshartist import MeshArtist
 
 
-__all__ = ['ThrustArtist']
-
-
 class ThrustArtist(MeshArtist):
     """A customised `MeshArtist` for the RV2 `ThrustDiagram`."""
 
