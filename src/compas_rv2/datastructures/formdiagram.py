@@ -6,9 +6,6 @@ from compas_tna.diagrams import FormDiagram
 from .meshmixin import MeshMixin
 
 
-__all__ = ['FormDiagram']
-
-
 class FormDiagram(MeshMixin, FormDiagram):
     """The RV2 FormDiagram.
 
@@ -43,11 +40,3 @@ class FormDiagram(MeshMixin, FormDiagram):
         form = pattern.copy(cls=cls)
         form.update_boundaries()
         return form
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

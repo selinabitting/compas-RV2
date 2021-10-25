@@ -9,9 +9,6 @@ from compas_tna.diagrams import ForceDiagram
 from .meshmixin import MeshMixin
 
 
-__all__ = ['ForceDiagram']
-
-
 class ForceDiagram(MeshMixin, ForceDiagram):
     """The RV2 ForceDiagram.
 
@@ -61,11 +58,3 @@ class ForceDiagram(MeshMixin, ForceDiagram):
                 a = 180 - a
             self.edge_attribute(edge, '_a', a)
             self.primal.edge_attribute(edge_, '_a', a)
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

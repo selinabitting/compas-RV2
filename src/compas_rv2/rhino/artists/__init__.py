@@ -10,8 +10,8 @@ from compas_rv2.datastructures import FormDiagram
 from compas_rv2.datastructures import ForceDiagram
 from compas_rv2.datastructures import ThrustDiagram
 
-from .skeletonartist import SkeletonArtist
 from .meshartist import MeshArtist
+from .skeletonartist import SkeletonArtist
 from .formartist import FormArtist
 from .forceartist import ForceArtist
 from .thrustartist import ThrustArtist
