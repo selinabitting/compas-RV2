@@ -72,6 +72,7 @@ from .artists import (
     ThrustArtist
 )
 from .objects import (
+    MeshObject,
     SkeletonObject,
     SubdObject,
     PatternObject,
@@ -112,6 +113,7 @@ __all__ = [
     'ForceArtist',
     'ThrustArtist',
 
+    'MeshObject',
     'SkeletonObject',
     'SubdObject',
     'PatternObject',
