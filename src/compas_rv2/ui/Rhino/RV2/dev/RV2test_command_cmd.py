@@ -13,6 +13,7 @@ from compas_rv2.rhino import rv2_error
 
 __commandname__ = "RV2pattern_from_surface"
 
+
 def change_subdivision(surfaceobject):
     surfaceobject.change_draw_subd()
 
@@ -66,7 +67,7 @@ def RunCommand(is_interactive):
     #surfaceobject.to_compas_mesh()
 
     # interactively  modify subdivision ----------------------------------------
-
+   
     while True:
         menu = CommandMenu(config)
         action = menu.select_action()
@@ -81,7 +82,7 @@ def RunCommand(is_interactive):
             break
 
         action['action'](surfaceobject)
-
+    
 
     # make pattern -------------------------------------------------------------
     mesh = surfaceobject.geometry
@@ -90,7 +91,7 @@ def RunCommand(is_interactive):
     faces = [mesh.face_vertices(fkey) for fkey in mesh.faces()]
     pattern = Pattern.from_vertices_and_faces(xyz, faces)
 
-    # add object to scene -------------------------------------------------------------
+    # add object to scene -----------------------------------------------------------
     scene.clear()
     scene.add(pattern, name='pattern')
     scene.update()

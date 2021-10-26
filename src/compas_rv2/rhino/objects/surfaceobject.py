@@ -104,9 +104,10 @@ class SurfaceObject(BaseObject):
     @geometry.setter
     def geometry(self, geometry):
         self._geometry = geometry
-        self._guid_geometry_edge = {}
         self._guid_geometry = {}
-        self._guid_strip_division = {}
+        self._guid_geometry_vertex = {}
+        self._guid_geometry_edge = {}
+        
 
     @property
     def guid_geometry_edge(self):
@@ -177,6 +178,9 @@ class SurfaceObject(BaseObject):
         nv = nv or nu
         cls = cls or Mesh
 
+        #print(self.type)
+        #print(self.HasBrepForm)
+
         if not self.uv_mesh.HasBrepForm:
             print ('Object is not a surface or Polysurface.')
             return
@@ -214,8 +218,7 @@ class SurfaceObject(BaseObject):
 
     def get_geometry(self):
         geometry = mesh_fast_copy(self.item)
-        #geometry = self.to_compas_mesh(nu=10)
-
+        self.geometry = geometry
 
     def change_draw_subd(self):
         while True:
