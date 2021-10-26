@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 import compas_rhino as Rhino
-
+from copy import deepcopy
 from compas_rhino.utilities import geometry
 from compas_rhino.artists import MeshArtist
 from compas.datastructures import Mesh
@@ -22,6 +22,18 @@ from compas_rhino.geometry._geometry import BaseRhinoGeometry
 
 
 __all__ = ['SurfaceObject']
+
+
+def mesh_fast_copy(other):
+    geometry = Mesh()
+    geometry.vertex = deepcopy(other.vertex)
+    geometry.face = deepcopy(other.face)
+    geometry.facedata = deepcopy(other.facedata)
+    geometry.halfedge = deepcopy(other.halfedge)
+    geometry._max_face = other._max_face
+    geometry._max_vertex = other._max_vertex
+    return geometry
+
 
 
 class SurfaceObject(BaseObject):
@@ -85,33 +97,24 @@ class SurfaceObject(BaseObject):
     def guid_uv_mesh_edge(self, values):
         self._guid_uv_mesh_edge = dict(values)
 
+    @property
+    def geometry(self):
+        return self._geometry
 
-    # @property
-    # def type(self):
-    #     if self.object:
-    #         return self.object.ObjectType
-    #     else:
-    #         return self._type
+    @geometry.setter
+    def geometry(self, geometry):
+        self._geometry = geometry
+        self._guid_geometry_edge = {}
+        self._guid_geometry = {}
+        self._guid_strip_division = {}
 
-    # @type.setter
-    # def type(self, brep):
-    #     self._type = brep
+    @property
+    def guid_geometry_edge(self):
+        return self._guid_geometry_edge
 
-    # @property
-    # def name(self):
-    #     if self.object:
-    #         return self.object.Attributes.Name
-    #     else:
-    #         return self._name
-
-    # @name.setter
-    # def name(self, value):
-    #     if self.object:
-    #         self.object.Attributes.Name = value
-    #         self.object.CommitChanges()
-    #     else:
-    #         self._name = value
-
+    @guid_geometry_edge.setter
+    def guid_geometry_edge(self, values):
+        self._guid_geometry_edge = dict(values)
 
     # ----------------------------------------------------------------------
     # selection of surface
@@ -174,11 +177,11 @@ class SurfaceObject(BaseObject):
         nv = nv or nu
         cls = cls or Mesh
 
-        if not self.geometry.HasBrepForm:
+        if not self.uv_mesh.HasBrepForm:
             print ('Object is not a surface or Polysurface.')
             return
 
-        brep = Rhino.Geometry.Brep.TryConvertBrep(self.geometry)
+        brep = Rhino.Geometry.Brep.TryConvertBrep(self.uv_mesh)
 
         if facefilter and callable(facefilter):
             faces = [face for face in brep.Faces if facefilter(face)]
@@ -209,6 +212,20 @@ class SurfaceObject(BaseObject):
 
         return meshes_join(meshes, cls=cls)
 
+    def get_geometry(self):
+        geometry = mesh_fast_copy(self.item)
+        #geometry = self.to_compas_mesh(nu=10)
+
+
+    def change_draw_subd(self):
+        while True:
+            guid = self.to_compas_mesh(nu=10)
+            if not guid:
+                break
+            self.clear_geometry()
+            self.get_geometry()
+            self.draw_geometry()
+
     # ----------------------------------------------------------------------
     # visualize
     # ----------------------------------------------------------------------
@@ -220,19 +237,25 @@ class SurfaceObject(BaseObject):
         self.guid_uv_mesh_edge = zip(guids, list(self.item.edges()))
         self.artist.redraw()
 
-        # artist = MeshArtist(self.subd)
-        # layer = self.settings['layer.subd']
-        # color = self.settings['color.subd.edges']
-        # artist.layer = layer
-        # edges = [edge for edge in self.subd.edges() if not self.subd.is_edge_on_boundary(edge[0], edge[1])]
-        # guids = artist.draw_edges(edges, color=color)
-        # self.guid_subd_edge = zip(guids, edges)
-        # artist.redraw()
+    def draw_geometry(self):
+        artist = MeshArtist(self.geometry)
+        layer = self.settings['layer.subd']
+        color = self.settings['color.subd.edges']
+        #artist.layer = layer
+        edges = [edge for edge in self.geometry.edges() if not self.geometry.is_edge_on_boundary(edge[0], edge[1])]
+        guids = artist.draw_edges(color=color)
+        self.guid_geometry_edge = zip(guids, list(self.item.edges()))
+        artist.redraw()
 
     def clear_uv_mesh(self):
         guid_uv_mesh_edge = list(self.guid_uv_mesh_edge.keys())
         delete_objects(guid_uv_mesh_edge, purge=True)
         self._guid_uv_mesh_edge = {}
+
+    def clear_geometry(self):
+        guid_subd_edge = list(self.guid_subd_edge.keys())
+        delete_objects(guid_subd_edge, purge=True)
+        self._guid_subd_edge = {}
 
 # ==============================================================================
 # Main
