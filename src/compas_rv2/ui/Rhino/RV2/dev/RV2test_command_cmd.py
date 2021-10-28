@@ -58,6 +58,7 @@ def RunCommand(is_interactive):
     if not surfaceobject:
         return
 
+    #surfaceobject.to_compas_mesh(nu=10)
     surfaceobject.draw_uv_mesh()
     surfaceobject.get_geometry()
     surfaceobject.draw_geometry()
@@ -67,7 +68,7 @@ def RunCommand(is_interactive):
     #surfaceobject.to_compas_mesh()
 
     # interactively  modify subdivision ----------------------------------------
-   
+    #"""
     while True:
         menu = CommandMenu(config)
         action = menu.select_action()
@@ -82,7 +83,7 @@ def RunCommand(is_interactive):
             break
 
         action['action'](surfaceobject)
-    
+    #"""
 
     # make pattern -------------------------------------------------------------
     mesh = surfaceobject.geometry

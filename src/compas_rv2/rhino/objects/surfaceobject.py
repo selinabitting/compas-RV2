@@ -179,18 +179,19 @@ class SurfaceObject(BaseObject):
         cls = cls or Mesh
 
         #print(self.type)
+        print(self)
+        print(self.geometry)
         #print(self.HasBrepForm)
 
-        if not self.uv_mesh.HasBrepForm:
-            print ('Object is not a surface or Polysurface.')
-            return
-
-        brep = Rhino.Geometry.Brep.TryConvertBrep(self.uv_mesh)
+        #if not self.uv_mesh.HasBrepForm:
+        #    print ('Object is not a surface or Polysurface.')
+        #    return
+        #brep = Rhino.Geometry.Brep.TryConvertBrep(self.geometry)
 
         if facefilter and callable(facefilter):
-            faces = [face for face in brep.Faces if facefilter(face)]
+            faces = [face for face in self.geometry.faces if facefilter(face)]
         else:
-            faces = brep.Faces
+            faces = self.geometry.faces
 
         meshes = []
         for face in faces:
