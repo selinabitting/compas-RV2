@@ -33,6 +33,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 from .meshmixin import MeshMixin
+from .surfacemesh import SurfaceMesh
 from .skeleton import Skeleton
 from .pattern import Pattern
 from .formdiagram import FormDiagram
@@ -41,6 +42,7 @@ from .thrustdiagram import ThrustDiagram
 
 __all__ = [
     'MeshMixin',
+    "SurfaceMesh",
     'Skeleton',
     'Pattern',
     'FormDiagram',
