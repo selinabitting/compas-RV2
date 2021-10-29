@@ -17,23 +17,6 @@ from compas_rv2.datastructures import ForceDiagram
 from compas_rv2.datastructures import ThrustDiagram
 
 
-__all__ = [
-    "is_valid_file",
-    "select_filepath_open",
-    "select_filepath_save",
-    "get_rv2",
-    "get_scene",
-    "get_proxy",
-    "get_system",
-    "select_vertices",
-    "select_edges",
-    "select_faces",
-    "rv2_undo",
-    "save_session",
-    "load_session",
-]
-
-
 def match_vertices(diagram, keys):
     temp = compas_rhino.get_objects(name="{}.vertex.*".format(diagram.name))
     names = compas_rhino.get_object_names(temp)

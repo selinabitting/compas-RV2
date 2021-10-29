@@ -12,8 +12,6 @@ import importlib
 import sys
 
 
-__all__ = ["MenuForm"]
-
 HERE = os.path.dirname(__file__)
 UI_FOLDER = os.path.join(HERE, "..", "..", "ui/Rhino/RV2/dev")
 sys.path.append(UI_FOLDER)
@@ -84,12 +82,3 @@ class MenuForm(forms.Form):
                 label = Rhino.UI.Controls.Divider()
                 label.Width = 250
                 layout.Items.Add(label)
-
-
-if __name__ == "__main__":
-
-    m = MenuForm()
-    m.setup()
-    m.Show()
-
-    # m.show()

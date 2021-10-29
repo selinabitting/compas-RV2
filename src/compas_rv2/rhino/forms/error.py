@@ -15,9 +15,6 @@ import Rhino
 from functools import wraps
 
 
-__all__ = ["rv2_error"]
-
-
 def rv2_error(title="Error", showLocalTraceback=True):
     def outer(func):
         @wraps(func)
@@ -132,13 +129,3 @@ class ErrorForm(forms.Dialog):
         url = 'https://github.com/BlockResearchGroup/compas-RV2/issues/new?title=%s&labels=help wanted&body=%s' % (title, body)
         url = url.replace("\n", "%0A")
         webbrowser.open_new_tab(url)
-
-
-if __name__ == "__main__":
-    # error = ErrorForm("TEST")
-
-    @rv2_error()
-    def break_func():
-        raise RuntimeError("some error message")
-
-    break_func()

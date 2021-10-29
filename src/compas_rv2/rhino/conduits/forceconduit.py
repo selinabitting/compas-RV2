@@ -16,9 +16,6 @@ except NameError:
     basestring = str
 
 
-__all__ = ['ForceConduit']
-
-
 class ForceConduit(BaseConduit):
     """A Rhino display conduit for lines.
 

@@ -2,15 +2,11 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from compas_rv2.rhino import get_scene
 from collections import OrderedDict
 
 import Eto.Drawing as drawing
 import Eto.Forms as forms
 import Rhino.UI
-
-
-__all__ = ["SettingsForm", "Settings_Tab"]
 
 
 class Settings_Tab(forms.TabPage):
@@ -131,11 +127,7 @@ class SettingsForm(forms.Dialog[bool]):
                             all_settings[object_type.__name__] = object_type.SETTINGS
                 else:
                     raise TypeError("%s is not registered in the scene" % object_type_name)
-        # else:
-        #     for object_type in scene.registered_object_types:
-        #         if hasattr(object_type, 'settings'):
-        #             if isinstance(object_type.settings, dict):  # avoid property objects
-        #                 all_settings[object_type.__name__] = object_type.settings
+
         # overwite with object setting if added as node
         for key in scene.nodes:
             node = scene.nodes[key]
@@ -226,10 +218,3 @@ class SettingsForm(forms.Dialog[bool]):
 
     def on_cancel(self, sender, event):
         self.Close()
-
-
-if __name__ == "__main__":
-
-    scene = get_scene()
-    SettingsForm.from_scene(scene, object_types=["PatternObject", "FormObject", "ForceObject", "ThrustObject"], global_settings=["RV2", "Solvers"])
-    scene.update()

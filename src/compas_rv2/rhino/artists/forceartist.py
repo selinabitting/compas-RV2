@@ -5,9 +5,6 @@ from __future__ import division
 from .meshartist import MeshArtist
 
 
-__all__ = ['ForceArtist']
-
-
 class ForceArtist(MeshArtist):
     """Artist for visualizing force diagrams in the Rhino model space."""
 

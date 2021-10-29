@@ -22,5 +22,3 @@ MeshObject.register(Pattern, PatternObject)
 MeshObject.register(FormDiagram, FormObject)
 MeshObject.register(ForceDiagram, ForceObject)
 MeshObject.register(ThrustDiagram, ThrustObject)
-
-__all__ = [name for name in dir() if not name.startswith('_')]

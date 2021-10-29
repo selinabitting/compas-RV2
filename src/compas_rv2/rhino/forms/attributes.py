@@ -17,9 +17,6 @@ import Rhino
 find_object = sc.doc.Objects.Find
 
 
-__all__ = ["AttributesForm"]
-
-
 class Tree_Table(forms.TreeGridView):
 
     def __init__(self, ShowHeader=True, sceneNode=None, table_type=None):
@@ -385,11 +382,3 @@ class AttributesForm(forms.Dialog[bool]):
 
     def on_cancel(self, sender, event):
         self.Close()
-
-
-if __name__ == "__main__":
-
-    scene = get_scene()
-
-    node = scene.get("form")[0]
-    AttributesForm.from_sceneNode(node)
