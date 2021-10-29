@@ -4,6 +4,7 @@ from __future__ import division
 
 from compas.datastructures import Mesh
 
+from compas_rv2.datastructures import SubdMesh
 from compas_rv2.datastructures import Skeleton
 from compas_rv2.datastructures import Pattern
 from compas_rv2.datastructures import FormDiagram
@@ -17,6 +18,7 @@ from .forceartist import ForceArtist
 from .thrustartist import ThrustArtist
 
 MeshArtist.register(Mesh, MeshArtist)
+MeshArtist.register(SubdMesh, MeshArtist)
 MeshArtist.register(Skeleton, SkeletonArtist)
 MeshArtist.register(Pattern, MeshArtist)
 MeshArtist.register(FormDiagram, FormArtist)

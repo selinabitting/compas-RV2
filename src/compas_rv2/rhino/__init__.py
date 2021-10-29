@@ -73,8 +73,8 @@ from .artists import (
 )
 from .objects import (
     MeshObject,
-    SkeletonObject,
     SubdObject,
+    SkeletonObject,
     PatternObject,
     FormObject,
     ForceObject,
