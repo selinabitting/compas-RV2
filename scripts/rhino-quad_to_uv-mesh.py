@@ -20,14 +20,43 @@ from compas_rhino.artists import MeshArtist
 # ------------------------------------------------------------------------------
 guid = select_surface()
 rhinosurface = RhinoSurface.from_guid(guid)
+mesh = rhinosurface.to_compas(cleanup=False)
 
 rs.HideObjects(guid)
 
 
 # ------------------------------------------------------------------------------
+# surface boundaries
+# ------------------------------------------------------------------------------
+border = rs.DuplicateSurfaceBorder(guid, type=1)
+curves = rs.ExplodeCurves(border, delete_input=True)
+# rs.HideObjects(curves)
+
+
+# ------------------------------------------------------------------------------
+# map edges to corresponding boundary curves
+# ------------------------------------------------------------------------------
+edge_cruves = {}
+
+
+# ------------------------------------------------------------------------------
+# mesh edge strips
+# ------------------------------------------------------------------------------
+edge_strips = {}
+
+
+# ------------------------------------------------------------------------------
+# unify surface uv directions
+# ------------------------------------------------------------------------------
+# similar to compas.datastructures.mesh.orientation mesh_unify_cycles()
+def unify_uv_direction(mesh, edge_curves):
+    pass
+
+
+# ------------------------------------------------------------------------------
 # surface uv subdivision
 # ------------------------------------------------------------------------------
-def to_compas_mesh(surface, nu, nv=None, weld=False, facefilter=None, cls=None):
+def surface_to_uvmesh(surface, nu, nv=None, weld=False, facefilter=None, cls=None):
 
     nv = nv or nu
     cls = cls or Mesh
@@ -69,11 +98,11 @@ def to_compas_mesh(surface, nu, nv=None, weld=False, facefilter=None, cls=None):
 # ------------------------------------------------------------------------------
 # run command
 # ------------------------------------------------------------------------------
-mesh = to_compas_mesh(rhinosurface, nu=10, nv=10, weld=True)
+subd = surface_to_uvmesh(rhinosurface, nu=10, nv=10, weld=True)
 
 
 # ------------------------------------------------------------------------------
 # draw subdivide mesh
 # ------------------------------------------------------------------------------
-artist = MeshArtist(mesh)
+artist = MeshArtist(subd)
 artist.draw_mesh()

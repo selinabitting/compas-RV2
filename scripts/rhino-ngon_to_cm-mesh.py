@@ -29,25 +29,29 @@ rs.HideObjects(guid)
 # ------------------------------------------------------------------------------
 # surface boundaries
 # ------------------------------------------------------------------------------
-border = rs.DuplicateSurfaceBorder(guid, type=1)
-curves = rs.ExplodeCurves(border, delete_input=True)
+# border = rs.DuplicateSurfaceBorder(guid, type=1)
+# curves = rs.ExplodeCurves(border, delete_input=True)
 # rs.HideObjects(curves)
+
+
+# ------------------------------------------------------------------------------
+# map edges to corresponding boundary curves
+# ------------------------------------------------------------------------------
+edge_cruves = {}
 
 
 # ------------------------------------------------------------------------------
 # modified catmull clark
 # ------------------------------------------------------------------------------
-def mesh_subdivide_catmullclark(mesh, k=2, fixed=None):
+initial_mesh_corners = mesh.vertices_on_boundary()
+
+def mesh_subdivide_catmullclark(mesh, k=2, fixed=initial_mesh_corners):
 
     cls = type(mesh)
 
     if not fixed:
         fixed = []
     fixed = set(fixed)
-
-    def project_to_surface(surface_guid, (x, y, z)):
-        px, py, pz = rs.BrepClosestPoint(guid, (x, y, z))[0]
-        return px, py, pz
 
     for _ in range(k):
         subd = mesh_fast_copy(mesh)
@@ -66,6 +70,8 @@ def mesh_subdivide_catmullclark(mesh, k=2, fixed=None):
         for u, v in mesh.edges():
 
             w = subd.split_edge(u, v, allow_boundary=True)
+            # here, the location of w needs to lie on the boundary curve of the surface, not the midpoint of u and v.
+
             # crease = mesh.edge_attribute((u, v), 'crease') or 0
             crease = k + 1 # this ensures that boundary vertices remain fixed
 
