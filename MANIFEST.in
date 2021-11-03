@@ -20,5 +20,6 @@ exclude requirements-dev.txt
 exclude pytest.ini .bumpversion.cfg .editorconfig
 exclude tasks.py
 exclude CONTRIBUTING.md
+exclude plugin_title_slides_compas_rv2.jpg
 
 global-exclude *.py[cod] __pycache__ *.dylib *.nb[ic] .DS_Store Thumbs.db *.rui_bak
