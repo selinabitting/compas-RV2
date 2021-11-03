@@ -54,27 +54,27 @@ else:
 
 gkeys = {geometric_key(mesh.vertex_coordinates(vertex)): vertex for vertex in mesh.vertices()}
 
-
-#1st way 
-surfaces_uv_vectors ={}
-surfaces=[]
-for guid,face in zip(guids, mesh.faces()):
-    domain_u = rs.SurfaceDomain(guid, 0)
-    domain_v = rs.SurfaceDomain(guid, 1)
-    u0_xyz = rg.Point3d(domain_u[0], domain_v[0],0)
-    u1_xyz = rg.Point3d(domain_u[1], domain_v[0],0)
-    v0_xyz = rg.Point3d(domain_v[0], domain_u[0],0)
-    v1_xyz = rg.Point3d(domain_v[1], domain_u[0],0)
-    print(u0_xyz[0])
-    u0 = gkeys[geometric_key(tuple(u0_xyz))]
-    u1 = gkeys[geometric_key(tuple(u1_xyz))]
-    v0 = gkeys[geometric_key(tuple(v0_xyz))]
-    v1 = gkeys[geometric_key(tuple(v1_xyz))]
-    rhinosurface = RhinoSurface.from_guid(guid)
-    surfaces.append(rhinosurface)
-    surfaces_uv_vectors[face] = {'u_edge': (u0, u1),
-                                 'v_edge': (v0, v1),
-                                 'surface': rhinosurface}
+##1st way 
+#surfaces_uv_vectors ={}
+#surfaces=[]
+#for guid,face in zip(guids, mesh.faces()):
+#    domain_u = rs.SurfaceDomain(guid, 0)
+#    domain_v = rs.SurfaceDomain(guid, 1)
+#    print(domain_u)
+#    u0_xyz = rg.Point3d(domain_u[0], domain_v[0],0)
+#    u1_xyz = rg.Point3d(domain_u[1], domain_v[0],0)
+#    v0_xyz = rg.Point3d(domain_v[0], domain_u[0],0)
+#    v1_xyz = rg.Point3d(domain_v[1], domain_u[0],0)
+#    print(u0_xyz)
+#    u0 = gkeys[geometric_key(tuple(u0_xyz))]
+#    u1 = gkeys[geometric_key(tuple(u1_xyz))]
+#    v0 = gkeys[geometric_key(tuple(v0_xyz))]
+#    v1 = gkeys[geometric_key(tuple(v1_xyz))]
+#    rhinosurface = RhinoSurface.from_guid(guid)
+#    surfaces.append(rhinosurface)
+#    surfaces_uv_vectors[face] = {'u_edge': (u0, u1),
+#                                 'v_edge': (v0, v1),
+#                                 'surface': rhinosurface}
 
 #2nd way
 faces_uv_vectors = {}
@@ -85,8 +85,8 @@ for brep_face, face in zip(brep_faces, mesh.faces()):
     domain_v = brep_face.Domain(1)
     u0_xyz = brep_face.PointAt(domain_u[0], domain_v[0])
     u1_xyz = brep_face.PointAt(domain_u[1], domain_v[0])
-    v0_xyz = brep_face.PointAt(domain_v[0], domain_u[0])
-    v1_xyz = brep_face.PointAt(domain_v[1], domain_u[0])
+    v0_xyz = brep_face.PointAt(domain_u[0], domain_v[0])
+    v1_xyz = brep_face.PointAt(domain_u[0], domain_v[1])
     u0 = gkeys[geometric_key(tuple(u0_xyz))]
     u1 = gkeys[geometric_key(tuple(u1_xyz))]
     v0 = gkeys[geometric_key(tuple(v0_xyz))]
@@ -112,7 +112,7 @@ def draw_uv_vectors(mesh, vector_dict):
 
 
 # draw uv information per face
-draw_uv_vectors(mesh, surfaces_uv_vectors)
+draw_uv_vectors(mesh, faces_uv_vectors)
 rs.EnableRedraw(True)
 
 
@@ -123,6 +123,7 @@ pick_edge = mesh_select_edge(mesh)
 # get all the faces of the edge strip
 edge_strip = set(frozenset(edge) for edge in mesh.edge_strip(pick_edge))
 edge_strip_faces = set()
+
 for u, v in edge_strip:
     face1, face2 = mesh.edge_faces(u, v)
     if face1 is not None:
@@ -141,6 +142,9 @@ for face in edge_strip_faces:
     else:
         suface = rg.Surface.Transpose(surface)
         face_division_direction[face] = 'divide_v'
+
+
+
 
 
 artist.clear()
