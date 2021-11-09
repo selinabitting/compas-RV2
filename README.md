@@ -1,5 +1,5 @@
 # RhinoVAULT 2
-
+![](plugin_title_slides_compas_rv2.jpg)
 RV2 (RhinoVAULT 2) is an implementation of RhinVAULT for Rhino 6+, based on the COMPAS framework.
 
 ## Getting Started
