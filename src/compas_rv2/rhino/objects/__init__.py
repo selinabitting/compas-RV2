@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 from compas_rv2.datastructures import Skeleton
-from compas_rv2.datastructures import SurfaceMesh
+from compas_rv2.datastructures import SubdMesh
 from compas_rv2.datastructures import Pattern
 from compas_rv2.datastructures import FormDiagram
 from compas_rv2.datastructures import ForceDiagram
@@ -15,10 +15,10 @@ from .patternobject import PatternObject
 from .formobject import FormObject
 from .forceobject import ForceObject
 from .thrustobject import ThrustObject
-from .surfaceobject import SurfaceObject
+from .subdobject import SubdObject
 
 MeshObject.register(Skeleton, SkeletonObject)
-MeshObject.register(SurfaceMesh, SurfaceObject)
+MeshObject.register(SubdMesh, SubdObject)
 MeshObject.register(Pattern, PatternObject)
 MeshObject.register(FormDiagram, FormObject)
 MeshObject.register(ForceDiagram, ForceObject)

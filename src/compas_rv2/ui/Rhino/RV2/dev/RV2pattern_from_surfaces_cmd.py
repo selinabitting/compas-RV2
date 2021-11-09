@@ -9,7 +9,7 @@ from compas_rv2.rhino import rv2_error
 # import artemis stuff
 
 
-__commandname__ = "RV2pattern_from_polysurfaces_uv"
+__commandname__ = "RV2pattern_from_surfaces"
 
 
 @rv2_error()
