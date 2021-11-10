@@ -12,6 +12,11 @@ from compas.geometry import Rotation
 
 from .meshobject import MeshObject
 
+from compas_rv2.rhino import SelfWeightConduit
+from compas_rv2.rhino import ReactionConduit
+from compas_rv2.rhino import LoadConduit
+from compas_rv2.rhino import ResidualConduit
+
 
 class ThrustObject(MeshObject):
     """Scene object for thrust diagrams in RV2."""
@@ -65,6 +70,10 @@ class ThrustObject(MeshObject):
         self._guid_selfweight = {}
         self._guid_load = {}
         self._guid_pipe = {}
+        self._conduit_selfweight = None
+        self._conduit_reactions = None
+        self._conduit_loads = None
+        self._conduit_residuals = None
 
     @property
     def vertex_xyz(self):
@@ -142,6 +151,75 @@ class ThrustObject(MeshObject):
     @guid_pipe.setter
     def guid_pipe(self, values):
         self._guid_pipe = dict(values)
+
+    @property
+    def conduit_selfweight(self):
+        if self._conduit_selfweight is None:
+            conduit_selfweight = SelfWeightConduit(self.mesh,
+                                                   color=self.settings['color.selfweight'],
+                                                   scale=self.settings['scale.selfweight'],
+                                                   tol=self.settings['tol.selfweight'])
+            self._conduit_selfweight = conduit_selfweight
+        return self._conduit_selfweight
+
+    @property
+    def conduit_reactions(self):
+        if self._conduit_reactions is None:
+            conduit_reactions = ReactionConduit(self.mesh,
+                                                color=self.settings['color.reactions'],
+                                                scale=self.settings['scale.externalforces'],
+                                                tol=self.settings['tol.externalforces'])
+            self._conduit_reactions = conduit_reactions
+        return self._conduit_reactions
+
+    @property
+    def conduit_loads(self):
+        if self._conduit_loads is None:
+            conduit_loads = LoadConduit(self.mesh,
+                                        color=self.settings['color.loads'],
+                                        scale=self.settings['scale.externalforces'],
+                                        tol=self.settings['tol.externalforces'])
+            self._conduit_loads = conduit_loads
+        return self._conduit_loads
+
+    @property
+    def conduit_residuals(self):
+        if self._conduit_residuals is None:
+            conduit_residuals = ResidualConduit(self.mesh,
+                                                color=self.settings['color.residuals'],
+                                                scale=self.settings['scale.residuals'],
+                                                tol=self.settings['tol.residuals'])
+            self._conduit_residuals = conduit_residuals
+        return self._conduit_residuals
+
+    def clear_conduits(self):
+        try:
+            self.conduit_selfweight.disable()
+        except Exception:
+            pass
+        finally:
+            del self._conduit_selfweight
+
+        try:
+            self.conduit_reactions.disable()
+        except Exception:
+            pass
+        finally:
+            del self._conduit_reactions
+
+        try:
+            self.conduit_loads.disable()
+        except Exception:
+            pass
+        finally:
+            del self._conduit_loads
+
+        try:
+            self.conduit_residuals.disable()
+        except Exception:
+            pass
+        finally:
+            del self._conduit_residuals
 
     def clear(self):
         super(ThrustObject, self).clear()
@@ -305,37 +383,57 @@ class ThrustObject(MeshObject):
         # Color overlays for various display modes.
         # ======================================================================
 
+        # selfweight
         if self.settings['_is.valid'] and self.settings['show.selfweight']:
-            tol = self.settings['tol.selfweight']
-            vertices = list(self.mesh.vertices())
-            color = self.settings['color.selfweight']
-            scale = self.settings['scale.selfweight']
-            guids = self.artist.draw_selfweight(vertices, color, scale, tol)
-            self.guid_selfweight = zip(guids, vertices)
+            self.conduit_selfweight.color = self.settings['color.selfweight']
+            self.conduit_selfweight.scale = self.settings['scale.selfweight']
+            self.conduit_selfweight.tol = self.settings['tol.selfweight']
+            self.conduit_selfweight.enable()
+        else:
+            if self.conduit_selfweight:
+                try:
+                    self.conduit_selfweight.disable()
+                except Exception:
+                    pass
 
+        # loads
         if self.settings['_is.valid'] and self.settings['show.loads']:
-            tol = self.settings['tol.externalforces']
-            vertices = list(self.mesh.vertices())
-            color = self.settings['color.loads']
-            scale = self.settings['scale.externalforces']
-            guids = self.artist.draw_loads(vertices, color, scale, tol)
-            self.guid_load = zip(guids, vertices)
+            self.conduit_loads.color = self.settings['color.loads']
+            self.conduit_loads.scale = self.settings['scale.externalforces']
+            self.conduit_loads.tol = self.settings['tol.externalforces']
+            self.conduit_loads.enable()
+        else:
+            if self.conduit_loads:
+                try:
+                    self.conduit_loads.disable()
+                except Exception:
+                    pass
 
+        # residuals
         if self.settings['_is.valid'] and self.settings['show.residuals']:
-            tol = self.settings['tol.residuals']
-            vertices = list(self.mesh.vertices_where({'is_anchor': False}))
-            color = self.settings['color.residuals']
-            scale = self.settings['scale.residuals']
-            guids = self.artist.draw_residuals(vertices, color, scale, tol)
-            self.guid_residual = zip(guids, vertices)
+            self.conduit_residuals.color = self.settings['color.residuals']
+            self.conduit_residuals.scale = self.settings['scale.residuals']
+            self.conduit_residuals.tol = self.settings['tol.residuals']
+            self.conduit_residuals.enable()
+        else:
+            if self.conduit_residuals:
+                try:
+                    self.conduit_residuals.disable()
+                except Exception:
+                    pass
 
+        # reactions
         if self.settings['_is.valid'] and self.settings['show.reactions']:
-            tol = self.settings['tol.externalforces']
-            anchors = list(self.mesh.vertices_where({'is_anchor': True}))
-            color = self.settings['color.reactions']
-            scale = self.settings['scale.externalforces']
-            guids = self.artist.draw_reactions(anchors, color, scale, tol)
-            self.guid_reaction = zip(guids, anchors)
+            self.conduit_reactions.color = self.settings['color.reactions']
+            self.conduit_reactions.scale = self.settings['scale.externalforces']
+            self.conduit_reactions.tol = self.settings['tol.externalforces']
+            self.conduit_reactions.enable()
+        else:
+            if self.conduit_reactions:
+                try:
+                    self.conduit_reactions.disable()
+                except Exception:
+                    pass
 
         if self.settings['_is.valid'] and self.settings['show.pipes']:
             tol = self.settings['tol.pipes']

@@ -57,6 +57,9 @@ class MeshObject(MeshObject):
         vertex_xyz = {vertex: mesh.vertex_attributes(vertex, 'xyz') for vertex in mesh.vertices()}
         return vertex_xyz
 
+    def clear_conduits(self):
+        pass
+
     def update_attributes(self):
         """Update the attributes of the data structure through a Rhino dialog.
 

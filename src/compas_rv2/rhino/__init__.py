@@ -71,6 +71,14 @@ from .artists import (
     ForceArtist,
     ThrustArtist
 )
+from .conduits import (
+    SelfWeightConduit,
+    ReactionConduit,
+    LoadConduit,
+    ResidualConduit,
+    ForceConduit,
+    HorizontalConduit
+)
 from .objects import (
     MeshObject,
     SkeletonObject,
@@ -80,10 +88,7 @@ from .objects import (
     ForceObject,
     ThrustObject,
 )
-from .conduits import (
-    ForceConduit,
-    HorizontalConduit
-)
+
 
 __all__ = [
     'is_valid_file',
@@ -121,6 +126,10 @@ __all__ = [
     'ForceObject',
     'ThrustObject',
 
+    'SelfWeightConduit',
+    'ReactionConduit',
+    'LoadConduit',
+    'ResidualConduit',
     'ForceConduit',
     'HorizontalConduit',
 ]
