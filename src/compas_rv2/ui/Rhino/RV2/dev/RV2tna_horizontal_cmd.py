@@ -87,6 +87,8 @@ def RunCommand(is_interactive):
     scene.settings['Solvers']['tna.horizontal.alpha'] = alpha
     scene.settings['Solvers']['tna.horizontal.refreshrate'] = refresh
 
+    force.artist.clear()
+
     if refresh > 0:
         conduit = HorizontalConduit([], refreshrate=refresh)
         with conduit.enabled():
