@@ -5,21 +5,23 @@ from __future__ import division
 import Rhino
 
 import rhinoscriptsyntax as rs
+import Rhino.Geometry as rg
+
 import compas_rhino
 
 from compas.datastructures import Mesh
 from compas.datastructures import meshes_join
+from compas.datastructures.mesh.subdivision import mesh_fast_copy
 
 from compas.geometry import normalize_vector
 from compas.geometry import add_vectors
+from compas.geometry import centroid_points
 
 from compas.utilities import color_to_colordict, geometric_key
 
 from compas_rhino.utilities import select_surface
 from compas_rhino.objects import mesh_select_edge
 from compas_rhino.geometry import RhinoSurface
-
-
 from compas_rhino.artists import MeshArtist
 
 
@@ -28,7 +30,7 @@ from compas_rhino.artists import MeshArtist
 # ==============================================================================
 
 guid = select_surface()
-rs.HideObjects(guid)
+#rs.HideObjects(guid)
 
 
 # ==============================================================================
@@ -85,6 +87,7 @@ default_n = 4  # for non-quads
 # faces_dict will eventually be stored as face attributes in our surfacemesh datastructure
 
 faces_dict = {}
+edges_dict = {}
 
 gkeys = {geometric_key(mesh.vertex_coordinates(vertex)): vertex for vertex in mesh.vertices()}
 
@@ -96,7 +99,8 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                  'nu': default_nu_nv,
                  'nv': default_nu_nv,
                  'n': default_n,
-                 'brep_face': brep_face}
+                 'brep_face': brep_face
+                 }
 
     # check whether the brep_face is a quad or not (we can think of a shorter, more elegant solution...)
     loop = brep_face.OuterLoop
@@ -112,7 +116,6 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
         v0_xyz = brep_face.PointAt(domain_u[0], domain_v[0])
         v1_xyz = brep_face.PointAt(domain_u[0], domain_v[1])
 
-        # we can remove the tuple() thing below ... this is from before when we din't know what format u0, u1, v0, v1 were in...
         u0 = gkeys[geometric_key(u0_xyz)]
         u1 = gkeys[geometric_key(u1_xyz)]
         v0 = gkeys[geometric_key(v0_xyz)]
@@ -122,15 +125,36 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                           'u_edge': (u0, u1),
                           'v_edge': (v0, v1),
                           'brep_face': brep_face})
+                          
+        faces_dict[face] = face_info
+        
+    else:
+        n = len(segments)
+        
+        brep_points = []
+        for seg , edge in zip(segments, mesh.face_halfedges(face)):
 
-        # we can skip storing the below information, as it will be available through the 'brep_face' item stored in the faces_dict[face]
-        # brep_surfaces_dic[brep_surface] = {'u0': u0,
-        #                                 'u1': u1,
-        #                                 'v0': v0,
-        #                                 'v1': v1}
-
-    faces_dict[face] = face_info
-
+            edge_info = {
+                         'brep_edge' : seg,
+                         'brep_sp' : None,
+                         'brep_ep': None,
+                         'curves': segments,
+                         'points' : [],
+                         'subd_points' : []
+                         }
+            sp = seg.PointAtStart
+            ep = seg.PointAtEnd
+            
+            u0 = gkeys[geometric_key(sp)]
+            u1 = gkeys[geometric_key(ep)]
+            brep_points.append(sp)
+            
+            edge_info.update({
+                              'brep_sp' : u0,
+                              'brep_ep' : u1,
+                              'points' : brep_points
+                              })
+            edges_dict[edge] = edge_info
 
 # ==============================================================================
 #  5. draw uv information per face (just for our visual reference)
@@ -158,25 +182,6 @@ draw_uv_vectors(mesh, faces_dict)
 #  x. our main surface subdivision functions
 # ==============================================================================
 
-# we can always start with a default subdivision number, then the user can decide by selecting edge strips, whether to change the default n division or not.
-
-"""
-#--------- Get integer division number for U,V  ---------------
-
-nu = compas_rhino.rs.GetInteger('divide U into?')
-if not nu or nu < 2:
-    print('has to be larger than 2!!')
-    #need to add a break point here or should we give a default n division anyways?
-elif nu and nu > 2:
-    nv = compas_rhino.rs.GetInteger('divide V into?')
-    if not nv:
-        nv=nu
-    elif nv < 2:
-        print('has to be larger than 2!!')
-#--------------------------------------------------------------
-"""
-
-
 # 1. for quads
 def subdivide_quad(brep_face, nu, nv):
     """Subdivide a single quad brep_face"""
@@ -191,7 +196,7 @@ def subdivide_quad(brep_face, nu, nv):
 
     def point_at(i, j):
         return brep_face.PointAt(i, j)
-
+        
     quads = []
     for i in range(nu):
         for j in range(nv):
@@ -203,18 +208,139 @@ def subdivide_quad(brep_face, nu, nv):
 
     return Mesh.from_polygons(quads)
 
+# ------------------------------------------------------------------------------
+# non-quads
+# ------------------------------------------------------------------------------
+def divide_curve(curve, n):
+    params = curve.DivideByCount(n)
+    pts = []
+    for param in params:
+        pt = curve.PointAt(param)
+        pts.append(pt)
+    return pts
 
 # 2.  for non-quads
-def subdivide_nonquad(brep_face, n):
+def subdivide_nonquad(face, brep_face, n):
     """subdivide a single non-quad brep_face"""
+    mesh = face
 
-    # this will be our modified version of catmull clark subdivision
+    #subdivide brep_face edges 
+    # ----------------------------------------------------------------------
+    subd_points = []
+    for edge in mesh.face_halfedges():
+        subd_pts = divide_curve(seg,n)
+        up_dict = {'subd_points' : subd_points}
+        edges_dict[edge].update(up_dict)
+        subd_points.extend(subd_pts)
 
-    pass
+    #subdivide based on catmull clark without smoothing
+    # ----------------------------------------------------------------------
+    initial_mesh_corners = mesh.vertices_on_boundary()
+    fixed=initial_mesh_corners
 
+    cls = type(mesh)
 
+    if not fixed:
+        fixed = []
+    fixed = set(fixed)
+
+    for _ in range(n):
+        subd = mesh_fast_copy(mesh)
+
+        # at each iteration, keep track of original connectivity and vertex locations
+
+        # keep track of the created edge points that are not on the boundary
+        # keep track track of the new edge points on the boundary
+        # and their relation to the previous boundary points
+
+        # ----------------------------------------------------------------------
+        # split all edges
+
+        edgepoints = []
+
+        for u, v in mesh.edges():
+
+            w = subd.split_edge(u, v, allow_boundary=True)
+            # here, the location of w needs to lie on the boundary curve of the surface, not the midpoint of u and v.
+
+            # crease = mesh.edge_attribute((u, v), 'crease') or 0
+            crease = n + 1 # this ensures that boundary vertices remain fixed
+
+            if crease:
+                edgepoints.append([w, True])
+                subd.edge_attribute((u, w), 'crease', crease - 1)
+                subd.edge_attribute((w, v), 'crease', crease - 1)
+            else:
+                edgepoints.append([w, False])
+
+        # ----------------------------------------------------------------------
+        # subdivide
+
+        fkey_xyz = {fkey: mesh.face_centroid(fkey) for fkey in mesh.faces()}
+
+        for fkey in mesh.faces():
+
+            descendant = {i: j for i, j in subd.face_halfedges(fkey)}
+            ancestor = {j: i for i, j in subd.face_halfedges(fkey)}
+
+            x, y, z = fkey_xyz[fkey]
+            c = subd.add_vertex(x=x, y=y, z=z)
+
+            for key in mesh.face_vertices(fkey):
+                a = ancestor[key]
+                d = descendant[key]
+
+                subd.add_face([a, key, d, c])
+
+            del subd.face[fkey]
+
+        # ----------------------------------------------------------------------
+        # update vertex coordinates
+
+        # these are the coordinates before updating
+        key_xyz = {key: subd.vertex_coordinates(key) for key in subd.vertex}
+
+        # move each edge point to the average of the neighboring centroids and
+        # the original end points
+        boundary_verts = []
+        for w, crease in edgepoints:
+            #boundary_verts.append(w)
+            #print('the number of fixed vertices is', len(boundary_verts))
+            if not crease:
+                x, y, z = centroid_points(
+                    [key_xyz[nbr] for nbr in subd.halfedge[w]])
+                subd.vertex[w]['x'] = x
+                subd.vertex[w]['y'] = y
+                subd.vertex[w]['z'] = z
+
+        #mesh = subd
+    subd1 = cls.from_data(subd.data)
+
+    # map edges to corresponding boundary curves
+    # ------------------------------------------------------------------------------
+
+    subd_gkeys = {geometric_key(subd1.vertex_coordinates(vertex)): vertex for vertex in subd1.vertices()}
+    
+    mesh_edge_vertices = list(subd.vertices_on_boundaries())
+
+    #update vertex position to corresponding brep_edge
+    map_boundary_vertices = [] #list of mapped vertices
+    for vert, pt in zip(mesh_edge_vertices, subd_points):
+        #not sure which is the right way of the following
+        map_vert = subd1.update_default_vertex_attributes(vert, {'x','y','z'}, {pt[0], pt[1], pt[2]})
+        map_vert = subd1.update_default_vertex_attributes({(x,y,z) : vert}, {(pt[0], pt[1], pt[2])})
+        map_vert = subd1.vertex_attributes(vert, ('x','y','z'), (pt[0], pt[1], pt[2]))
+        map_boundary_vertices.append(map_vert)
+        subd.edge_attribute((u, w), 'crease', crease - 1)
+    # smooth
+    # ------------------------------------------------------------------------------
+    subd2 = subd1.smooth_area(fixed=map_boundary_vertices, kmax=100, damping=0.5, callback=None, callback_args=None)
+
+    return subd2
+
+# ------------------------------------------------------------------------------
 # 1 + 2. combination
-
+# ------------------------------------------------------------------------------
 # here, we don't actually need the mesh to run the function as it is written, but putting it in here anyway for now, as our eventual setup will all operate entirely around/on the mesh (which we will call the surfacemesh), and faces_dict will come from the face attributes of that mesh
 
 def subdivide_surfacemesh(mesh, faces_dict):
@@ -234,8 +360,8 @@ def subdivide_surfacemesh(mesh, faces_dict):
             subd_meshes.append(quad_subd_mesh)
 
         else:  # if face is a non-quad
-            n = faces_dict[face['n']]
-            nonquad_subd_mesh = subdivide_nonquad(brep_face, n)
+            n = faces_dict[face]['n']
+            nonquad_subd_mesh = subdivide_nonquad(face, brep_face, n)
             subd_meshes.append(nonquad_subd_mesh)
 
     return meshes_join(subd_meshes)
@@ -284,14 +410,6 @@ pick_edge = mesh_select_edge(mesh)
 # setting the minimum here will force users to enter a minimum integer of 2
 nu_or_nv = compas_rhino.rs.GetInteger('divide into?', minimum=2)
 
-#if not n or n < 2:
-#    print('has to be larger than 2!!')
-#else:
-#    # user chooses an edge
-#    pick_edge = mesh_select_edge(mesh)
-#    subd2 = subdivide_edge_strip(subd, pick_edge, n)
-
-
 # ==============================================================================
 #  8. update nu or nv information for the faces of the edge_strip
 # ==============================================================================
@@ -306,7 +424,7 @@ for u, v in edge_strip:
     if face1 is not None:
         edge_strip_faces.add(face1)
     if face2 is not None:
-        edge_strip_faces.add(face2) # ?????? doesn't it add the same face twice?
+        edge_strip_faces.add(face2)
 
 # update the nu or nv for quads, and n for non-quads
 for face in edge_strip_faces:
@@ -324,7 +442,6 @@ for face in edge_strip_faces:
     else:  # if the face is a non-quad
         faces_dict[face]['n'] = nu_or_nv
 
-
 # uncomment below to see results!
 
 
@@ -332,15 +449,15 @@ for face in edge_strip_faces:
 #  9. subdivide the surfaces again with the updated nu_nv
 # ==============================================================================
 
-# subd2 = subdivide_surfacemesh(mesh, faces_dict)
+subd2 = subdivide_surfacemesh(mesh, faces_dict)
 
 
 # ==============================================================================
 #  10. draw the newly subdivided mesh
 # ==============================================================================
 
-# coarse_mesh_artist.clear_layer() # delete the coarse mesh
-# subd1_artist.clear_layer() # delete the default subd mesh
+coarse_mesh_artist.clear_layer() # delete the coarse mesh
+subd1_artist.clear_layer() # delete the default subd mesh
 
-# subd2_artist = MeshArtist(subd2, layer='subd2_mesh')
-# subd2_artist.draw_mesh()
+subd2_artist = MeshArtist(subd2, layer='subd2_mesh')
+subd2_artist.draw_mesh()
