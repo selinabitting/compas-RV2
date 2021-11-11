@@ -125,12 +125,10 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                           'u_edge': (u0, u1),
                           'v_edge': (v0, v1),
                           'brep_face': brep_face})
-                          
-        faces_dict[face] = face_info
-        
+
     else:
         n = len(segments)
-        
+
         brep_points = []
         for seg , edge in zip(segments, mesh.face_halfedges(face)):
 
@@ -144,17 +142,19 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                          }
             sp = seg.PointAtStart
             ep = seg.PointAtEnd
-            
+
             u0 = gkeys[geometric_key(sp)]
             u1 = gkeys[geometric_key(ep)]
             brep_points.append(sp)
-            
+
             edge_info.update({
                               'brep_sp' : u0,
                               'brep_ep' : u1,
                               'points' : brep_points
                               })
             edges_dict[edge] = edge_info
+
+    faces_dict[face] = face_info
 
 # ==============================================================================
 #  5. draw uv information per face (just for our visual reference)
@@ -163,15 +163,16 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
 def draw_uv_vectors(mesh, faces_dict):
     lines = []
     for face in faces_dict:
-        sp = mesh.face_centroid(face)
-        u0, u1 = faces_dict[face]['u_edge']
-        v0, v1 = faces_dict[face]['v_edge']
-        u_vec = normalize_vector(mesh.edge_vector(u0, u1))
-        v_vec = normalize_vector(mesh.edge_vector(v0, v1))
-        u_ep = add_vectors(sp, u_vec)
-        v_ep = add_vectors(sp, v_vec)
-        lines.append({'start': sp, 'end': u_ep, 'color': (0, 255, 0), 'arrow': "end"})
-        lines.append({'start': sp, 'end': v_ep, 'color': (255, 0, 0), 'arrow': "end"})
+        if faces_dict[face]['is_quad']:
+            sp = mesh.face_centroid(face)
+            u0, u1 = faces_dict[face]['u_edge']
+            v0, v1 = faces_dict[face]['v_edge']
+            u_vec = normalize_vector(mesh.edge_vector(u0, u1))
+            v_vec = normalize_vector(mesh.edge_vector(v0, v1))
+            u_ep = add_vectors(sp, u_vec)
+            v_ep = add_vectors(sp, v_vec)
+            lines.append({'start': sp, 'end': u_ep, 'color': (0, 255, 0), 'arrow': "end"})
+            lines.append({'start': sp, 'end': v_ep, 'color': (255, 0, 0), 'arrow': "end"})
     compas_rhino.draw_lines(lines, layer='uv_vectors', clear=False, redraw=False)
 
 
@@ -196,7 +197,7 @@ def subdivide_quad(brep_face, nu, nv):
 
     def point_at(i, j):
         return brep_face.PointAt(i, j)
-        
+
     quads = []
     for i in range(nu):
         for j in range(nv):
@@ -220,14 +221,22 @@ def divide_curve(curve, n):
     return pts
 
 # 2.  for non-quads
-def subdivide_nonquad(face, brep_face, n):
+def subdivide_nonquad(mesh, face, brep_face, n):
     """subdivide a single non-quad brep_face"""
-    mesh = face
+    # mesh = face
 
-    #subdivide brep_face edges 
+    # here, face is a face key (so an integer)...
+    # so to convert the face of the exisiting mesh into a new one that we can subdivide, we could do...
+
+    vertices = mesh.face_coordinates(face)
+    faces = [range(len(vertices))]
+
+    mesh = Mesh.from_vertices_and_faces(vertices, faces)
+
+    #subdivide brep_face edges
     # ----------------------------------------------------------------------
     subd_points = []
-    for edge in mesh.face_halfedges():
+    for edge in mesh.face_halfedges(0):
         subd_pts = divide_curve(seg,n)
         up_dict = {'subd_points' : subd_points}
         edges_dict[edge].update(up_dict)
@@ -320,7 +329,7 @@ def subdivide_nonquad(face, brep_face, n):
     # ------------------------------------------------------------------------------
 
     subd_gkeys = {geometric_key(subd1.vertex_coordinates(vertex)): vertex for vertex in subd1.vertices()}
-    
+
     mesh_edge_vertices = list(subd.vertices_on_boundaries())
 
     #update vertex position to corresponding brep_edge
@@ -353,6 +362,7 @@ def subdivide_surfacemesh(mesh, faces_dict):
         quad = faces_dict[face]['is_quad']
 
         if quad:  # if face is a quad
+
             nu = faces_dict[face]['nu']
             nv = faces_dict[face]['nv']
 
@@ -361,7 +371,7 @@ def subdivide_surfacemesh(mesh, faces_dict):
 
         else:  # if face is a non-quad
             n = faces_dict[face]['n']
-            nonquad_subd_mesh = subdivide_nonquad(face, brep_face, n)
+            nonquad_subd_mesh = subdivide_nonquad(mesh, face, brep_face, n)
             subd_meshes.append(nonquad_subd_mesh)
 
     return meshes_join(subd_meshes)
