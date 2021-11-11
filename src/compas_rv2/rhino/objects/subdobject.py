@@ -2,11 +2,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-import compas_rhino
-from compas.geometry import Point
-from compas.geometry import Scale
-from compas.geometry import Translation
-from compas.geometry import Rotation
 
 from .meshobject import MeshObject
 
@@ -19,13 +14,12 @@ class SubdObject(MeshObject):
     """
 
     SETTINGS = {
+        'layer': "RV2::Subd",
         'color.edges': [0, 0, 0],
         'nu': 4,
         'nv': 4,
         'n': 2
     }
-
-
 
     def draw(self):
         """Draw the objects representing the force diagram.
@@ -36,7 +30,6 @@ class SubdObject(MeshObject):
         self.clear()
         if not self.visible:
             return
-        self.artist.vertex_xyz = self.vertex_xyz
 
         # edges
         edges = list(self.mesh.edges())
