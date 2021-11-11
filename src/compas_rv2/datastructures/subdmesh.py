@@ -34,7 +34,7 @@ class SubdMesh(Mesh):
     def from_guid(cls, guid):
         rhinosurface = RhinoSurface.from_guid(guid)
         brep = Rhino.Geometry.Brep.TryConvertBrep(rhinosurface.geometry)
-        subdmesh = rhinosurface.to_compas_mesh(nu=1, nv=1, cls=cls)
+        subdmesh = rhinosurface.to_compas_mesh(cls=cls)
 
         gkeys = {geometric_key(subdmesh.vertex_coordinates(vertex)): vertex for vertex in subdmesh.vertices()}
 
@@ -73,8 +73,36 @@ class SubdMesh(Mesh):
     #   helpers
     # ==========================================================================
 
-    def subd_edge_strips(self, edge):
+    def subd_edge_strip(self, edge):
+        # need to incorporate ngons
+        u, v = edge
+        edges = [(u, v)]
+        while True:
+            face = self.halfedge[u][v]
+            if face is None:  # if on the boundary
+                break
+            vertices = self.face_vertices(face)
+            if len(vertices) != 4:  # if not quad
+                break
+            i = vertices.index(u)
+            u = vertices[i - 1]
+            v = vertices[i - 2]
+            edges.append((u, v))
+            if (u, v) == edge:
+                break
+        return edges
+
+    def default_subdivision(self):
         pass
+
+    def vertices_on_edge_loop(self, uv):
+        edges = self.edge_loop(uv)
+        if len(edges) == 1:
+            return edges[0]
+        vertices = [edge[0] for edge in edges]
+        if edges[-1][1] != edges[0][0]:
+            vertices.append(edges[-1][1])
+        return vertices
 
     # ==========================================================================
     #   subdivision
