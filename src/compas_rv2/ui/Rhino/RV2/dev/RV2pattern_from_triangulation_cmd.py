@@ -55,9 +55,9 @@ def RunCommand(is_interactive):
         compas_rhino.rs.EnableRedraw(False)
         segments = compas_rhino.rs.ExplodeCurves(guid)
         for segment in segments:
-            curve = RhinoCurve.from_guid(segment)
+            curve = RhinoCurve.from_guid(segment).to_compas()
             N = max(int(curve.length() / target_length), 1)
-            points = map(list, curve.divide(N, over_space=True))
+            _, points = curve.divide_by_count(N, return_points=True)
             for point in points:
                 gkey = geometric_key(point)
                 if gkey not in gkey_constraints:
@@ -71,9 +71,9 @@ def RunCommand(is_interactive):
     polylines = []
     if segments_guids:
         for guid in segments_guids:
-            curve = RhinoCurve.from_guid(guid)
+            curve = RhinoCurve.from_guid(guid).to_compas()
             N = int(curve.length() / target_length) or 1
-            points = map(list, curve.divide(N, over_space=True))
+            _, points = curve.divide_by_count(N, return_points=True)
             for point in points:
                 gkey = geometric_key(point)
                 if gkey not in gkey_constraints:
@@ -85,9 +85,9 @@ def RunCommand(is_interactive):
     polygons = []
     if hole_guids:
         for guid in hole_guids:
-            curve = RhinoCurve.from_guid(guid)
+            curve = RhinoCurve.from_guid(guid).to_compas()
             N = int(curve.length() / target_length) or 1
-            points = map(list, curve.divide(N, over_space=True))
+            _, points = curve.divide_by_count(N, return_points=True)
             for point in points[:-1]:
                 gkey = geometric_key(point)
                 if gkey not in gkey_constraints:
