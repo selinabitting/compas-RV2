@@ -3,11 +3,11 @@ from __future__ import absolute_import
 from __future__ import division
 
 import compas_rhino
-from compas_rhino.geometry import RhinoPoint
 
 from compas_singular.rhino import automated_smoothing_surface_constraints
 from compas_singular.rhino import automated_smoothing_constraints
 from compas_singular.rhino import constrained_smoothing
+from compas_singular.rhino import RhinoPoint
 from compas_singular.rhino import RhinoSurface
 from compas_singular.rhino import RhinoCurve
 
@@ -16,13 +16,6 @@ from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import get_proxy
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
-
-
-class RhinoPoint(RhinoPoint):
-
-    @property
-    def xyz(self):
-        return self.geometry.X, self.geometry.Y, self.geometry.Z
 
 
 __commandname__ = "RV2pattern_from_features"
