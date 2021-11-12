@@ -13,7 +13,7 @@ from ..mesh_quad_coarse import CoarseQuadMesh
 from ..mesh_quad_pseudo import PseudoQuadMesh
 
 
-__all__ = [	'CoarsePseudoQuadMesh']
+__all__ = ['CoarsePseudoQuadMesh']
 
 
 class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
