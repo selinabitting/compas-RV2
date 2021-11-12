@@ -74,35 +74,54 @@ class SubdMesh(Mesh):
     # ==========================================================================
 
     def subd_edge_strip(self, edge):
-        # need to incorporate ngons
-        u, v = edge
-        edges = [(u, v)]
-        while True:
-            face = self.halfedge[u][v]
-            if face is None:  # if on the boundary
-                break
-            vertices = self.face_vertices(face)
-            if len(vertices) != 4:  # if not quad
-                break
-            i = vertices.index(u)
-            u = vertices[i - 1]
-            v = vertices[i - 2]
-            edges.append((u, v))
-            if (u, v) == edge:
-                break
-        return edges
+
+        def strip_end_faces(strip):
+            # return nonquads at the end of edge strips
+            faces1 = self.edge_faces(strip[0][0], strip[0][1])
+            faces2 = self.edge_faces(strip[-1][0], strip[-1][1])
+            nonquads = []
+            for face in faces1 + faces2:
+                if face is not None and len(self.face_vertices(face)) != 4:
+                    nonquads.append(face)
+            return nonquads
+
+        strip = self.edge_strip(edge)
+
+        all_edges = list(strip)
+
+        end_faces = set(strip_end_faces(strip))
+        seen = set()
+
+        while len(end_faces) > 0:
+            face = end_faces.pop()
+            if face not in seen:
+                seen.add(face)
+                for u, v in self.face_halfedges(face):
+                    halfedge = (u, v)
+                    if halfedge not in all_edges:
+                        rev_hf_face = self.halfedge_face(v, u)
+                        if rev_hf_face is not None:
+                            if len(self.face_vertices(rev_hf_face)) != 4:
+                                end_faces.add(self.halfedge_face(v, u))
+                                all_edges.append(halfedge)
+                                continue
+                        halfedge_strip = self.edge_strip(halfedge)
+                        all_edges.extend(halfedge_strip)
+                        end_faces.update(strip_end_faces(halfedge_strip))
+        return all_edges
+
+    def edge_strip_faces(self, edge_strip):
+        edge_strip_faces = set()
+        for u, v in edge_strip:
+            face1, face2 = self.edge_faces(u, v)
+            if face1 is not None:
+                edge_strip_faces.add(face1)
+            if face2 is not None:
+                edge_strip_faces.add(face2)
+        return list(edge_strip_faces)
 
     def default_subdivision(self):
         pass
-
-    def vertices_on_edge_loop(self, uv):
-        edges = self.edge_loop(uv)
-        if len(edges) == 1:
-            return edges[0]
-        vertices = [edge[0] for edge in edges]
-        if edges[-1][1] != edges[0][0]:
-            vertices.append(edges[-1][1])
-        return vertices
 
     # ==========================================================================
     #   subdivision
