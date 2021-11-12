@@ -4,12 +4,12 @@ from __future__ import division
 
 import compas_rhino
 
-from compas_singular.rhino import automated_smoothing_surface_constraints
-from compas_singular.rhino import automated_smoothing_constraints
-from compas_singular.rhino import constrained_smoothing
-from compas_singular.rhino import RhinoPoint
-from compas_singular.rhino import RhinoSurface
-from compas_singular.rhino import RhinoCurve
+from compas_rv2.singular.rhino import automated_smoothing_surface_constraints
+from compas_rv2.singular.rhino import automated_smoothing_constraints
+from compas_rv2.singular.rhino import constrained_smoothing
+from compas_rv2.singular.rhino import RhinoPoint
+from compas_rv2.singular.rhino import RhinoSurface
+from compas_rv2.singular.rhino import RhinoCurve
 
 from compas_rv2.datastructures import Pattern
 from compas_rv2.rhino import get_scene
@@ -18,7 +18,7 @@ from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
 
 
-__commandname__ = "RV2pattern_from_features"
+__comrv2mandname__ = "RV2pattern_from_features"
 
 
 @rv2_error()
@@ -32,7 +32,7 @@ def RunCommand(is_interactive):
     if not proxy:
         return
 
-    delaunay = proxy.function('compas_triangle.delaunay.constrained_delaunay_triangulation')
+    delaunay = proxy.function('compas_triangle.delaunay.conforming_delaunay_triangulation')
 
     # Get input data.
     surf_guid = compas_rhino.select_surface("Select a surface to decompose.")

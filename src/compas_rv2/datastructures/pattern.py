@@ -9,8 +9,8 @@ from compas.utilities import geometric_key
 
 import compas_rhino
 
-from compas_singular.algorithms import boundary_triangulation
-from compas_singular.algorithms import SkeletonDecomposition
+from compas_rv2.singular.algorithms import boundary_triangulation
+from compas_rv2.singular.algorithms import SkeletonDecomposition
 
 from .meshmixin import MeshMixin
 
@@ -88,7 +88,7 @@ class Pattern(MeshMixin, Mesh):
                Available at: https://www.researchgate.net/publication/340096530_Topology_Finding_of_Patterns_for_Structural_Design.
 
         """
-        from compas_singular.rhino import RhinoSurface
+        from compas_rv2.singular.rhino import RhinoSurface
 
         compas.PRECISION = '1f'
 

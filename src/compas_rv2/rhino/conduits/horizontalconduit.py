@@ -10,11 +10,6 @@ from Rhino.Geometry import Line
 from System.Collections.Generic import List
 from System.Drawing.Color import FromArgb
 
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 class HorizontalConduit(BaseConduit):
     """A Rhino display conduit for lines.
