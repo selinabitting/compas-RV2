@@ -5,6 +5,7 @@ from __future__ import division
 import Rhino
 
 from compas.datastructures import Mesh
+from compas.datastructures import meshes_join
 
 from compas.utilities import geometric_key
 
@@ -23,9 +24,9 @@ class SubdMesh(Mesh):
             'is_quad': False,
             'u_edge': None,
             'v_edge': None,
-            'nu': 0,
-            'nv': 0,
-            'n': 0,
+            'nu': 2,
+            'nv': 2,
+            'n': 1,
             'brep_face': None
         })
         self._edge_strips = {}
@@ -120,18 +121,27 @@ class SubdMesh(Mesh):
                 edge_strip_faces.add(face2)
         return list(edge_strip_faces)
 
-    def default_subdivision(self):
-        pass
-
     # ==========================================================================
     #   subdivision
     # ==========================================================================
 
+    def divide_curve(curve, n):
+        pass
+
     def subdivide_quad(self, face, nu, nv):
         pass
 
-    def subdivide_ngon(self, face, n):
+    def subdivide_nonquad(self, face, n):
         pass
 
     def subdivide_faces(self):
-        pass
+
+        subd_meshes = []
+
+        for face in self.faces():
+
+            self.subdivide_quad()
+
+            self.subdivide_nonquad()
+
+        return meshes_join(subd_meshes)
