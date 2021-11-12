@@ -263,7 +263,7 @@ class SubdObject(BaseObject):
     @classmethod
     def from_guid(cls, guid):
         rhinosurface = RhinoSurface.from_guid(guid)
-        mesh = rhinosurface.to_compas(cleanup=False)
+        mesh = rhinosurface.to_compas_mesh(cleanup=False)
         subdobject = cls(mesh)
         subdobject.coarse = mesh
 
