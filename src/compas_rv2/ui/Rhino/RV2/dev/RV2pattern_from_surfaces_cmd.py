@@ -23,38 +23,42 @@ def RunCommand(is_interactive):
     if not scene:
         return
 
+    # 1. select rhino surface or polysurfaces ...
     guid = compas_rhino.select_surface()
     compas_rhino.rs.HideObjects(guid)
-    subd = SubdMesh.from_guid(guid)
 
-    scene.add(subd, name='subd')
+    # 2. make mesh and add it to the scene
+    subdmesh = SubdMesh.from_guid(guid)
+    scene.add(subdmesh, name='subd')
     scene.update()
 
-    # 1. select rhino surface or polysurfaces ...
-    # guid = compas_rhino.select_surface(message='select a surface or a polysurface')
-    # if not guid:
-    #     return
+    subd = scene.get("subd")[0]
+    subd.artist.draw_vertexlabels()
+    subd.artist.draw_facelabels(color=(0, 0, 0))
 
-    # 2. make mesh
-    # mesh = artemis.function(guid)
-    # or
-    # vertices = [ ... ]
-    # faces = [ ... ]
+    # 3. select edge
+    edge = subd.select_edge()
+    compas_rhino.rs.UnselectAllObjects()
+    compas_rhino.rs.Redraw()
 
-    # 3. turn mesh into a pattern object
+    # 4. edge strip
+    strip_edge = subd.datastructure.subd_edge_strip(edge)
+
+    # 5. update nu, nv and/or n using strip_edge
+
+    # 6. subdivide
+
+    # 7. turn mesh into a pattern object
     # pattern = Pattern.from_...
 
-    # 4. hide input surface / polysurface ...
-    # compas_rhino.rs.HideObject (guid)
-
-    # 5. add the Pattern object to the Scene, then update/redraw
+    # 8. add the Pattern object to the Scene, then update/redraw
     # scene.clear()
     # scene.add(pattern, name='pattern')
-    # scene.update()
-
-    print("This function is not ready yet!")
+    scene.update()
 
     # print("Pattern object successfully created. Input surface or polysurface has been hidden.")
+
+    print("This function is not ready yet!")
 
 
 # ==============================================================================
