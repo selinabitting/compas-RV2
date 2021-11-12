@@ -18,6 +18,13 @@ from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
 
 
+class RhinoPoint(RhinoPoint):
+
+    @property
+    def xyz(self):
+        return self.geometry.X, self.geometry.Y, self.geometry.Z
+
+
 __commandname__ = "RV2pattern_from_features"
 
 
