@@ -99,34 +99,34 @@ class MeshMixin(object):
 
         return edges
 
-    def edge_strip(self, uv):
-        edges = []
-        v, u = uv
-        while True:
-            edges.append((u, v))
-            fkey = self.halfedge[u][v]
-            if fkey is None:
-                break
-            vertices = self.face_vertices(fkey)
-            if len(vertices) != 4:
-                break
-            i = vertices.index(u)
-            u = vertices[i - 1]
-            v = vertices[i - 2]
-        edges[:] = [(u, v) for v, u in edges[::-1]]
-        u, v = uv
-        while True:
-            fkey = self.halfedge[u][v]
-            if fkey is None:
-                break
-            vertices = self.face_vertices(fkey)
-            if len(vertices) != 4:
-                break
-            i = vertices.index(u)
-            u = vertices[i - 1]
-            v = vertices[i - 2]
-            edges.append((u, v))
-        return edges
+    # def edge_strip(self, uv):
+    #     edges = []
+    #     v, u = uv
+    #     while True:
+    #         edges.append((u, v))
+    #         fkey = self.halfedge[u][v]
+    #         if fkey is None:
+    #             break
+    #         vertices = self.face_vertices(fkey)
+    #         if len(vertices) != 4:
+    #             break
+    #         i = vertices.index(u)
+    #         u = vertices[i - 1]
+    #         v = vertices[i - 2]
+    #     edges[:] = [(u, v) for v, u in edges[::-1]]
+    #     u, v = uv
+    #     while True:
+    #         fkey = self.halfedge[u][v]
+    #         if fkey is None:
+    #             break
+    #         vertices = self.face_vertices(fkey)
+    #         if len(vertices) != 4:
+    #             break
+    #         i = vertices.index(u)
+    #         u = vertices[i - 1]
+    #         v = vertices[i - 2]
+    #         edges.append((u, v))
+    #     return edges
 
     def vertices_on_edge_loop(self, uv):
         edges = self.edge_loop(uv)
