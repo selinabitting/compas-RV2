@@ -6,6 +6,7 @@ import Rhino
 
 import rhinoscriptsyntax as rs
 import Rhino.Geometry as rg
+import scriptcontext as sc
 
 import compas_rhino
 
@@ -48,9 +49,8 @@ brep = Rhino.Geometry.Brep.TryConvertBrep(rhinosurface.geometry)
 
 mesh = rhinosurface.to_compas(cleanup=False)
 coarse_mesh_artist = MeshArtist(mesh, layer='coarse_mesh')
-
-coarse_mesh_artist.draw_edges(edges=mesh.edges_on_boundary(), color=(255, 0, 0))
-
+coarse_mesh_artist.draw_vertexlabels(color=(255, 0, 0))
+coarse_mesh_artist.draw_edges(color=(255, 0, 0))
 
 
 # select_surface() will already filter selection to surface or polysurface...
@@ -162,6 +162,8 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
 
     faces_dict[face] = face_info
 
+
+
 # ==============================================================================
 #  5. draw uv information per face (just for our visual reference)
 # ==============================================================================
@@ -245,12 +247,15 @@ def divide_curve(curve, n):
     return pts
 
 # 2.  for non-quads
-def subdivide_nonquad(mesh, face, brep_face, n):
+def subdivide_nonquad(coarse_mesh, face, brep_face, n):
     """subdivide a single non-quad brep_face"""
 
-    vertices = mesh.face_coordinates(face)
-    faces = [range(len(vertices))]
-    mesh = Mesh.from_vertices_and_faces(vertices, faces)
+    mesh = Mesh()
+    vertices = coarse_mesh.face_vertices(face)
+    for vertex in vertices:
+        x, y, z = coarse_mesh.vertex_coordinates(vertex)
+        mesh.add_vertex(vertex, {'x': x, 'y': y, 'z': z})
+    mesh.add_face(vertices)
 
     #subdivide based on catmull clark without smoothing
     # ----------------------------------------------------------------------
@@ -303,31 +308,27 @@ def subdivide_nonquad(mesh, face, brep_face, n):
 
     subd_edge_vertices = split_boundary(mesh)
 
-    print('subd', subd_edge_vertices)
-
     for subd_vertices in subd_edge_vertices:
+
         s_vertex = subd_vertices[0]
         e_vertex = subd_vertices[-1]
         edge = (s_vertex, e_vertex)
+
         if edge not in edges_dict:
             edge = (e_vertex, s_vertex)
 
         curve = edges_dict[edge]['brep_edge']
-        brep_points = divide_curve(curve, n)
+        brep_points = divide_curve(curve, 2 ** n)
 
         curve_sp = edges_dict[edge]['brep_sp']
         if s_vertex != curve_sp:
             brep_points = brep_points[::-1]
 
-        print(brep_points)
-
-        for pt, key in zip(brep_points, subd_vertices):
+        for pt, key in zip(brep_points[1:-1], subd_vertices[1:-1]):
             subd1.vertex_attribute(key, 'x', pt.X)
             subd1.vertex_attribute(key, 'y', pt.Y)
             subd1.vertex_attribute(key, 'z', pt.Z)
 
-        #xyz = [[point.X, point.Y, point.Z] for point in brep_points]
-        #subd1.vertices_attributes('xyz', values=xyz, keys=subd_verts)
     # ------------------------------------------------------------------------------
     # smooth
     # ------------------------------------------------------------------------------
@@ -388,12 +389,12 @@ subd1_artist.draw_vertexlabels()
 rs.EnableRedraw(True)
 
 
-# ==============================================================================
-# steps 7 through 10 can be wrapped into an iterative/interactive loop
-# ==============================================================================
-# ----- need to make interactive......!!! -------
+# # ==============================================================================
+# # steps 7 through 10 can be wrapped into an iterative/interactive loop
+# # ==============================================================================
+# # ----- need to make interactive......!!! -------
 
-# YES !!! next step :)
+# # YES !!! next step :)
 
 
 # ==============================================================================
@@ -456,6 +457,5 @@ subd2 = subdivide_surfacemesh(mesh, faces_dict)
 # ==============================================================================
 
 # subd1_artist.clear_layer() # delete the default subd mesh
-subd1_artist.draw_vertexlabels()
 subd2_artist = MeshArtist(subd2, layer='subd2_mesh')
 subd2_artist.draw_mesh()
