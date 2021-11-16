@@ -46,37 +46,14 @@ def boundary_triangulation(outer_boundary, inner_boundaries, polyline_features=[
     if not delaunay:
         delaunay = delaunay_from_points
 
-    # # generate planar Delaunay triangulation
-    # vertices = [pt for boundary in [outer_boundary] + inner_boundaries + polyline_features for pt in boundary] + point_features
-    # faces = delaunay(vertices)
+    vertices, faces = delaunay(outer_boundary, curves=polyline_features, holes=inner_boundaries)
 
-    # delaunay_mesh = Mesh.from_vertices_and_faces(vertices, faces)
-
-    # # delete false faces with aligned vertices
-    # for fkey in list(delaunay_mesh.faces()):
-    #     a, b, c = [delaunay_mesh.vertex_coordinates(vkey) for vkey in delaunay_mesh.face_vertices(fkey)]
-    #     ab = subtract_vectors(b, a)
-    #     ac = subtract_vectors(c, a)
-    #     if length_vector(cross_vectors(ab, ac)) == 0:
-    #         delaunay_mesh.delete_face(fkey)
-
-    # # delete faces outisde the borders
-    # for fkey in list(delaunay_mesh.faces()):
-    #     centre = trimesh_face_circle(delaunay_mesh, fkey)[0]
-    #     if not is_point_in_polygon_xy(centre, outer_boundary) or any([is_point_in_polygon_xy(centre, inner_boundary) for inner_boundary in inner_boundaries]):
-    #         delaunay_mesh.delete_face(fkey)
-
-    vertices, faces = delaunay(outer_boundary, polylines=polyline_features, polygons=inner_boundaries)
     mesh = Mesh.from_vertices_and_faces(vertices, faces)
+
     if polyline_features:
         gkey_key = mesh.gkey_key()
         edges = [edge for polyline in polyline_features for edge in pairwise([gkey_key[geometric_key(point)] for point in polyline])]
         mesh_unweld_edges(mesh, edges)
-
-    # # topological cut along the feature polylines through unwelding
-    # vertex_map = {geometric_key(mesh.vertex_coordinates(vkey)): vkey for vkey in mesh.vertices()}
-    # edges = [edge for polyline in polyline_features for edge in pairwise([vertex_map[geometric_key(point)] for point in polyline])]
-    # mesh_unweld_edges(mesh, edges)
 
     return mesh
 

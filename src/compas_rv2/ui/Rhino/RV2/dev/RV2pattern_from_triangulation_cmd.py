@@ -12,8 +12,6 @@ from compas_rv2.datastructures import Pattern
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
 
-import rhinoscriptsyntax as rs
-
 
 __commandname__ = "RV2pattern_from_triangulation"
 
@@ -30,7 +28,7 @@ def RunCommand(is_interactive):
     if not proxy:
         return
 
-    conforming_delaunay_triangulation = proxy.function('compas.geometry.conforming_delaunay_triangulation')
+    cdt = proxy.function('compas_cgal.triangulation.refined_delaunay_mesh')
 
     boundary_guids = compas_rhino.select_curves('Select outer boundary.')
     if not boundary_guids:
@@ -43,7 +41,7 @@ def RunCommand(is_interactive):
     segments_guids = compas_rhino.select_curves('Select constraint curves.')
     compas_rhino.rs.UnselectAllObjects()
 
-    target_length = rs.GetReal('Specifiy target edge length.', 1.0)
+    target_length = compas_rhino.rs.GetReal('Specifiy target edge length.', 1.0)
     if not target_length:
         return
 
@@ -95,9 +93,9 @@ def RunCommand(is_interactive):
                 gkey_constraints[gkey].append(guid)
             polygons.append(points)
 
-    area = target_length ** 2 * 0.5 * 0.5 * 1.732
+    # area = target_length ** 2 * 0.5 * 0.5 * 1.732
 
-    vertices, faces = conforming_delaunay_triangulation(boundary, polylines=polylines, polygons=polygons, angle=30, area=area)
+    vertices, faces = cdt(boundary, curves=polylines, holes=polygons, maxlength=target_length, is_optimized=True)
     vertices[:] = [[float(x), float(y), float(z)] for x, y, z in vertices]
 
     pattern = Pattern.from_vertices_and_faces(vertices, faces)
