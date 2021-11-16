@@ -67,7 +67,7 @@ coarse_mesh_artist.draw_edges(color=(0, 0, 0))
 # ==============================================================================
 
 default_nu_nv = 10  # for quads
-default_n = 4  # for non-quads
+default_n = 2  # for non-quads
 
 
 # ==============================================================================
@@ -142,7 +142,7 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                          'curves': segments,
                          'points' : []
                          }
-                         
+
             sp = seg.PointAtStart
             ep = seg.PointAtEnd
 
@@ -155,7 +155,7 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                               'brep_ep' : u1
                               })
             edges_dict[edge] = edge_info
-            
+
     faces_dict[face] = face_info
 
 # ==============================================================================
@@ -217,6 +217,23 @@ def subdivide_quad(brep_face, nu, nv):
 #subdivide brep_face edges
 # ----------------------------------------------------------------------
 
+def split_boundary(mesh):
+    boundaries = mesh.vertices_on_boundaries()
+    exterior = boundaries[0]
+    print(exterior)
+    opening = []
+    openings = [opening]
+    for vertex in exterior:
+        opening.append(vertex)
+        if mesh.vertex_degree(vertex) == 2:
+            opening = [vertex]
+            openings.append(opening)
+    openings[-1] += openings[0]
+    del openings[0]
+    openings[:] = [opening for opening in openings if len(opening) > 2]
+    print('openings', openings)
+    return openings
+
 def divide_curve(curve, n):
     params = curve.DivideByCount(n,True)
     pts = []
@@ -232,7 +249,7 @@ def subdivide_nonquad(mesh, face, brep_face, n):
     vertices = mesh.face_coordinates(face)
     faces = [range(len(vertices))]
     mesh = Mesh.from_vertices_and_faces(vertices, faces)
-        
+
     #subdivide based on catmull clark without smoothing
     # ----------------------------------------------------------------------
     initial_mesh_corners = mesh.vertices_on_boundary()
@@ -240,15 +257,15 @@ def subdivide_nonquad(mesh, face, brep_face, n):
 
     for _ in range(n):
         subd = mesh_fast_copy(mesh)
-        
+
         # at each iteration, keep track of original connectivity and vertex locations
         # keep track of the created edge points that are not on the boundary
         # keep track track of the new edge points on the boundary
         # and their relation to the previous boundary points
-        
+
         # ----------------------------------------------------------------------
         # split all edges
-        
+
         edgepoints = []
         for u, v in mesh.edges():
             w = subd.split_edge(u, v, allow_boundary=True)
@@ -256,7 +273,7 @@ def subdivide_nonquad(mesh, face, brep_face, n):
 
         # ----------------------------------------------------------------------
         # subdivide
-        
+
         fkey_xyz = {fkey: mesh.face_centroid(fkey) for fkey in mesh.faces()}
 
         for fkey in mesh.faces():
@@ -265,29 +282,28 @@ def subdivide_nonquad(mesh, face, brep_face, n):
 
             x, y, z = fkey_xyz[fkey]
             c = subd.add_vertex(x=x, y=y, z=z)
-            
+
             for key in mesh.face_vertices(fkey):
                 a = ancestor[key]
                 d = descendant[key]
                 subd.add_face([a, key, d, c])
-                
+
             del subd.face[fkey]
-        
+
         # these are the coordinates before updating
         key_xyz = {key: subd.vertex_coordinates(key) for key in subd.vertex}
         mesh = subd
-        
+
     subd1 = cls.from_data(mesh.data)
+    subd1_artist = MeshArtist(mesh, layer='subd1_mesh')
+    subd1_artist.draw_edges(color=(0, 0, 0))
+    subd1_artist.draw_vertexlabels()
 
     # map edges to corresponding boundary curves
     # ------------------------------------------------------------------------------
-    
-    subd_edge_vertices = list(*subd1.vertices_on_boundaries())
-    print (subd_edge_vertices)
-    subd_edge_vertices = subd1.vertices_on_boundaries()
-    print (subd_edge_vertices)
-    print (subd_edge_vertices[5])
-    
+
+    subd_edge_vertices = split_boundary(mesh)
+
     for subd_vertices in subd_edge_vertices:
         s_vertex = subd_vertices[0]
         e_vertex = subd_vertices[-1]
@@ -295,21 +311,21 @@ def subdivide_nonquad(mesh, face, brep_face, n):
         print (type(s_vertex))
         print (s_vertex, e_vertex)
         edge = (s_vertex, e_vertex)
-        
+
         curve = edges_dict[edge]['brep_edge']
         brep_points = divide_curve(curve,n)
-        
+
         for pt, key in zip(brep_points, subd_vertices):
             subd1.vertex_attribute(key, 'x', pt.X)
             subd1.vertex_attribute(key, 'y', pt.Y)
             subd1.vertex_attribute(key, 'z', pt.Z)
         #xyz = [[point.X, point.Y, point.Z] for point in brep_points]
         #subd1.vertices_attributes('xyz', values=xyz, keys=subd_verts)
-    # ------------------------------------------------------------------------------  
+    # ------------------------------------------------------------------------------
     # smooth
     # ------------------------------------------------------------------------------
     #subd2 = subd1.smooth_area(fixed = fixed_vertices, kmax=100, damping=0.5, callback=None, callback_args=None)
-    
+
     return subd1
 
 # ------------------------------------------------------------------------------
