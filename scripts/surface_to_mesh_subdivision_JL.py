@@ -255,91 +255,73 @@ def subdivide_nonquad(mesh, face, brep_face, n):
     #subdivide based on catmull clark without smoothing
     # ----------------------------------------------------------------------
     initial_mesh_corners = mesh.vertices_on_boundary()
-    fixed=initial_mesh_corners
-
     cls = type(mesh)
-
-    if not fixed:
-        fixed = []
-    fixed = set(fixed)
 
     for _ in range(n):
         subd = mesh_fast_copy(mesh)
-
+        
         # at each iteration, keep track of original connectivity and vertex locations
-
         # keep track of the created edge points that are not on the boundary
         # keep track track of the new edge points on the boundary
         # and their relation to the previous boundary points
-
+        
         # ----------------------------------------------------------------------
         # split all edges
-
+        
         edgepoints = []
-
         for u, v in mesh.edges():
-
             w = subd.split_edge(u, v, allow_boundary=True)
-            edgepoints.append([w, False])
+            edgepoints.append([w, True])
 
         # ----------------------------------------------------------------------
         # subdivide
-
+        
         fkey_xyz = {fkey: mesh.face_centroid(fkey) for fkey in mesh.faces()}
 
         for fkey in mesh.faces():
-
             descendant = {i: j for i, j in subd.face_halfedges(fkey)}
             ancestor = {j: i for i, j in subd.face_halfedges(fkey)}
 
             x, y, z = fkey_xyz[fkey]
             c = subd.add_vertex(x=x, y=y, z=z)
-
+            
             for key in mesh.face_vertices(fkey):
                 a = ancestor[key]
                 d = descendant[key]
-
                 subd.add_face([a, key, d, c])
-
+                
             del subd.face[fkey]
-
-        #mesh = subd
+        
     subd1 = cls.from_data(subd.data)
 
     # map edges to corresponding boundary curves
     # ------------------------------------------------------------------------------
-    subd_gkeys = {geometric_key(subd1.vertex_coordinates(vertex)): vertex for vertex in subd1.vertices()}
-
-    subd_edge_vertices = subd1.vertices_on_boundaries() #gives vertices keys per boundary
     
-    # ------------------------------------------------------------------------------
+    subd_edge_vertices = subd1.vertices_on_boundaries()
     
-    for subd_vertex in subd_edge_vertices:
-        s_vert = subd_vertex[0]
-        e_vert = subd_vertex[-1]
+    for subd_vertices in subd_edge_vertices:
+        s_vert = subd_vertices[0]
+        e_vert = subd_vertices[-1]
         edge = (s_vert, e_vert)
 
-        edge_dict[edge] = edge_info
-
-        subd_points = edge_dict[edge]['subd_points']
-        for pt, key in zip(subd_points, subd_vertex):
+        brep_points = edge_dict[edge]['subd_points']
+        
+        for pt, key in zip(brep_points, subd_vertices):
             subd1.vertex_attribute(key, 'x', pt.X)
             subd1.vertex_attribute(key, 'y', pt.Y)
             subd1.vertex_attribute(key, 'z', pt.Z)
-        #xyz = [[point.X, point.Y, point.Z] for point in subd_points]
+        #xyz = [[point.X, point.Y, point.Z] for point in brep_points]
         #subd1.vertices_attributes('xyz', values=xyz, keys=subd_verts)
     # ------------------------------------------------------------------------------  
     # smooth
     # ------------------------------------------------------------------------------
+    #subd2 = subd1.smooth_area(fixed = fixed_vertices, kmax=100, damping=0.5, callback=None, callback_args=None)
     
-    #subd2 = subd1.smooth_area(fixed = subd_edge_vertices, kmax=100, damping=0.5, callback=None, callback_args=None)
-
     return subd1
 
 # ------------------------------------------------------------------------------
 # 1 + 2. combination
 # ------------------------------------------------------------------------------
-# here, we don't actually need the mesh to run the function as it is written, but putting it in here anyway for now, as our eventual setup will all operate entirely around/on the mesh (which we will call the surfacemesh), and faces_dict will come from the face attributes of that mesh
 
 def subdivide_surfacemesh(mesh, faces_dict):
 
