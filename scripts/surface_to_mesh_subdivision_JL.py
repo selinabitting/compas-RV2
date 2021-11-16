@@ -99,7 +99,8 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                  'nu': default_nu_nv,
                  'nv': default_nu_nv,
                  'n': default_n,
-                 'brep_face': brep_face
+                 'brep_face': brep_face,
+                 'segments' : []
                  }
 
     # check whether the brep_face is a quad or not (we can think of a shorter, more elegant solution...)
@@ -140,6 +141,7 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                          'points' : [],
                          'subd_points' : []
                          }
+                         
             sp = seg.PointAtStart
             ep = seg.PointAtEnd
 
@@ -153,6 +155,8 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
                               'points' : brep_points
                               })
             edges_dict[edge] = edge_info
+            
+        face_info.update({'segments': segments})
 
     faces_dict[face] = face_info
 
@@ -213,7 +217,7 @@ def subdivide_quad(brep_face, nu, nv):
 # non-quads
 # ------------------------------------------------------------------------------
 def divide_curve(curve, n):
-    params = curve.DivideByCount(n)
+    params = curve.DivideByCount(n,True)
     pts = []
     for param in params:
         pt = curve.PointAt(param)
@@ -223,24 +227,30 @@ def divide_curve(curve, n):
 # 2.  for non-quads
 def subdivide_nonquad(mesh, face, brep_face, n):
     """subdivide a single non-quad brep_face"""
-    # mesh = face
-
     # here, face is a face key (so an integer)...
     # so to convert the face of the exisiting mesh into a new one that we can subdivide, we could do...
 
     vertices = mesh.face_coordinates(face)
     faces = [range(len(vertices))]
-
     mesh = Mesh.from_vertices_and_faces(vertices, faces)
 
     #subdivide brep_face edges
     # ----------------------------------------------------------------------
-    subd_points = []
-    for edge in mesh.face_halfedges(0):
+    segments = faces_dict[face]['segments']
+    
+    edge_info = {
+                 'subd_points': [],
+                 'cont_edges': [],
+                 'verts_to_map': []
+                 }
+    edge_dict = {}
+    
+    total_subd_points = []
+    for edge, seg in zip(mesh.face_halfedges(face), segments):
         subd_pts = divide_curve(seg,n)
-        up_dict = {'subd_points' : subd_points}
-        edges_dict[edge].update(up_dict)
-        subd_points.extend(subd_pts)
+        edge_info.update({'subd_points' : subd_pts})
+        total_subd_points.extend(subd_pts)
+        edge_dict[edge] = edge_info
 
     #subdivide based on catmull clark without smoothing
     # ----------------------------------------------------------------------
@@ -270,17 +280,7 @@ def subdivide_nonquad(mesh, face, brep_face, n):
         for u, v in mesh.edges():
 
             w = subd.split_edge(u, v, allow_boundary=True)
-            # here, the location of w needs to lie on the boundary curve of the surface, not the midpoint of u and v.
-
-            # crease = mesh.edge_attribute((u, v), 'crease') or 0
-            crease = n + 1 # this ensures that boundary vertices remain fixed
-
-            if crease:
-                edgepoints.append([w, True])
-                subd.edge_attribute((u, w), 'crease', crease - 1)
-                subd.edge_attribute((w, v), 'crease', crease - 1)
-            else:
-                edgepoints.append([w, False])
+            edgepoints.append([w, False])
 
         # ----------------------------------------------------------------------
         # subdivide
@@ -303,49 +303,38 @@ def subdivide_nonquad(mesh, face, brep_face, n):
 
             del subd.face[fkey]
 
-        # ----------------------------------------------------------------------
-        # update vertex coordinates
-
-        # these are the coordinates before updating
-        key_xyz = {key: subd.vertex_coordinates(key) for key in subd.vertex}
-
-        # move each edge point to the average of the neighboring centroids and
-        # the original end points
-        boundary_verts = []
-        for w, crease in edgepoints:
-            #boundary_verts.append(w)
-            #print('the number of fixed vertices is', len(boundary_verts))
-            if not crease:
-                x, y, z = centroid_points(
-                    [key_xyz[nbr] for nbr in subd.halfedge[w]])
-                subd.vertex[w]['x'] = x
-                subd.vertex[w]['y'] = y
-                subd.vertex[w]['z'] = z
-
         #mesh = subd
     subd1 = cls.from_data(subd.data)
 
     # map edges to corresponding boundary curves
     # ------------------------------------------------------------------------------
-
     subd_gkeys = {geometric_key(subd1.vertex_coordinates(vertex)): vertex for vertex in subd1.vertices()}
 
-    mesh_edge_vertices = list(subd.vertices_on_boundaries())
+    subd_edge_vertices = subd1.vertices_on_boundaries() #gives vertices keys per boundary
+    
+    # ------------------------------------------------------------------------------
+    
+    for subd_vertex in subd_edge_vertices:
+        s_vert = subd_vertex[0]
+        e_vert = subd_vertex[-1]
+        edge = (s_vert, e_vert)
 
-    #update vertex position to corresponding brep_edge
-    map_boundary_vertices = [] #list of mapped vertices
-    for vert, pt in zip(mesh_edge_vertices, subd_points):
-        #not sure which is the right way of the following
-        map_vert = subd1.update_default_vertex_attributes(vert, {'x','y','z'}, {pt[0], pt[1], pt[2]})
-        map_vert = subd1.update_default_vertex_attributes({(x,y,z) : vert}, {(pt[0], pt[1], pt[2])})
-        map_vert = subd1.vertex_attributes(vert, ('x','y','z'), (pt[0], pt[1], pt[2]))
-        map_boundary_vertices.append(map_vert)
-        subd.edge_attribute((u, w), 'crease', crease - 1)
+        edge_dict[edge] = edge_info
+
+        subd_points = edge_dict[edge]['subd_points']
+        for pt, key in zip(subd_points, subd_vertex):
+            subd1.vertex_attribute(key, 'x', pt.X)
+            subd1.vertex_attribute(key, 'y', pt.Y)
+            subd1.vertex_attribute(key, 'z', pt.Z)
+        #xyz = [[point.X, point.Y, point.Z] for point in subd_points]
+        #subd1.vertices_attributes('xyz', values=xyz, keys=subd_verts)
+    # ------------------------------------------------------------------------------  
     # smooth
     # ------------------------------------------------------------------------------
-    subd2 = subd1.smooth_area(fixed=map_boundary_vertices, kmax=100, damping=0.5, callback=None, callback_args=None)
+    
+    #subd2 = subd1.smooth_area(fixed = subd_edge_vertices, kmax=100, damping=0.5, callback=None, callback_args=None)
 
-    return subd2
+    return subd1
 
 # ------------------------------------------------------------------------------
 # 1 + 2. combination
