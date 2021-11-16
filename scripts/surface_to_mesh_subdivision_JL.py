@@ -30,7 +30,7 @@ from compas_rhino.artists import MeshArtist
 # ==============================================================================
 
 guid = select_surface()
-#rs.HideObjects(guid)
+rs.HideObjects(guid)
 
 
 # ==============================================================================
@@ -48,7 +48,10 @@ brep = Rhino.Geometry.Brep.TryConvertBrep(rhinosurface.geometry)
 
 mesh = rhinosurface.to_compas(cleanup=False)
 coarse_mesh_artist = MeshArtist(mesh, layer='coarse_mesh')
-coarse_mesh_artist.draw_edges(color=(0, 0, 0))
+
+coarse_mesh_artist.draw_edges(edges=mesh.edges_on_boundary(), color=(255, 0, 0))
+
+
 
 # select_surface() will already filter selection to surface or polysurface...
 #
@@ -133,6 +136,7 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
     else:
         k = len(segments)
 
+
         for seg in segments:
 
             edge_info = {
@@ -148,7 +152,7 @@ for brep_face, face in zip(brep.Faces, mesh.faces()):
 
             u0 = gkeys[geometric_key(sp)]
             u1 = gkeys[geometric_key(ep)]
-            edge = (u0,u1)
+            edge = (u0, u1)
 
             edge_info.update({
                               'brep_sp' : u0,
@@ -178,7 +182,7 @@ def draw_uv_vectors(mesh, faces_dict):
     compas_rhino.draw_lines(lines, layer='uv_vectors', clear=False, redraw=False)
 
 
-draw_uv_vectors(mesh, faces_dict)
+# draw_uv_vectors(mesh, faces_dict)
 
 
 # ==============================================================================
@@ -220,7 +224,6 @@ def subdivide_quad(brep_face, nu, nv):
 def split_boundary(mesh):
     boundaries = mesh.vertices_on_boundaries()
     exterior = boundaries[0]
-    print(exterior)
     opening = []
     openings = [opening]
     for vertex in exterior:
@@ -231,7 +234,6 @@ def split_boundary(mesh):
     openings[-1] += openings[0]
     del openings[0]
     openings[:] = [opening for opening in openings if len(opening) > 2]
-    print('openings', openings)
     return openings
 
 def divide_curve(curve, n):
@@ -295,30 +297,35 @@ def subdivide_nonquad(mesh, face, brep_face, n):
         mesh = subd
 
     subd1 = cls.from_data(mesh.data)
-    subd1_artist = MeshArtist(mesh, layer='subd1_mesh')
-    subd1_artist.draw_edges(color=(0, 0, 0))
-    subd1_artist.draw_vertexlabels()
 
     # map edges to corresponding boundary curves
     # ------------------------------------------------------------------------------
 
     subd_edge_vertices = split_boundary(mesh)
 
+    print('subd', subd_edge_vertices)
+
     for subd_vertices in subd_edge_vertices:
         s_vertex = subd_vertices[0]
         e_vertex = subd_vertices[-1]
-        print(subd_vertices)
-        print (type(s_vertex))
-        print (s_vertex, e_vertex)
         edge = (s_vertex, e_vertex)
+        if edge not in edges_dict:
+            edge = (e_vertex, s_vertex)
 
         curve = edges_dict[edge]['brep_edge']
-        brep_points = divide_curve(curve,n)
+        brep_points = divide_curve(curve, n)
+
+        curve_sp = edges_dict[edge]['brep_sp']
+        if s_vertex != curve_sp:
+            brep_points = brep_points[::-1]
+
+        print(brep_points)
 
         for pt, key in zip(brep_points, subd_vertices):
             subd1.vertex_attribute(key, 'x', pt.X)
             subd1.vertex_attribute(key, 'y', pt.Y)
             subd1.vertex_attribute(key, 'z', pt.Z)
+
         #xyz = [[point.X, point.Y, point.Z] for point in brep_points]
         #subd1.vertices_attributes('xyz', values=xyz, keys=subd_verts)
     # ------------------------------------------------------------------------------
@@ -373,9 +380,11 @@ def subdivide_surfacemesh(mesh, faces_dict):
 # ==============================================================================
 
 # subdivide the face with default subdivision values
+
 subd1 = subdivide_surfacemesh(mesh, faces_dict)
-subd1_artist = MeshArtist(subd1, layer='subd1_mesh')
-subd1_artist.draw_edges(color=(130, 130, 130))
+subd1_artist = MeshArtist(subd1, layer='subd1_mesh', color=(130, 130, 130))
+subd1_artist.draw_mesh()
+subd1_artist.draw_vertexlabels()
 rs.EnableRedraw(True)
 
 
@@ -438,7 +447,7 @@ for face in edge_strip_faces:
 # ==============================================================================
 #  9. subdivide the surfaces again with the updated nu_nv
 # ==============================================================================
-
+coarse_mesh_artist.clear()
 subd2 = subdivide_surfacemesh(mesh, faces_dict)
 
 
@@ -446,8 +455,7 @@ subd2 = subdivide_surfacemesh(mesh, faces_dict)
 #  10. draw the newly subdivided mesh
 # ==============================================================================
 
-coarse_mesh_artist.clear_layer() # delete the coarse mesh
-subd1_artist.clear_layer() # delete the default subd mesh
-
+# subd1_artist.clear_layer() # delete the default subd mesh
+subd1_artist.draw_vertexlabels()
 subd2_artist = MeshArtist(subd2, layer='subd2_mesh')
 subd2_artist.draw_mesh()
