@@ -251,7 +251,6 @@ def subdivide_nonquad(coarse_mesh, face, brep_face, n):
 
     # relocate boundary vertices -----------------------------------------------
 
-
     return subd1
 
 
@@ -306,7 +305,7 @@ pick_edge = mesh_select_edge(mesh)
 # ==============================================================================
 #  8. get subdivision number
 # ==============================================================================
-nu_or_nv = compas_rhino.rs.GetInteger('divide into?', minimum=2)
+
 
 # ==============================================================================
 #  9. edge strip subdivision functions
@@ -362,9 +361,31 @@ def edge_strip_faces(mesh, edge_strip):
 # ==============================================================================
 #  10. update nu or nv information for the faces of the edge_strip
 # ==============================================================================
+is_strip_quad = True  # check whether the edge_strip contains quads or not
 
 edge_strip = set(frozenset(edge) for edge in subd_edge_strip(mesh, pick_edge))
 edge_strip_faces = edge_strip_faces(mesh, edge_strip)
+
+for face in edge_strip_faces:
+    if not faces_dict[face]['is_quad']:
+        is_strip_quad = False
+
+
+# entering subdivision number
+
+if is_strip_quad:
+    nu_or_nv = compas_rhino.rs.GetInteger('divide into?', minimum=2)
+
+else:
+    while True:
+        nu_or_nv = compas_rhino.rs.GetInteger('choose an even integer', minimum=2)
+        if (nu_or_nv & (nu_or_nv - 1) == 0) and nu_or_nv != 0:
+            break
+        else:
+            print('division number has to be power of 2!')
+
+
+# update nu, nv and n
 
 for face in edge_strip_faces:
     quad = faces_dict[face]['is_quad']
@@ -377,17 +398,23 @@ for face in edge_strip_faces:
             faces_dict[face]['nv'] = nu_or_nv
 
     else:
-        n = math.sqrt(nu_or_nv)
-        half = nu_or_nv/2
-        print (int)
-        if nu_or_nv == 2:
-            faces_dict[face]['n'] = 1
-        elif n.is_integer()==True:
-            faces_dict[face]['n'] = n
-        elif n>half:
-            faces_dict[face]['n'] = int(n)-1
-        else:
-            faces_dict[face]['n'] = int(n)+1
+        n = math.log(nu_or_nv) / math.log(2)
+        # n = math.sqrt(nu_or_nv)
+        # half = nu_or_nv/2
+        # print (int)
+        # if nu_or_nv == 2:
+        #     faces_dict[face]['n'] = 1
+        # elif n.is_integer()==True:
+        #     faces_dict[face]['n'] = n
+        # elif n>half:
+        #     faces_dict[face]['n'] = int(n)-1
+        # else:
+        #     faces_dict[face]['n'] = int(n)+1
+        faces_dict[face]['n'] = int(n)
+
+
+
+
 
 # ==============================================================================
 #  11. subdivide the surfaces again with the updated nu_nv
