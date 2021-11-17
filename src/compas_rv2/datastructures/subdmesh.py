@@ -26,9 +26,9 @@ class SubdMesh(Mesh):
             'is_quad': False,
             'u_edge': None,
             'v_edge': None,
-            'nu': 2,
-            'nv': 2,
-            'n': 1,
+            'nu': 4,
+            'nv': 4,
+            'n': 2,
             'brep_face': None
         })
         self._edge_strips = {}
@@ -37,7 +37,7 @@ class SubdMesh(Mesh):
     def from_guid(cls, guid):
         rhinosurface = RhinoSurface.from_guid(guid)
         brep = Rhino.Geometry.Brep.TryConvertBrep(rhinosurface.geometry)
-        subdmesh = rhinosurface.to_compas_mesh(cls=cls)
+        subdmesh = rhinosurface.to_compas_mesh(cls=cls, cleanup=False)
 
         gkeys = {geometric_key(subdmesh.vertex_coordinates(vertex)): vertex for vertex in subdmesh.vertices()}
 
@@ -68,6 +68,7 @@ class SubdMesh(Mesh):
                     ep = curve.PointAtEnd
                     u = gkeys[geometric_key(sp)]
                     v = gkeys[geometric_key(ep)]
+                    subdmesh.edge_attribute(edge, 'brep_curve', curve)
                     subdmesh.edge_attribute(edge, 'brep_curve_dir', (u, v))
 
         return subdmesh
@@ -156,22 +157,33 @@ class SubdMesh(Mesh):
         self.edge_attribute(edge, 'brep_curve_pts', pts)
         return pts
 
-    def remap_boundary_vertices(self, edge, subdmesh):
+    def remap_boundary_vertices(self, subdmesh):
         """Remap the boundary vertices of a subdmesh"""
-        pts = self.edge_attribute(edge, 'brep_curve_pts')
-        if u != self.edge_attribute(edge, 'brep_curve_dir')[0]:
-            pts = pts[::-1]
-        subdmesh.vertices_attributes('xyz', pts[1:-1], vertex_loop[1:-1])
+
+        vertex_loops = self.split_boundary(subdmesh)
+        for vertex_loop in vertex_loops:
+            u = vertex_loop[0]
+            v = vertex_loop[-1]
+            edge = (u, v)
+            pts = self.edge_attribute(edge, 'brep_curve_pts')
+            if pts:
+                if u != self.edge_attribute(edge, 'brep_curve_dir')[0]:
+                    pts = pts[::-1]
+                # subdmesh.vertices_attributes('xyz', pts[1:-1], vertex_loop[1:-1])
+                for pt, key in zip(pts[1:-1], vertex_loop[1:-1]):
+                    subdmesh.vertex_attribute(key, 'x', pt.X)
+                    subdmesh.vertex_attribute(key, 'y', pt.Y)
+                    subdmesh.vertex_attribute(key, 'z', pt.Z)
         return subdmesh
 
     # ==========================================================================
     #   subdivision
     # ==========================================================================
 
-    def subdivide_nonquad(self, face, nu, nv):
+    def subdivide_quad(self, face):
         """Subdivide a single quad brep_face"""
 
-        brep_face = self.face_attribute(face, 'brep_face')
+        brep_face, nu, nv = self.face_attributes(face, names=['brep_face', 'nu', 'nv'])
 
         domain_u = brep_face.Domain(0)
         domain_v = brep_face.Domain(1)
@@ -193,8 +205,7 @@ class SubdMesh(Mesh):
 
         return Mesh.from_polygons(quads)
 
-
-    def subdivide_quad(self, face, n):
+    def subdivide_nonquad(self, face):
 
         mesh = Mesh()
         vertices = self.face_vertices(face)
@@ -204,7 +215,8 @@ class SubdMesh(Mesh):
         mesh.add_face(vertices)
         cls = type(mesh)
 
-        # subdivide mesh -----------------------------------------------------------
+        n = self.face_attribute(face, 'n')
+
         for _ in range(n):
             subd = mesh_fast_copy(mesh)
 
@@ -233,27 +245,20 @@ class SubdMesh(Mesh):
 
         subdmesh = cls.from_data(mesh.data)
 
-        vertex_loops = self.split_boundary(subdmesh)
-        for vertex_loop in vertex_loops:
-            u = vertex_loop[0]
-            v = vertex_loop[-1]
-            edge = (u, v)
+        for edge in self.face_halfedges(face):
             self.divide_brep_curve(edge, 2 ** n)
-            self.remap_boundary_vertices(edge, subdmesh)
+
+        self.remap_boundary_vertices(subdmesh)
 
         return subdmesh
 
-
-    def subdivide_faces(self):
-
+    def subdivide_all_faces(self):
         subd_meshes = []
-
         for face in self.faces():
-
-
-            self.subdivide_nonquad()
-
-            self.subdivide_quad()
-
-
+            if self.face_attribute(face, 'is_quad'):
+                subd_mesh = self.subdivide_quad(face)
+            else:
+                subd_mesh = self.subdivide_nonquad(face)
+            subd_mesh.smooth_area(fixed=subd_mesh.vertices_on_boundary(), kmax=50, damping=0.5)
+            subd_meshes.append(subd_mesh)
         return meshes_join(subd_meshes)
