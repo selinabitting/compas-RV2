@@ -93,8 +93,6 @@ def RunCommand(is_interactive):
                 gkey_constraints[gkey].append(guid)
             polygons.append(points)
 
-    # area = target_length ** 2 * 0.5 * 0.5 * 1.732
-
     vertices, faces = cdt(boundary, curves=polylines, holes=polygons, maxlength=target_length, is_optimized=True)
     vertices[:] = [[float(x), float(y), float(z)] for x, y, z in vertices]
 

@@ -46,7 +46,7 @@ def boundary_triangulation(outer_boundary, inner_boundaries, polyline_features=[
     if not delaunay:
         delaunay = delaunay_from_points
 
-    vertices, faces = delaunay(outer_boundary, curves=polyline_features, holes=inner_boundaries)
+    vertices, faces = delaunay(outer_boundary, points=point_features, curves=polyline_features, holes=inner_boundaries)
 
     mesh = Mesh.from_vertices_and_faces(vertices, faces)
 
