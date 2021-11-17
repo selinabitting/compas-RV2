@@ -5,7 +5,7 @@ from __future__ import division
 import Rhino
 
 from compas.datastructures import Mesh
-from compas.datastructures import meshes_join
+from compas.datastructures import meshes_join_and_weld
 from compas.datastructures.mesh.subdivision import mesh_fast_copy
 
 from compas.utilities import geometric_key
@@ -19,7 +19,7 @@ class SubdMesh(Mesh):
         super(SubdMesh, self).__init__(*args, **kwargs)
         self.default_edge_attributes.update({
             'brep_curve': None,
-            'brep_curve_pts': None,
+            'brep_curve_pts': [],
             'brep_curve_dir': None
         })
         self.default_face_attributes.update({
@@ -169,7 +169,6 @@ class SubdMesh(Mesh):
             if pts:
                 if u != self.edge_attribute(edge, 'brep_curve_dir')[0]:
                     pts = pts[::-1]
-                # subdmesh.vertices_attributes('xyz', pts[1:-1], vertex_loop[1:-1])
                 for pt, key in zip(pts[1:-1], vertex_loop[1:-1]):
                     subdmesh.vertex_attribute(key, 'x', pt.X)
                     subdmesh.vertex_attribute(key, 'y', pt.Y)
@@ -194,16 +193,32 @@ class SubdMesh(Mesh):
         def point_at(i, j):
             return brep_face.PointAt(i, j)
 
-        quads = []
+        gkeys = {}
+        subdmesh = Mesh()
+        for vertex in self.face_vertices(face):
+            x, y, z = self.vertex_coordinates(vertex)
+            subdmesh.add_vertex(vertex, {'x': x, 'y': y, 'z': z})
+            gkeys[geometric_key((x, y, z))] = vertex
+
         for i in range(nu):
             for j in range(nv):
                 a = point_at(domain_u[0] + (i + 0) * du, domain_v[0] + (j + 0) * dv)
                 b = point_at(domain_u[0] + (i + 1) * du, domain_v[0] + (j + 0) * dv)
                 c = point_at(domain_u[0] + (i + 1) * du, domain_v[0] + (j + 1) * dv)
                 d = point_at(domain_u[0] + (i + 0) * du, domain_v[0] + (j + 1) * dv)
-                quads.append([a, b, c, d])
 
-        return Mesh.from_polygons(quads)
+                vkeys = []
+                for pt in [a, b, c, d]:
+                    if geometric_key(pt) in gkeys:
+                        vkey = gkeys[geometric_key(pt)]
+                    else:
+                        vkey = subdmesh.add_vertex(x=pt[0], y=pt[1], z=pt[2])
+                        gkeys[geometric_key(pt)] = vkey
+                    vkeys.append(vkey)
+
+                subdmesh.add_face(vkeys)
+
+        return self.remap_boundary_vertices(subdmesh)
 
     def subdivide_nonquad(self, face):
 
@@ -248,17 +263,31 @@ class SubdMesh(Mesh):
         for edge in self.face_halfedges(face):
             self.divide_brep_curve(edge, 2 ** n)
 
-        self.remap_boundary_vertices(subdmesh)
-
-        return subdmesh
+        return self.remap_boundary_vertices(subdmesh)
 
     def subdivide_all_faces(self):
         subd_meshes = []
+
+        quads = []
+        non_quads = []
         for face in self.faces():
             if self.face_attribute(face, 'is_quad'):
-                subd_mesh = self.subdivide_quad(face)
+                quads.append(face)
             else:
-                subd_mesh = self.subdivide_nonquad(face)
-            subd_mesh.smooth_area(fixed=subd_mesh.vertices_on_boundary(), kmax=50, damping=0.5)
+                non_quads.append(face)
+
+        for face in non_quads:
+            subd_mesh = self.subdivide_nonquad(face)
             subd_meshes.append(subd_mesh)
-        return meshes_join(subd_meshes)
+            fixed = subd_mesh.vertices_on_boundary()
+            subd_mesh.smooth_area(fixed=fixed, kmax=50, damping=0.5)
+
+        for face in quads:
+            subd_mesh = self.subdivide_quad(face)
+            subd_meshes.append(subd_mesh)
+            fixed = subd_mesh.vertices_on_boundary()
+            subd_mesh.smooth_area(fixed=fixed, kmax=50, damping=0.5)
+
+        mesh = meshes_join_and_weld(subd_meshes)
+
+        return mesh
