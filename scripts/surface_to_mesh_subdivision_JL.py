@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import Rhino
-
+import math
 import rhinoscriptsyntax as rs
 
 import compas_rhino
@@ -45,13 +45,11 @@ mesh = rhinosurface.to_compas_mesh(cls=Mesh, cleanup=False)  # update to latest 
 coarse_mesh_artist = MeshArtist(mesh, layer='coarse_mesh')
 coarse_mesh_artist.draw_edges(color=(255, 0, 0))
 
-
 # ==============================================================================
 #  x. default subdivision numbers
 # ==============================================================================
 default_nu_nv = 4  # for quads
 default_n = 2  # for non-quads
-
 
 # ==============================================================================
 #  4. get the face geometry and u + v edges per face and keep track in faces_dict
@@ -134,7 +132,6 @@ def subdivide_quad(brep_face, nu, nv):
             quads.append([a, b, c, d])
 
     return Mesh.from_polygons(quads)
-
 
 # non-quads
 
@@ -311,19 +308,63 @@ pick_edge = mesh_select_edge(mesh)
 # ==============================================================================
 nu_or_nv = compas_rhino.rs.GetInteger('divide into?', minimum=2)
 
+# ==============================================================================
+#  9. edge strip subdivision functions
+# ==============================================================================
+
+def subd_edge_strip(mesh, edge):
+
+    def strip_end_faces(strip):
+        # return nonquads at the end of edge strips
+        faces1 = mesh.edge_faces(strip[0][0], strip[0][1])
+        faces2 = mesh.edge_faces(strip[-1][0], strip[-1][1])
+        nonquads = []
+        for face in faces1 + faces2:
+            if face is not None and len(mesh.face_vertices(face)) != 4:
+                nonquads.append(face)
+        return nonquads
+
+    strip = mesh.edge_strip(edge)
+
+    all_edges = list(strip)
+
+    end_faces = set(strip_end_faces(strip))
+    seen = set()
+
+    while len(end_faces) > 0:
+        face = end_faces.pop()
+        if face not in seen:
+            seen.add(face)
+            for u, v in mesh.face_halfedges(face):
+                halfedge = (u, v)
+                if halfedge not in all_edges:
+                    rev_hf_face = mesh.halfedge_face(v, u)
+                    if rev_hf_face is not None:
+                        if len(mesh.face_vertices(rev_hf_face)) != 4:
+                            end_faces.add(mesh.halfedge_face(v, u))
+                            all_edges.append(halfedge)
+                            continue
+                    halfedge_strip = mesh.edge_strip(halfedge)
+                    all_edges.extend(halfedge_strip)
+                    end_faces.update(strip_end_faces(halfedge_strip))
+    return all_edges
+
+def edge_strip_faces(mesh, edge_strip):
+    edge_strip_faces = set()
+    for u, v in edge_strip:
+        face1, face2 = mesh.edge_faces(u, v)
+        if face1 is not None:
+            edge_strip_faces.add(face1)
+        if face2 is not None:
+            edge_strip_faces.add(face2)
+    return list(edge_strip_faces)
 
 # ==============================================================================
-#  9. update nu or nv information for the faces of the edge_strip
+#  10. update nu or nv information for the faces of the edge_strip
 # ==============================================================================
-edge_strip = set(frozenset(edge) for edge in mesh.edge_strip(pick_edge))
-edge_strip_faces = set()
 
-for u, v in edge_strip:
-    face1, face2 = mesh.edge_faces(u, v)
-    if face1 is not None:
-        edge_strip_faces.add(face1)
-    if face2 is not None:
-        edge_strip_faces.add(face2)
+edge_strip = set(frozenset(edge) for edge in subd_edge_strip(mesh, pick_edge))
+edge_strip_faces = edge_strip_faces(mesh, edge_strip)
 
 for face in edge_strip_faces:
     quad = faces_dict[face]['is_quad']
@@ -336,17 +377,26 @@ for face in edge_strip_faces:
             faces_dict[face]['nv'] = nu_or_nv
 
     else:
-        faces_dict[face]['n'] = nu_or_nv
-
+        n = math.sqrt(nu_or_nv)
+        half = nu_or_nv/2
+        print (int)
+        if nu_or_nv == 2:
+            faces_dict[face]['n'] = 1
+        elif n.is_integer()==True:
+            faces_dict[face]['n'] = n
+        elif n>half:
+            faces_dict[face]['n'] = int(n)-1
+        else:
+            faces_dict[face]['n'] = int(n)+1
 
 # ==============================================================================
-#  10. subdivide the surfaces again with the updated nu_nv
+#  11. subdivide the surfaces again with the updated nu_nv
 # ==============================================================================
 subd2 = subdivide_surfacemesh(mesh, faces_dict)
 
 
 # ==============================================================================
-#  11. draw the newly subdivided mesh
+#  12. draw the newly subdivided mesh
 # ==============================================================================
 coarse_mesh_artist.clear()
 subd1_artist.clear()
