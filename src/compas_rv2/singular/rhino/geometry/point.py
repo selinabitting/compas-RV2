@@ -5,11 +5,6 @@ from __future__ import division
 from compas_rhino.geometry import RhinoPoint
 
 
-__all__ = [
-    'RhinoPoint'
-]
-
-
 class RhinoPoint(RhinoPoint):
 
     @property

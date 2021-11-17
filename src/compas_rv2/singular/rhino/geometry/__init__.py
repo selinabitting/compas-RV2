@@ -2,8 +2,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from .point import *  # noqa: F401 F403
-from .curve import *  # noqa: F401 F403
-from .surface import *  # noqa: F401 F403
+from .point import RhinoPoint
+from .curve import RhinoCurve
+from .surface import RhinoSurface
 
-__all__ = [name for name in dir() if not name.startswith('_')]
+__all__ = [
+    'RhinoPoint',
+    'RhinoCurve',
+    'RhinoSurface'
+]

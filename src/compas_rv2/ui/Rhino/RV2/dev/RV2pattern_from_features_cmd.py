@@ -38,8 +38,9 @@ def RunCommand(is_interactive):
     surf_guid = compas_rhino.select_surface("Select a surface to decompose.")
     if not surf_guid:
         return
-    # point_guids = compas_rhino.select_points("Select points to include in the decomposition.")
-    point_guids = []
+
+    point_guids = compas_rhino.select_points("Select points to include in the decomposition.")
+    # point_guids = []
     curve_guids = []
 
     compas_rhino.rs.HideObjects([surf_guid] + point_guids + curve_guids)

@@ -13,9 +13,6 @@ from compas_rv2.singular.utilities import list_split
 from ..mesh import Mesh
 
 
-__all__ = ['QuadMesh']
-
-
 class QuadMesh(Mesh):
 
     def __init__(self):
@@ -696,35 +693,3 @@ class QuadMesh(Mesh):
 
         starts, ends = self.strip_side_polyedges(skey)
         return ([self.vertex_coordinates(vkey) for vkey in starts], [self.vertex_coordinates(vkey) for vkey in ends])
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass
-
-    # import compas
-    # from compas_plotters.meshplotter import MeshPlotter
-
-    # # mesh = QuadMesh.from_obj(compas.get('faces.obj'))
-    # # mesh = QuadMesh.from_json('/Users/Robin/Desktop/json/debug.json')
-
-    # # mesh.collect_strips()
-    # # mesh.collect_polyedges()
-
-    # # print(mesh.singularities())
-    # # print(len(list(mesh.strips())))
-    # # print(len(list(mesh.polyedges())))
-
-    # # print(len(mesh.singularity_polyedge_decomposition()))
-
-    # # print(mesh.strip_graph())
-    # # print(mesh.polyedge_graph())
-
-    # #plotter = MeshPlotter(mesh, figsize=(20, 20))
-    # #plotter.draw_vertices(radius=0.4, text='key')
-    # # plotter.draw_edges()
-    # # plotter.draw_faces()
-    # # plotter.show()

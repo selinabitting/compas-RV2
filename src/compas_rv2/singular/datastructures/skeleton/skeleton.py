@@ -10,9 +10,6 @@ from ..mesh import Mesh
 from ..network import Network
 
 
-__all__ = ["Skeleton"]
-
-
 class Skeleton(Mesh):
     """Skeleton class for the generation of the topological skeleton or medial axis from a Delaunay mesh.
 
@@ -93,11 +90,3 @@ class Skeleton(Mesh):
 
         """
         return network_polylines(Network.from_lines(self.lines()))
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == "__main__":
-    pass

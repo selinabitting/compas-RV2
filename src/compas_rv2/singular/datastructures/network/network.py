@@ -3,11 +3,6 @@ from __future__ import print_function
 from __future__ import division
 
 from compas.datastructures import Network
-# from compas.utilities import pairwise
-# from compas.utilities import geometric_key
-
-
-__all__ = ['Network']
 
 
 class Network(Network):
@@ -40,11 +35,3 @@ class Network(Network):
         for u, v in edges:
             network.add_edge(u, v)
         return network
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

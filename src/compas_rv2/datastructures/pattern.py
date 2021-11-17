@@ -90,7 +90,7 @@ class Pattern(MeshMixin, Mesh):
         """
         from compas_rv2.singular.rhino import RhinoSurface
 
-        compas.PRECISION = '1f'
+        compas.PRECISION = '3f'
 
         compas_rhino.rs.EnableRedraw(False)
         surface = RhinoSurface.from_guid(surf_guid)

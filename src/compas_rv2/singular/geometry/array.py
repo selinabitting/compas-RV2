@@ -8,14 +8,6 @@ from compas.geometry import archimedean_spiral_evaluate
 from compas.geometry import add_vectors
 
 
-__all__ = [
-    'line_array',
-    'rectangular_array',
-    'circular_array',
-    'spiral_array'
-]
-
-
 def line_array(n, d, anchor=[0.0, 0.0, 0.0]):
     return [add_vectors(anchor, [i * d, 0.0, 0.0]) for i in range(n)]
 
@@ -35,14 +27,3 @@ def spiral_array(n, d, anchor=[0.0, 0.0, 0.0]):
     for i in range(n):
         ts.append((2 * d / b + ts[-1] ** 2) ** .5)
     return [add_vectors(anchor, archimedean_spiral_evaluate(t, a, b, 0)) for t in ts]
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass
-
-    # print(rectangular_array(4, 2, 10.0, 0.5, anchor=[1.0, -1.0, 0.0]))
-    # print(spiral_array(15, 2, anchor=[1.0, -1.0, 0.0]))

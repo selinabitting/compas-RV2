@@ -2,23 +2,12 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
 
-# from compas.geometry import is_point_in_polygon_xy
-# from compas.geometry import length_vector
-# from compas.geometry import subtract_vectors
-# from compas.geometry import cross_vectors
 from compas.geometry import delaunay_from_points
-# from compas.datastructures import trimesh_face_circle
 from compas.datastructures import mesh_unweld_edges
 from compas.utilities import pairwise
 from compas.utilities import geometric_key
-# from numpy import inner
 
 from ..datastructures import Mesh
-
-
-__all__ = [
-    'boundary_triangulation'
-]
 
 
 def boundary_triangulation(outer_boundary, inner_boundaries, polyline_features=[], point_features=[], delaunay=None):
@@ -46,7 +35,7 @@ def boundary_triangulation(outer_boundary, inner_boundaries, polyline_features=[
     if not delaunay:
         delaunay = delaunay_from_points
 
-    vertices, faces = delaunay(outer_boundary, curves=polyline_features, holes=inner_boundaries)
+    vertices, faces = delaunay(outer_boundary, points=point_features, curves=polyline_features, holes=inner_boundaries)
 
     mesh = Mesh.from_vertices_and_faces(vertices, faces)
 
@@ -56,11 +45,3 @@ def boundary_triangulation(outer_boundary, inner_boundaries, polyline_features=[
         mesh_unweld_edges(mesh, edges)
 
     return mesh
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

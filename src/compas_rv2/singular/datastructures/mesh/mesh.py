@@ -5,11 +5,6 @@ from __future__ import division
 from compas.datastructures import Mesh
 from compas.geometry import centroid_points
 from compas.geometry import angle_points
-# from compas.utilities import geometric_key
-# from compas.utilities import pairwise
-
-
-__all__ = ['Mesh']
 
 
 class Mesh(Mesh):
@@ -119,11 +114,3 @@ class Mesh(Mesh):
         """
 
         return centroid_points([self.vertex_coordinates(vkey) for vkey in self.vertices()])
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

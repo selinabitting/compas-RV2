@@ -2,11 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
 
-__all__ = [
-    'split_quad_in_pseudo_quads',
-    'merge_pseudo_quads_in_quad'
-]
-
 
 def split_quad_in_pseudo_quads(mesh, fkey, vkey):
 
@@ -41,33 +36,3 @@ def merge_pseudo_quads_in_quad(mesh, fkey_1, fkey_2):
     mesh.delete_face(fkey_2)
 
     return mesh.add_face([a, b, c, d])
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass
-
-    # import compas
-    # from compas_rv2.singular.datastructures.mesh_quad_pseudo.mesh_quad_pseudo import PseudoQuadMesh
-
-    # vertices = [
-    # [0.0, 0.0, 0.0],
-    # [1.0, 0.0, 0.0],
-    # [1.0, 1.0, 0.0],
-    # [0.0, 1.0, 0.0]
-    # ]
-
-    # faces = [
-    # [0, 1, 2, 3]
-    # ]
-
-    # mesh = PseudoQuadMesh.from_vertices_and_faces(vertices, faces)
-    # print(split_quad_in_pseudo_quads(mesh, 0, 0))
-    # for fkey in mesh.faces():
-    #     print(fkey, mesh.face_vertices(fkey))
-    # print(merge_pseudo_quads_in_quad(mesh, 1, 2))
-    # for fkey in mesh.faces():
-    #     print(fkey, mesh.face_vertices(fkey))

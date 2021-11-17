@@ -3,15 +3,6 @@ from __future__ import absolute_import
 from __future__ import division
 
 
-__all__ = [
-    'list_split',
-    'sublist_from_to_items_in_closed_list',
-    'are_items_in_list',
-    'common_items',
-    'remove_isomorphism_in_integer_list'
-]
-
-
 def list_split(thelist, indices):
     """Split list at given indices.
     Closed lists have the same first and last elements.
@@ -175,17 +166,3 @@ def remove_isomorphism_in_integer_list(thelist):
             thelist = list(reversed(thelist))
 
     return thelist
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass
-
-    # import compas
-
-    # print(list_split(list(range(20)) + [0], [0, 8, 9, 12, 13]))
-
-    # print(sublist_from_to_items_in_closed_list(range(20), 13, 13))
