@@ -6,18 +6,6 @@ from compas.datastructures import mesh_smooth_centerofmass
 from compas.datastructures import mesh_smooth_area
 from compas.datastructures import mesh_smooth_centroid
 
-# from compas_rhino.geometry import RhinoMesh
-# from compas_rhino.geometry import RhinoPoint
-
-# from ..geometry import RhinoSurface
-# from ..geometry import RhinoCurve
-
-
-__all__ = [
-    'constrained_smoothing',
-    'surface_constrained_smoothing',
-]
-
 
 def constrained_smoothing(mesh, kmax=100, damping=0.5, constraints={}, algorithm='centroid'):
     """Constrained smoothing of a mesh. Constraints can be points, curves or surfaces.
@@ -87,11 +75,3 @@ def surface_constrained_smoothing(mesh, srf, kmax=100, damping=0.5, algorithm='c
         return mesh_smooth_area(mesh, fixed, kmax, damping, callback, [mesh, srf])
 
     return mesh_smooth_centroid(mesh, fixed, kmax, damping, callback, [mesh, srf])
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

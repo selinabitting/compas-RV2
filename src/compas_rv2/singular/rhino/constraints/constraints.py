@@ -2,30 +2,17 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
 
-import rhinoscriptsyntax as rs
+import compas_rhino
 
 from compas.geometry import distance_point_point
 from compas.geometry import closest_point_in_cloud
 from compas.geometry import Polyline
-
-# from compas_rhino.geometry import RhinoPoint
-# from compas_rhino.geometry import RhinoMesh
-# from compas_rhino.artists import MeshArtist
-# from compas_rhino.objects import mesh_select_vertices
 
 from compas_rv2.singular.utilities import list_split
 
 from ..geometry import RhinoSurface
 from ..geometry import RhinoPoint
 from ..geometry import RhinoCurve
-
-
-__all__ = [
-    'automated_smoothing_surface_constraints',
-    'automated_smoothing_constraints',
-    # 'customized_smoothing_constraints',
-    # 'display_smoothing_constraints'
-]
 
 
 def automated_smoothing_surface_constraints(mesh, surface):
@@ -48,7 +35,7 @@ def automated_smoothing_surface_constraints(mesh, surface):
 
     constraints = {}
 
-    points = [RhinoPoint.from_guid(rs.AddPoint(point)) for point in surface.kinks()]
+    points = [RhinoPoint.from_guid(compas_rhino.rs.AddPoint(point)) for point in surface.kinks()]
     curves = [RhinoCurve.from_guid(guid) for guid in surface.borders(border_type=0)]
 
     constraints.update({vertex: surface for vertex in mesh.vertices()})
@@ -113,7 +100,7 @@ def automated_smoothing_constraints(mesh, rhinopoints=None, rhinocurves=None, rh
 
         boundary_polylines = [Polyline([mesh.vertex_coordinates(vertex) for vertex in boundary]) for boundary in boundaries]
         boundary_midpoints = [polyline.point(t=0.5) for polyline in boundary_polylines]
-        curve_midpoints = [rs.EvaluateCurve(curve.guid, rs.CurveParameter(curve.guid, 0.5)) for curve in rhinocurves]
+        curve_midpoints = [compas_rhino.rs.EvaluateCurve(curve.guid, compas_rhino.rs.CurveParameter(curve.guid, 0.5)) for curve in rhinocurves]
 
         midpoint_map = {index: closest_point_in_cloud(boundary_midpoint, curve_midpoints)[2] for index, boundary_midpoint in enumerate(boundary_midpoints)}
 
@@ -123,97 +110,3 @@ def automated_smoothing_constraints(mesh, rhinopoints=None, rhinocurves=None, rh
         constraints.update(constrained_vertices)
 
     return constraints
-
-
-# def customized_smoothing_constraints(mesh, constraints):
-#     """Add custom point, curve and surface constraints to the vertices of a mesh to smooth.
-
-#     Parameters
-#     ----------
-#     mesh : Mesh
-#         The mesh to apply the constraints to for smoothing.
-#     constraints : dict
-#         A dictionary of mesh constraints for smoothing as vertex keys pointing to point, curve or surface objects.
-
-#     Returns
-#     -------
-#     constraints : dict
-#         The updated dictionary of mesh constraints for smoothing as vertex keys pointing to point, curve or surface objects.
-
-#     """
-
-#     while True:
-
-#         guids = display_smoothing_constraints(mesh, constraints)
-#         vertexs = mesh_select_vertices(mesh)
-#         if len(vertexs) == 2 and rs.GetString('get all polyedge?', strings=['True', 'False']) == 'True':
-#             u, v = vertexs
-#             vertexs = mesh.polyedge(u, v)
-
-#         if vertexs is None:
-#             break
-
-#         constraint = rs.GetString('edit smoothing constraints?', strings=['point', 'curve', 'surface', 'exit'])
-
-#         rs.DeleteObjects(guids)
-
-#         if constraint is None or constraint == 'exit':
-#             break
-
-#         elif constraint == 'point':
-#             point = RhinoPoint.from_selection()
-#             constraints.update({vertex: point.guid for vertex in vertexs})
-
-#         elif constraint == 'curve':
-#             curve = RhinoCurve.from_selection()
-#             constraints.update({vertex: curve.guid for vertex in vertexs})
-
-#         elif constraint == 'surface':
-#             surface = RhinoSurface.from_selection()
-#             constraints.update({vertex: surface.guid for vertex in vertexs})
-
-#     return constraints
-
-
-# def display_smoothing_constraints(mesh, constraints):
-#     """Display current state of constraints on the vertices of a mesh to smooth.
-
-#     Parameters
-#     ----------
-#     mesh : Mesh
-#         The mesh to apply the constraints to for smoothing.
-#     constraints : dict
-#         A dictionary of mesh constraints for smoothing as vertex keys pointing to point, curve or surface objects.
-
-#     Returns
-#     -------
-#     guid
-#         Guid of Rhino points coloured according to the type of constraint applied.
-
-#     """
-
-#     # color = {vertex: (255, 0, 0) if vertex in constraints and rs.ObjectType(constraints[vertex]) == 1
-#     #          else (0, 255, 0) if vertex in constraints and rs.ObjectType(constraints[vertex]) == 4
-#     #          else (0, 0, 255) if vertex in constraints and rs.ObjectType(constraints[vertex]) == 8
-#     #          else (0, 0, 0) for vertex in mesh.vertices()}
-
-#     guids_index = {guid: i for i, guid in enumerate(list(set(constraints.values())))}
-#     n = len(guids_index.keys())
-#     color = {}
-#     for vertex in mesh.vertices():
-#         if vertex in constraints:
-#             k = float(guids_index[constraints[vertex]]) / float((n - 1))
-#             color[vertex] = (int(255.0 * k), int(255.0 * (1.0 - k)), 0)
-#         else:
-#             color[vertex] = (0, 0, 0)
-
-#     artist = MeshArtist(mesh)
-#     return artist.draw_vertices(color=color)
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

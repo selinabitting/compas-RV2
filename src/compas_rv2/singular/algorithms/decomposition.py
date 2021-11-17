@@ -3,17 +3,13 @@ from __future__ import print_function
 from __future__ import division
 
 from math import floor
-# from math import ceil
 from math import pi
 from operator import itemgetter
 
 from compas.geometry import Polyline
-# from compas.geometry import length_vector
-# from compas.geometry import length_vector_xy
 from compas.geometry import subtract_vectors
 from compas.geometry import angle_vectors
 from compas.geometry import angle_vectors_signed
-# from compas.geometry import cross_vectors
 from compas.geometry import centroid_points
 from compas.datastructures import trimesh_face_circle
 from compas.datastructures import network_polylines
@@ -33,9 +29,6 @@ from ..datastructures import split_quad_in_pseudo_quads
 from ..utilities import list_split
 
 from .propagation import quadrangulate_mesh
-
-
-__all__ = ['SkeletonDecomposition']
 
 
 class SkeletonDecomposition(Skeleton):
@@ -466,11 +459,3 @@ class SkeletonDecomposition(Skeleton):
                     print('pole missing')
 
         mesh.attributes['face_pole'] = face_poles
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-
-if __name__ == '__main__':
-    pass

@@ -2,14 +2,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
 
-__all__ = [
-    'mesh_move_vertex_by',
-    'mesh_move_by',
-    'mesh_move_vertices_by',
-    'mesh_move_vertex_to',
-    'mesh_move_vertices_to'
-]
-
 
 def mesh_move_vertex_by(mesh, vector, vkey):
     """Move a mesh vertex by a vector.
@@ -90,11 +82,3 @@ def mesh_move_vertices_to(mesh, key_to_point):
 
     for vkey, point in key_to_point.items():
         mesh_move_vertex_to(mesh, point, vkey)
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

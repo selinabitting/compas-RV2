@@ -16,15 +16,6 @@ from compas.geometry import subtract_vectors
 from compas.utilities import pairwise
 
 
-__all__ = [
-    'closest_point_on_circle',
-    'closest_point_on_line',
-    'closest_point_on_segment',
-    'closest_point_on_polyline',
-    'closest_point_on_polylines'
-]
-
-
 def closest_point_on_circle(x0, y0, r):
     """Project point (x0, y0) onto circle with centre at (0, 0) and radius r.
 
@@ -175,11 +166,3 @@ def closest_point_on_polylines(polylines, p):
             proj_p = p
             min_distance = distance
     return proj_p, min_distance
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass

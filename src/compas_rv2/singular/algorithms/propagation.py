@@ -7,14 +7,6 @@ from compas.geometry import discrete_coons_patch
 from ..utilities import list_split
 
 
-__all__ = [
-    'quadrangulate_mesh',
-    'quadrangulate_face',
-    'discrete_coons_patch_mesh',
-    'update_adjacent_face'
-]
-
-
 def quadrangulate_mesh(mesh, sources):
     """Quadrangulate the faces of a mesh by adding edges from vertex sources.
 
@@ -154,48 +146,3 @@ def update_adjacent_face(mesh, u, v, vertices_uv):
             face_vertices.insert(i, vkey)
         mesh.delete_face(fkey)
         mesh.add_face(face_vertices, fkey)
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-    pass
-
-    # from compas_rv2.singular.datastructures.mesh.mesh import Mesh
-
-    # vertices = [
-    #     [0, 0, 0],
-    #     [1, 0, 0],
-    #     [2, 0, 0],
-    #     [3, 0, 0],
-    #     [3, 1, 0],
-    #     [0, 1, 0],
-    #     [0, 0.5, 0],
-    #     [0, 0.25, 0],
-    #     [4, 0, 0],
-    #     [4, 1, 0],
-    # ]
-
-    # faces = [
-    #     [0, 1, 2, 3, 4, 5, 6, 7],
-    #     [3, 8, 9, 4]
-    # ]
-
-    # sources = [1, 2, 6, 7]
-
-    # mesh = Mesh.from_vertices_and_faces(vertices, faces)
-
-    # #quadrangulate_face(mesh, 0, sources)
-    # #quadrangulate_mesh(mesh, sources)
-    # # for vkey in mesh.vertices():
-    # # 	print 'vkey', vkey, mesh.vertex_faces(vkey)
-    # # for fkey in mesh.faces():
-    # # 	print 'fkey', fkey, mesh.face_vertices(fkey)
-
-    # # plotter = MeshPlotter(mesh)
-    # # plotter.draw_vertices(text='key')
-    # # plotter.draw_edges()
-    # # plotter.draw_faces(text='key')
-    # # plotter.show()

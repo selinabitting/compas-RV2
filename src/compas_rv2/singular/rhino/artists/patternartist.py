@@ -5,9 +5,6 @@ from __future__ import division
 from compas_rhino.artists import MeshArtist
 
 
-__all__ = ['PatternArtist']
-
-
 class PatternArtist(MeshArtist):
 
     def __init__(self, pattern, layer=None):

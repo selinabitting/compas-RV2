@@ -2,8 +2,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-import rhinoscriptsyntax as rs
-
 from compas.datastructures import Network
 from compas.datastructures import network_polylines
 from compas.geometry import distance_point_point
@@ -16,16 +14,13 @@ from compas_rhino.geometry import RhinoSurface
 from .curve import RhinoCurve
 
 
-__all__ = ["RhinoSurface"]
-
-
 class RhinoSurface(RhinoSurface):
 
     def __init__(self):
         super(RhinoSurface, self).__init__()
 
     def bounding_box(self):
-        return rs.BoundingBox([self.guid])
+        return compas_rhino.rs.BoundingBox([self.guid])
 
     def borders(self, border_type=0):
         """Duplicate the borders of the surface.
@@ -45,11 +40,11 @@ class RhinoSurface(RhinoSurface):
             The GUIDs of the extracted border curves.
 
         """
-        curves = rs.DuplicateSurfaceBorder(self.guid, type=border_type)
-        exploded_curves = rs.ExplodeCurves(curves, delete_input=False)
+        curves = compas_rhino.rs.DuplicateSurfaceBorder(self.guid, type=border_type)
+        exploded_curves = compas_rhino.rs.ExplodeCurves(curves, delete_input=False)
         if len(exploded_curves) == 0:
             return curves
-        rs.DeleteObjects(curves)
+        compas_rhino.rs.DeleteObjects(curves)
         return exploded_curves
 
     def kinks(self, threshold=1e-3):
@@ -66,18 +61,18 @@ class RhinoSurface(RhinoSurface):
 
         for border_guid in borders:
             extremities = map(
-                lambda x: rs.EvaluateCurve(
-                    border_guid, rs.CurveParameter(border_guid, x)
+                lambda x: compas_rhino.rs.EvaluateCurve(
+                    border_guid, compas_rhino.rs.CurveParameter(border_guid, x)
                 ),
                 [0.0, 1.0],
             )
 
-            if rs.IsCurveClosed(border_guid):
-                start_tgt = rs.CurveTangent(
-                    border_guid, rs.CurveParameter(border_guid, 0.0)
+            if compas_rhino.rs.IsCurveClosed(border_guid):
+                start_tgt = compas_rhino.rs.CurveTangent(
+                    border_guid, compas_rhino.rs.CurveParameter(border_guid, 0.0)
                 )
-                end_tgt = rs.CurveTangent(
-                    border_guid, rs.CurveParameter(border_guid, 1.0)
+                end_tgt = compas_rhino.rs.CurveTangent(
+                    border_guid, compas_rhino.rs.CurveParameter(border_guid, 1.0)
                 )
                 if angle_vectors(start_tgt, end_tgt) > threshold:
                     kinks += extremities
@@ -85,7 +80,7 @@ class RhinoSurface(RhinoSurface):
             else:
                 kinks += extremities
 
-        rs.DeleteObjects(borders)
+        compas_rhino.rs.DeleteObjects(borders)
         return list(set(kinks))
 
     def closest_point(self, xyz):
@@ -152,7 +147,7 @@ class RhinoSurface(RhinoSurface):
             The (u, v) coordinates of the mapped point.
 
         """
-        return rs.SurfaceClosestPoint(self.guid, xyz)
+        return compas_rhino.rs.SurfaceClosestPoint(self.guid, xyz)
 
     def point_uv_to_xyz(self, uv):
         """Return the XYZ point from the inverse mapping of a UV point based on the UV parameterisation of the surface.
@@ -168,7 +163,7 @@ class RhinoSurface(RhinoSurface):
             The (x, y, z) coordinates of the inverse-mapped point.
 
         """
-        return tuple(rs.EvaluateSurface(self.guid, *uv))
+        return tuple(compas_rhino.rs.EvaluateSurface(self.guid, *uv))
 
     def line_uv_to_xyz(self, line):
         """Return the XYZ points from the inverse mapping of a UV line based on the UV parameterisation of the surface.
@@ -246,15 +241,15 @@ class RhinoSurface(RhinoSurface):
         for btype in (1, 2):
             border = []
             for guid in self.borders(border_type=btype):
-                L = rs.CurveLength(guid)
+                L = compas_rhino.rs.CurveLength(guid)
                 N = max(int(L / segment_length) + 1, minimum_discretisation)
                 points = []
-                for point in rs.DivideCurve(guid, N):
+                for point in compas_rhino.rs.DivideCurve(guid, N):
                     points.append(list(self.point_xyz_to_uv(point)) + [0.0])
-                if rs.IsCurveClosed(guid):
+                if compas_rhino.rs.IsCurveClosed(guid):
                     points.append(points[0])
                 border.append(points)
-                rs.DeleteObject(guid)
+                compas_rhino.rs.DeleteObject(guid)
             borders.append(border)
         outer_boundaries = network_polylines(Network.from_lines([(u, v) for border in borders[0] for u, v in pairwise(border)]))
         inner_boundaries = network_polylines(Network.from_lines([(u, v) for border in borders[1] for u, v in pairwise(border)]))
@@ -262,17 +257,17 @@ class RhinoSurface(RhinoSurface):
         # mapping of the curve features on the surface
         curves = []
         for guid in crv_guids:
-            L = rs.CurveLength(guid)
+            L = compas_rhino.rs.CurveLength(guid)
             N = max(int(L / segment_length) + 1, minimum_discretisation)
             points = []
-            for point in rs.DivideCurve(guid, N):
+            for point in compas_rhino.rs.DivideCurve(guid, N):
                 points.append(list(self.point_xyz_to_uv(point)) + [0.0])
-            if rs.IsCurveClosed(guid):
+            if compas_rhino.rs.IsCurveClosed(guid):
                 points.append(points[0])
             curves.append(points)
         polyline_features = network_polylines(Network.from_lines([(u, v) for curve in curves for u, v in pairwise(curve)]))
 
         # mapping of the point features onthe surface
-        point_features = [list(self.point_xyz_to_uv(rs.PointCoordinates(guid))) + [0.0] for guid in pt_guids]
+        point_features = [list(self.point_xyz_to_uv(compas_rhino.rs.PointCoordinates(guid))) + [0.0] for guid in pt_guids]
 
         return outer_boundaries[0], inner_boundaries, polyline_features, point_features
