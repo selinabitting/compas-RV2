@@ -18,6 +18,7 @@ class SubdMesh(Mesh):
         super(SubdMesh, self).__init__(*args, **kwargs)
         self.default_edge_attributes.update({
             'brep_curve': None,
+            'brep_curve_pts': None,
             'brep_curve_dir': None
         })
         self.default_face_attributes.update({
@@ -71,11 +72,11 @@ class SubdMesh(Mesh):
         return subdmesh
 
     # ==========================================================================
-    #   helpers
+    #   topology
     # ==========================================================================
 
     def subd_edge_strip(self, edge):
-
+        """Find the edge strip through quad and nonquad faces"""
         def strip_end_faces(strip):
             # return nonquads at the end of edge strips
             faces1 = self.edge_faces(strip[0][0], strip[0][1])
@@ -112,6 +113,7 @@ class SubdMesh(Mesh):
         return all_edges
 
     def edge_strip_faces(self, edge_strip):
+        """Identify all edge faces of the edge strip"""
         edge_strip_faces = set()
         for u, v in edge_strip:
             face1, face2 = self.edge_faces(u, v)
@@ -121,12 +123,52 @@ class SubdMesh(Mesh):
                 edge_strip_faces.add(face2)
         return list(edge_strip_faces)
 
+    def split_boundary(self, subdmesh):
+        """Split the ordered list of boundary vertices at the corners of the quadmesh."""
+        boundaries = subdmesh.vertices_on_boundaries()
+        exterior = boundaries[0]
+        opening = []
+        openings = [opening]
+        for vertex in exterior:
+            opening.append(vertex)
+            if subdmesh.vertex_degree(vertex) == 2:
+                opening = [vertex]
+                openings.append(opening)
+        openings[-1] += openings[0]
+        del openings[0]
+        openings[:] = [opening for opening in openings if len(opening) > 2]
+        return openings
+
+    # ==========================================================================
+    #   remapping
+    # ==========================================================================
+
+    def divide_brep_curve(self, edge, n):
+        """Divide the brep curve corresponding to the edge"""
+        curve = self.edge_attribute(edge, 'brep_curve')
+        params = curve.DivideByCount(n, True)
+        pts = []
+        for param in params:
+            pt = curve.PointAt(param)
+            pts.append(pt)
+        self.edge_attribute(edge, 'brep_curve_pts', pts)
+        return pts
+
+    def remap_boundary_vertices(self, subdmesh):
+        """Remap the boundary vertices of a subdmesh"""
+        vertex_loops = self.split_boundary(subdmesh)
+        for vertex_loop in vertex_loops:
+            u = vertex_loop[0]
+            v = vertex_loop[-1]
+            edge = (u, v)
+            pts = self.edge_attribute(edge, 'brep_curve_pts')
+            if u != self.edge_attribute(edge, 'brep_curve_dir')[0]:
+                pts = pts[::-1]
+            subdmesh.vertices_attributes('xyz', pts[1:-1], vertex_loop[1:-1])
+
     # ==========================================================================
     #   subdivision
     # ==========================================================================
-
-    def divide_curve(curve, n):
-        pass
 
     def subdivide_quad(self, face, nu, nv):
         pass
