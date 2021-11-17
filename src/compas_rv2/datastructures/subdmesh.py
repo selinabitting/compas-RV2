@@ -17,6 +17,7 @@ class SubdMesh(Mesh):
 
     def __init__(self, *args, **kwargs):
         super(SubdMesh, self).__init__(*args, **kwargs)
+
         self.default_edge_attributes.update({
             'brep_curve': None,
             'brep_curve_pts': [],
@@ -270,6 +271,9 @@ class SubdMesh(Mesh):
 
         quads = []
         non_quads = []
+
+        boundary = set()
+
         for face in self.faces():
             if self.face_attribute(face, 'is_quad'):
                 quads.append(face)
@@ -279,15 +283,26 @@ class SubdMesh(Mesh):
         for face in non_quads:
             subd_mesh = self.subdivide_nonquad(face)
             subd_meshes.append(subd_mesh)
-            fixed = subd_mesh.vertices_on_boundary()
-            subd_mesh.smooth_area(fixed=fixed, kmax=50, damping=0.5)
+            for vertex in subd_mesh.vertices_on_boundary():
+                xyz = subd_mesh.vertex_coordinates(vertex)
+                boundary.add(geometric_key(xyz))
 
         for face in quads:
             subd_mesh = self.subdivide_quad(face)
             subd_meshes.append(subd_mesh)
-            fixed = subd_mesh.vertices_on_boundary()
-            subd_mesh.smooth_area(fixed=fixed, kmax=50, damping=0.5)
+            for vertex in subd_mesh.vertices_on_boundary():
+                xyz = subd_mesh.vertex_coordinates(vertex)
+                boundary.add(geometric_key(xyz))
 
         mesh = meshes_join_and_weld(subd_meshes)
+
+        fixed = []
+        for vertex in mesh.vertices():
+            xyz = mesh.vertex_coordinates(vertex)
+            gkey = geometric_key(xyz)
+            if gkey in boundary:
+                fixed.append(vertex)
+
+        mesh.smooth_area(fixed=fixed, kmax=100, damping=0.5)
 
         return mesh
