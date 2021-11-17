@@ -4,6 +4,8 @@ from __future__ import division
 
 import Rhino
 
+from itertools import groupby
+
 from compas.datastructures import Mesh
 from compas.datastructures import meshes_join_and_weld
 from compas.datastructures.mesh.subdivision import mesh_fast_copy
@@ -160,9 +162,9 @@ class SubdMesh(Mesh):
 
     def remap_boundary_vertices(self, subdmesh):
         """Remap the boundary vertices of a subdmesh"""
-
         vertex_loops = self.split_boundary(subdmesh)
         for vertex_loop in vertex_loops:
+            vertex_loop = [key[0] for key in groupby(vertex_loop)]
             u = vertex_loop[0]
             v = vertex_loop[-1]
             edge = (u, v)
