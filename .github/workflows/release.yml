@@ -49,7 +49,7 @@ jobs:
         shell: PowerShell
         run: |
           conda config --add channels conda-forge
-          conda install conda-pack cython=0.29.23 compas_cgal=0.3.0 -y
+          conda install conda-pack cython=0.29.23 compas compas_cgal=0.3.0 -y
 
       - name: rv2-install
         run: |
@@ -118,7 +118,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda config --add channels conda-forge
-          conda install conda-pack cython=0.29.23 compas_cgal=0.3.0 -y
+          conda install conda-pack cython=0.29.23 compas compas_cgal=0.3.0 -y
 
       - name: rv2-install
         shell: bash -l {0}
