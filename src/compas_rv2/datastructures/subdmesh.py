@@ -7,8 +7,8 @@ import Rhino
 from itertools import groupby
 
 from compas.datastructures import Mesh
-from compas.datastructures import mesh_weld
 from compas.datastructures import meshes_join_and_weld
+from compas.datastructures import mesh_unify_cycles
 from compas.datastructures.mesh.subdivision import mesh_fast_copy
 
 from compas.utilities import geometric_key
@@ -297,7 +297,7 @@ class SubdMesh(Mesh):
                 xyz = subd_mesh.vertex_coordinates(vertex)
                 boundary.add(geometric_key(xyz))
 
-        mesh = meshes_join_and_weld(subd_meshes)
+        mesh = meshes_join_and_weld(subd_meshes, precision='1f')
 
         fixed = []
         for vertex in mesh.vertices():
@@ -307,5 +307,6 @@ class SubdMesh(Mesh):
                 fixed.append(vertex)
 
         mesh.smooth_area(fixed=fixed, kmax=100, damping=0.5)
+        mesh_unify_cycles(mesh)
 
-        return mesh_weld(mesh)
+        return mesh
