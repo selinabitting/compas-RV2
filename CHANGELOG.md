@@ -8,10 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+* Auto update changelog in `invoke release`.
 
 ### Changed
 
 ### Removed
+* Removed option to publish release candidates.
 
 ## [1.0.0-beta2] 2020-05-20
 
