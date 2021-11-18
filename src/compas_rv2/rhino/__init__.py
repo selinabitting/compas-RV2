@@ -77,7 +77,8 @@ from .conduits import (
     LoadConduit,
     ResidualConduit,
     ForceConduit,
-    HorizontalConduit
+    HorizontalConduit,
+    SubdConduit
 )
 from .objects import (
     MeshObject,
@@ -132,4 +133,5 @@ __all__ = [
     'ResidualConduit',
     'ForceConduit',
     'HorizontalConduit',
+    'SubdConduit'
 ]
