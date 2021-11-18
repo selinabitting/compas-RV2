@@ -164,10 +164,13 @@ class SkeletonDecomposition(Skeleton):
             List of polylines as list of point XYZ-coordinates.
 
         """
-        branches = self.branches_singularity_to_singularity() + self.branches_singularity_to_boundary() + self.branches_boundary()
+        branches = self.branches_singularity_to_singularity()
+        branches += self.branches_singularity_to_boundary()
+        branches += self.branches_boundary()
         branches += self.branches_splitting_boundary_kinks()
         branches += self.branches_splitting_collapsed_boundaries()
         branches += self.branches_splitting_flipped_faces()
+
         self.polylines = network_polylines(Network.from_lines([(u, v) for polyline in branches for u, v in pairwise(polyline)]),
                                            splits=[self.vertex_coordinates(vkey) for vkey in self.corner_vertices()])
         return self.polylines
@@ -380,7 +383,7 @@ class SkeletonDecomposition(Skeleton):
                 for vkey in edge:
                     xyz = centroid_points([mesh.vertex_coordinates(nbr) for nbr in mesh.vertex_neighbors(vkey)])
                     xyz0 = mesh.vertex_coordinates(vkey)
-                    to_move[vkey] = [0.1 * (a - a0) for a, a0 in zip(xyz, xyz0)]
+                    to_move[vkey] = [0.001 * (a - a0) for a, a0 in zip(xyz, xyz0)]
 
         for vkey, xyz in to_move.items():
             attr = mesh.vertex[vkey]
@@ -412,16 +415,6 @@ class SkeletonDecomposition(Skeleton):
             sources = [vkey for vkey in mesh.vertices() if geometric_key(mesh.vertex_coordinates(vkey)) in source_map]
 
             quadrangulate_mesh(mesh, sources)
-
-    def quadrangulate_polygonal_faces_wip(self):
-        pass
-        # mesh = self.mesh
-
-        # delaunay_vertex_map = tuple(geometric_key(self.vertex_coordinates(vkey)) for vkey in self.vertices())
-
-        # for fkey in mesh.faces():
-        # 	face_vertices = mesh.face_vertices(fkey)
-        # 	if len(face_vertices) > 4:
 
     def split_quads_with_poles(self, poles):
         new_lines = []

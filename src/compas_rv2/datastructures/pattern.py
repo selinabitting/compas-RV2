@@ -6,6 +6,8 @@ import compas
 from compas.datastructures import Mesh
 from compas.datastructures import mesh_smooth_area
 from compas.utilities import geometric_key
+# from compas.artists import Artist
+# from compas.geometry import Polyline
 
 import compas_rhino
 
@@ -93,6 +95,7 @@ class Pattern(MeshMixin, Mesh):
         compas.PRECISION = '3f'
 
         compas_rhino.rs.EnableRedraw(False)
+
         surface = RhinoSurface.from_guid(surf_guid)
         result = surface.discrete_mapping(discretisation, crv_guids=curve_guids, pt_guids=point_guids)
         trimesh = boundary_triangulation(*result, delaunay=delaunay)
@@ -103,25 +106,29 @@ class Pattern(MeshMixin, Mesh):
         surface.mesh_uv_to_xyz(decomposition)
         surface.mesh_uv_to_xyz(coarsemesh)
 
-        gkey_vertex = coarsemesh.gkey_key()
+        # gkey_vertex = coarsemesh.gkey_key()
         edge_curve = {}
-        curves = []
+        # curves = []
 
-        for polyline in decomposition.polylines:
-            polyline = surface.polyline_uv_to_xyz(polyline)
-            a = geometric_key(polyline[0])
-            b = geometric_key(polyline[-1])
-            u = gkey_vertex[a]
-            v = gkey_vertex[b]
-            edge_curve[u, v] = polyline
+        # for polyline in decomposition.polylines:
+        #     polyline = surface.polyline_uv_to_xyz(polyline)
+        #     a = geometric_key(polyline[0])
+        #     b = geometric_key(polyline[-1])
+        #     if a in gkey_vertex and b in gkey_vertex:
+        #         u = gkey_vertex[a]
+        #         v = gkey_vertex[b]
+        #         edge_curve[u, v] = polyline
+        #     # Artist(Polyline(polyline)).draw()
 
         coarsemesh.collect_strips()
         coarsemesh.set_strips_density_target(target_edge_length)
         coarsemesh.densification(edges_to_curves=edge_curve)
-        compas_rhino.delete_objects(curves, purge=True)
         densemesh = coarsemesh.get_quad_mesh()
+
+        # compas_rhino.delete_objects(curves, purge=True)
         compas_rhino.rs.EnableRedraw(True)
         compas_rhino.rs.Redraw()
+
         return cls.from_vertices_and_faces(*densemesh.to_vertices_and_faces())
 
     def collapse_small_edges(self, tol=1e-2):

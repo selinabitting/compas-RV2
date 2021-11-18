@@ -49,10 +49,16 @@ class CoarsePseudoQuadMesh(PseudoQuadMesh, CoarseQuadMesh):
                     if (u, v) in edges_to_curves:
                         curve = Polyline(edges_to_curves[u, v])
                         polyline = [curve.point(t) for t in linspace(0, 1, d)]
+                    # elif (v, u) in edges_to_curves:
                     else:
                         curve = Polyline(edges_to_curves[v, u])
                         polyline = [curve.point(t) for t in linspace(0, 1, d)]
                         polyline[:] = polyline[::-1]
+                    # else:
+                    #     curve = Polyline([self.vertex_coordinates(u), self.vertex_coordinates(v)])
+                    #     for i in range(0, d + 1):
+                    #         point = curve.point(float(i) / float(d))
+                    #         polyline.append(point)
                 else:
                     polyline = []
                     curve = Polyline([self.vertex_coordinates(u), self.vertex_coordinates(v)])
