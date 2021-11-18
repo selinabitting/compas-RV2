@@ -12,9 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Workflow to check changelog on PRs
 
 ### Changed
+* Update `compas_rv2.datastructures.SubdMesh` to incorporate freeform quadsurfaces and non-quad surfaces
+* Update `RV2pattern_from_surfaces_cmd`
+
 
 ### Removed
 * Removed option to publish release candidates.
+* Unused scripts
 
 ## [1.0.0-beta2] 2020-05-20
 
