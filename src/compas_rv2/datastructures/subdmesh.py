@@ -7,6 +7,7 @@ import Rhino
 from itertools import groupby
 
 from compas.datastructures import Mesh
+from compas.datastructures import mesh_weld
 from compas.datastructures import meshes_join_and_weld
 from compas.datastructures.mesh.subdivision import mesh_fast_copy
 
@@ -307,4 +308,4 @@ class SubdMesh(Mesh):
 
         mesh.smooth_area(fixed=fixed, kmax=100, damping=0.5)
 
-        return mesh
+        return mesh_weld(mesh)

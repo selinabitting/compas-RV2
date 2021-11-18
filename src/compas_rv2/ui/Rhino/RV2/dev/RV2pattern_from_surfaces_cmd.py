@@ -7,6 +7,7 @@ import compas_rhino
 import math
 from compas_rv2.datastructures import SubdMesh
 from compas_rv2.datastructures import Pattern
+from compas.datastructures import mesh_weld
 
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
@@ -22,12 +23,12 @@ __commandname__ = "RV2pattern_from_surfaces"
 def divide_edge_strip_faces(mesh, edge):
 
     is_strip_quad = True  # check whether the edge_strip contains quads or not
-    
+
     strip_edge = mesh.subd_edge_strip(edge)
     edge_strip_faces = mesh.edge_strip_faces(strip_edge)
 
     for face in edge_strip_faces:
-        if not mesh.face_attributes(face, 'is_quad'):
+        if not mesh.face_attribute(face, 'is_quad'):
             is_strip_quad = False
 
     # entering subdivision number
@@ -43,28 +44,33 @@ def divide_edge_strip_faces(mesh, edge):
                 print('division number has to be power of 2!')
 
     for face in edge_strip_faces:
-        quad = mesh.face_attributes(face, 'is_quad')
+        quad = mesh.face_attribute(face, 'is_quad')
 
         if quad:
-            u_edge = mesh.face_attributes(face, 'u_edge')
-            if frozenset(u_edge) in strip_edge:
+            u1, u2 = mesh.face_attribute(face, 'u_edge')
+            v1, v2 = mesh.face_attribute(face, 'v_edge')
+
+            if (u1, u2) in strip_edge or (u2, u1) in strip_edge:
                 mesh.face_attribute(face, 'nu', nu_or_nv)
             else:
-                mesh.face_attributes(face,'nv', nu_or_nv)
+                mesh.face_attribute(face, 'nv', nu_or_nv)
+
+            if (v1, v2) in strip_edge or (v2, v1) in strip_edge:
+                mesh.face_attribute(face, 'nv', nu_or_nv)
 
         else:
             n = math.log(nu_or_nv) / math.log(2)
-            mesh.face_attributes(face, 'n', int(n))
-            
+            mesh.face_attribute(face, 'n', int(n))
+
     return edge_strip_faces
 
 
 def update_nu_nv(mesh):
-    
+
     quad_mesh = True  # check whether the mesh contains nonquads or not
 
     for face in mesh.faces():
-        if not mesh.face_attributes(face, 'is_quad'):
+        if not mesh.face_attribute(face, 'is_quad'):
             quad_mesh = False
 
     if quad_mesh:
@@ -81,13 +87,14 @@ def update_nu_nv(mesh):
                 print('division number has to be power of 2!')
 
         for face in mesh.faces():
-            quad = mesh.face_attributes(face, 'is_quad')
+            quad = mesh.face_attribute(face, 'is_quad')
             if quad:
                 mesh.face_attribute(face, 'nu', nu_or_nv)
-                mesh.face_attributes(face,'nv', nu_or_nv)
+                mesh.face_attribute(face,'nv', nu_or_nv)
             else:
                 n = math.log(nu_or_nv) / math.log(2)
-                mesh.face_attributes(face, 'n', int(n))
+                mesh.face_attribute(face, 'n', int(n))
+
 
 def interior_edge_lines(mesh):
     interior_edges = set(list(mesh.edges())) - set(list(mesh.edges_on_boundary()))
@@ -133,42 +140,48 @@ def RunCommand(is_interactive):
     # ==========================================================================
     #   iterative subdivision
     # ==========================================================================
-    options = ["Subdivide Mesh", "Subdivide edge strip", "Finish Subdivision"]
-    
+    options = ["SubdivideMesh", "SubdivideEdgeStrip", "FinishSubdivision"]
+
     while True:
         option = compas_rhino.rs.GetString("Modify Subdivision", strings=options)
 
-        if not option:
+        if option is None:
+            conduit.disable()
+            scene.clear()
+            compas_rhino.rs.ShowObjects(guid)
+            print("Subdivision aborted!")
             return
 
-        if option == "Subdivide Mesh":
-            subd1 = subd.datastructure
-            subd = update_nu_nv(subd1)
-            subd1 = subd.datastructure.subdivide_all_faces()
-            
-        elif option == "Subdivide edge strip":
-            edge = subd1.select_edge()
-            compas_rhino.rs.UnselectAllObjects()
-            compas_rhino.rs.Redraw()
-            subd1 = subd.datastructure
-            strip_faces = divide_edge_strip_faces(subd1, edge)
-            subd1 = subd1.subdivide_all_faces(strip_faces)
-
-        elif option == "Finish Subdivision":
+        if not option:
             break
 
-    conduit.lines = interior_edge_lines(subd1)
-    scene.update()
+        if option == "SubdivideMesh":
+            update_nu_nv(subd.datastructure)
+            subd1 = subd.datastructure.subdivide_all_faces()
+
+        elif option == "SubdivideEdgeStrip":
+            edge = subd.select_edge()
+            compas_rhino.rs.UnselectAllObjects()
+            compas_rhino.rs.Redraw()
+            divide_edge_strip_faces(subd.datastructure, edge)
+            subd1 = subd.datastructure.subdivide_all_faces()
+
+        elif option == "FinishSubdivision":
+            break
+
+        conduit.lines = interior_edge_lines(subd1)
+        scene.update()
 
     # ==========================================================================
 
     # 8. make pattern from subdmesh
-    
-    xyz = subd1.vertices_attributes('xyz')
-    faces = [subd1.face_vertices(fkey) for fkey in subd1.faces()]
-    pattern = Pattern.from_vertices_and_faces(xyz, faces)
+
+    # xyz = subd1.vertices_attributes('xyz')
+    # faces = [subd1.face_vertices(fkey) for fkey in subd1.faces()]
+    # pattern = Pattern.from_vertices_and_faces(xyz, faces)
+
     conduit.disable()
-    #pattern = Pattern.from_data(subd1.data)
+    pattern = Pattern.from_data(subd1.data)
 
     # 9. update scene
     scene.clear()
