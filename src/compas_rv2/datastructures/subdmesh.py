@@ -8,7 +8,6 @@ from itertools import groupby
 
 from compas.datastructures import Mesh
 from compas.datastructures import meshes_join_and_weld
-from compas.datastructures import mesh_unify_cycles
 from compas.datastructures.mesh.subdivision import mesh_fast_copy
 
 from compas.utilities import geometric_key
@@ -307,6 +306,5 @@ class SubdMesh(Mesh):
                 fixed.append(vertex)
 
         mesh.smooth_area(fixed=fixed, kmax=100, damping=0.5)
-        mesh_unify_cycles(mesh)
 
         return mesh

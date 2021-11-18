@@ -6,6 +6,8 @@ import math
 
 import compas_rhino
 
+from compas.datastructures import mesh_unify_cycles
+
 from compas_rv2.datastructures import SubdMesh
 from compas_rv2.datastructures import Pattern
 
@@ -72,8 +74,10 @@ def update_nu_nv(mesh):
 
     if quad_mesh:
         nu = compas_rhino.rs.GetInteger('This is a quadmesh - Choose any integer', minimum=2)
-        mesh.face_attribute(face, 'nu', nu)
-        mesh.face_attribute(face, 'nv', nu)
+
+        for face in mesh.faces():
+            mesh.face_attribute(face, 'nu', nu)
+            mesh.face_attribute(face, 'nv', nu)
 
     else:
         while True:
@@ -167,6 +171,7 @@ def RunCommand(is_interactive):
     # ==========================================================================
 
     # 8. make pattern from subdmesh
+    mesh_unify_cycles(subd1)
     pattern = Pattern.from_data(subd1.data)
 
     # 9. update scene
