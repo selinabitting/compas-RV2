@@ -7,6 +7,7 @@ import math
 import compas_rhino
 
 from compas.topology import breadth_first_traverse
+
 from compas.datastructures import mesh_face_adjacency
 
 from compas_rv2.datastructures import SubdMesh
@@ -107,7 +108,7 @@ def mesh_edge_lines(mesh):
     return lines
 
 
-def _mesh_unify_cycles(mesh, root=None):
+def mesh_unify_cycles(mesh, root=None):
 
     def unify(node, nbr):
         # find the common edge
@@ -128,7 +129,7 @@ def _mesh_unify_cycles(mesh, root=None):
 
     adj = mesh_face_adjacency(mesh)
 
-    visited = breadth_first_traverse(adj, root, unify)
+    breadth_first_traverse(adj, root, unify)
 
     # assert len(list(visited)) == mesh.number_of_faces(), 'Not all faces were visited'
 
@@ -138,7 +139,6 @@ def _mesh_unify_cycles(mesh, root=None):
             mesh.halfedge[u][v] = fkey
             if u not in mesh.halfedge[v]:
                 mesh.halfedge[v][u] = None
-
 
 
 @rv2_error()
@@ -208,7 +208,7 @@ def RunCommand(is_interactive):
     conduit.disable()
 
     # 8. make pattern from subdmesh
-    _mesh_unify_cycles(subd1)
+    mesh_unify_cycles(subd1)
     pattern = Pattern.from_data(subd1.data)
 
     # 9. update scene
