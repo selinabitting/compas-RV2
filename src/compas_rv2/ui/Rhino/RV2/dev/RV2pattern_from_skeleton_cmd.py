@@ -162,6 +162,8 @@ def RunCommand(is_interactive):
     skeletonobject.draw()
     skeletonobject.dynamic_draw_widths()
 
+    compas_rhino.rs.EnableRedraw(True)
+
     # modify skeleton
     while True:
         menu = CommandMenu(config)
