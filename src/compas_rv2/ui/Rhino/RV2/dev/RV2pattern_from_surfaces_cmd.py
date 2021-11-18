@@ -1,20 +1,17 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
-from compas.datastructures import attributes
 
 import compas_rhino
 import math
 from compas_rv2.datastructures import SubdMesh
 from compas_rv2.datastructures import Pattern
-from compas.datastructures import mesh_weld
 
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
 
 from compas_rhino.conduits import LinesConduit
-from rhinoscript.userdata import SetDocumentUserText
 
 
 __commandname__ = "RV2pattern_from_surfaces"
@@ -90,7 +87,7 @@ def update_nu_nv(mesh):
             quad = mesh.face_attribute(face, 'is_quad')
             if quad:
                 mesh.face_attribute(face, 'nu', nu_or_nv)
-                mesh.face_attribute(face,'nv', nu_or_nv)
+                mesh.face_attribute(face, 'nv', nu_or_nv)
             else:
                 n = math.log(nu_or_nv) / math.log(2)
                 mesh.face_attribute(face, 'n', int(n))

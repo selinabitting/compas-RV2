@@ -276,6 +276,7 @@ class MeshObject(MeshObject):
         guid = compas_rhino.select_line(message=message)
         return self.guid_edge[guid]
 
+
 # ==============================================================================
 # Main
 # ==============================================================================
