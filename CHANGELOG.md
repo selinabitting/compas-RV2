@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Auto update changelog in `invoke release`.
+* Workflow to check changelog on PRs
 
 ### Changed
 
