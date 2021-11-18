@@ -265,6 +265,17 @@ class MeshObject(MeshObject):
 
         return True
 
+    def select_edge(self, message="Select an edge."):
+        """Select edges of the mesh.
+
+        Returns
+        -------
+        list
+            A list of edge identifiers.
+        """
+        guid = compas_rhino.select_line(message=message)
+        return self.guid_edge[guid]
+
 
 # ==============================================================================
 # Main
