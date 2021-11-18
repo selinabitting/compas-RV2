@@ -10,8 +10,21 @@ from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
 
+from compas_rhino.conduits import LinesConduit
+
 
 __commandname__ = "RV2pattern_from_surfaces"
+
+
+def interior_edge_lines(mesh):
+    interior_edges = set(list(mesh.edges())) - set(list(mesh.edges_on_boundary()))
+
+    lines = []
+    for u, v in interior_edges:
+        u_xyz = mesh.vertex_coordinates(u)
+        v_xyz = mesh.vertex_coordinates(v)
+        lines.append([u_xyz, v_xyz])
+    return lines
 
 
 @rv2_error()
@@ -27,32 +40,45 @@ def RunCommand(is_interactive):
     guid = compas_rhino.select_surface()
     compas_rhino.rs.HideObjects(guid)
 
-    # 2. make mesh and add it to the scene
+    # 2. make subdmesh and add it to the scene
     subdmesh = SubdMesh.from_guid(guid)
+
     scene.add(subdmesh, name='subd')
+    subd = scene.get("subd")[0]
+
+    # default subdivision
+    subd1 = subd.datastructure.subdivide_all_faces()
+
+    # 3. setup conduit to temporarily display subdmeshes
+    conduit = LinesConduit([])
+    conduit.enable()
+    conduit.lines = interior_edge_lines(subd1)
+    conduit.thickness = 0
+    conduit.color = (125, 125, 125)
     scene.update()
 
-    subd = scene.get("subd")[0]
-    subd.artist.draw_vertexlabels()
-    subd.artist.draw_facelabels(color=(0, 0, 0))
+    # ==========================================================================
+    #   iterative subdivision
+    # ==========================================================================
 
-    # 3. select edge
+    # 4. select edge
     edge = subd.select_edge()
     compas_rhino.rs.UnselectAllObjects()
-    compas_rhino.rs.Redraw()
 
-    # 4. edge strip
-    strip_edge = subd.datastructure.subd_edge_strip(edge)
+    # 5. edge strip
 
-    # 5. update nu, nv and/or n using strip_edge
+    # 6. update nu, nv and/or n using strip_edge
 
-    # 6. subdivide
+    # 7. subdivide
 
-    # 7. turn mesh into a pattern object
-    # pattern = Pattern.from_...
+    # ==========================================================================
 
-    # 8. add the Pattern object to the Scene, then update/redraw
-    # scene.clear()
+    # 8. make pattern from subdmesh
+    conduit.disable()
+    # pattern = Pattern.from_data(subd2.data)
+
+    # 9. update scene
+    scene.clear()
     # scene.add(pattern, name='pattern')
     scene.update()
 
