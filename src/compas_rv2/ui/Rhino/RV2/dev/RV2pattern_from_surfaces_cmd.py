@@ -75,11 +75,11 @@ def RunCommand(is_interactive):
 
     # 8. make pattern from subdmesh
     conduit.disable()
-    # pattern = Pattern.from_data(subd2.data)
+    pattern = Pattern.from_data(subd1.data)
 
     # 9. update scene
     scene.clear()
-    # scene.add(pattern, name='pattern')
+    scene.add(pattern, name='pattern')
     scene.update()
 
     # print("Pattern object successfully created. Input surface or polysurface has been hidden.")
