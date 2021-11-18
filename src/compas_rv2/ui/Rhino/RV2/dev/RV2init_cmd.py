@@ -8,12 +8,14 @@ import scriptcontext as sc
 import compas
 import compas_rhino
 
+compas_rhino.unload_modules('compas_rv2')
+
 from compas_cloud import Proxy  # noqa: E402
 from compas_rv2.scene import Scene  # noqa: E402
 from compas_rv2.rhino import rv2_error  # noqa: E402
-from compas_rv2.activate import check
-from compas_rv2.activate import activate
-from compas_rv2.rhino import Browser
+from compas_rv2.activate import check  # noqa: E402
+from compas_rv2.activate import activate  # noqa: E402
+from compas_rv2.rhino import Browser  # noqa: E402
 
 
 __commandname__ = "RV2init"

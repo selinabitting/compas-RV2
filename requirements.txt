@@ -1,6 +1,6 @@
 COMPAS>=1.10.0
 compas_cloud>=0.3.0
 compas_tna>=0.1.5
-compas_triangle>=1.0.2
+# compas_triangle>=1.0.2
 compas_skeleton>=1.1.3
-compas_singular>=0.1.5
+#compas_singular>=0.1.5

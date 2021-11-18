@@ -2,7 +2,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-
 from compas_rhino.conduits import BaseConduit
 
 from compas.geometry import add_vectors
@@ -13,11 +12,6 @@ from System.Drawing.Color import FromArgb
 
 from Rhino.Geometry import Line
 from Rhino.Geometry import Point3d
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 class SelfWeightConduit(BaseConduit):

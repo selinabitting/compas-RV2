@@ -12,8 +12,6 @@ from compas_rv2.datastructures import Pattern
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
 
-import rhinoscriptsyntax as rs
-
 
 __commandname__ = "RV2pattern_from_triangulation"
 
@@ -30,7 +28,7 @@ def RunCommand(is_interactive):
     if not proxy:
         return
 
-    conforming_delaunay_triangulation = proxy.function('compas.geometry.conforming_delaunay_triangulation')
+    cdt = proxy.function('compas_cgal.triangulation.refined_delaunay_mesh')
 
     boundary_guids = compas_rhino.select_curves('Select outer boundary.')
     if not boundary_guids:
@@ -43,7 +41,7 @@ def RunCommand(is_interactive):
     segments_guids = compas_rhino.select_curves('Select constraint curves.')
     compas_rhino.rs.UnselectAllObjects()
 
-    target_length = rs.GetReal('Specifiy target edge length.', 1.0)
+    target_length = compas_rhino.rs.GetReal('Specifiy target edge length.', 1.0)
     if not target_length:
         return
 
@@ -55,9 +53,9 @@ def RunCommand(is_interactive):
         compas_rhino.rs.EnableRedraw(False)
         segments = compas_rhino.rs.ExplodeCurves(guid)
         for segment in segments:
-            curve = RhinoCurve.from_guid(segment)
+            curve = RhinoCurve.from_guid(segment).to_compas()
             N = max(int(curve.length() / target_length), 1)
-            points = map(list, curve.divide(N, over_space=True))
+            _, points = curve.divide_by_count(N, return_points=True)
             for point in points:
                 gkey = geometric_key(point)
                 if gkey not in gkey_constraints:
@@ -71,9 +69,9 @@ def RunCommand(is_interactive):
     polylines = []
     if segments_guids:
         for guid in segments_guids:
-            curve = RhinoCurve.from_guid(guid)
+            curve = RhinoCurve.from_guid(guid).to_compas()
             N = int(curve.length() / target_length) or 1
-            points = map(list, curve.divide(N, over_space=True))
+            _, points = curve.divide_by_count(N, return_points=True)
             for point in points:
                 gkey = geometric_key(point)
                 if gkey not in gkey_constraints:
@@ -85,9 +83,9 @@ def RunCommand(is_interactive):
     polygons = []
     if hole_guids:
         for guid in hole_guids:
-            curve = RhinoCurve.from_guid(guid)
+            curve = RhinoCurve.from_guid(guid).to_compas()
             N = int(curve.length() / target_length) or 1
-            points = map(list, curve.divide(N, over_space=True))
+            _, points = curve.divide_by_count(N, return_points=True)
             for point in points[:-1]:
                 gkey = geometric_key(point)
                 if gkey not in gkey_constraints:
@@ -95,9 +93,7 @@ def RunCommand(is_interactive):
                 gkey_constraints[gkey].append(guid)
             polygons.append(points)
 
-    area = target_length ** 2 * 0.5 * 0.5 * 1.732
-
-    vertices, faces = conforming_delaunay_triangulation(boundary, polylines=polylines, polygons=polygons, angle=30, area=area)
+    vertices, faces = cdt(boundary, curves=polylines, holes=polygons, maxlength=target_length, is_optimized=True)
     vertices[:] = [[float(x), float(y), float(z)] for x, y, z in vertices]
 
     pattern = Pattern.from_vertices_and_faces(vertices, faces)

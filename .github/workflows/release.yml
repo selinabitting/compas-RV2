@@ -48,7 +48,8 @@ jobs:
       - name: conda-install
         shell: PowerShell
         run: |
-          conda install conda-pack cython -y
+          conda config --add channels conda-forge
+          conda install conda-pack cython=0.29.23 compas compas_cgal=0.3.0 -y
 
       - name: rv2-install
         run: |
@@ -92,51 +93,52 @@ jobs:
           asset_name: RhinoVault2_${{ steps.tagName.outputs.tag }}.zip
           asset_content_type: application/zip
 
-  InstallerMac:
-    needs: Release
-    runs-on: "macos-latest"
-    steps:
-      - name: Get the tag version
-        uses: dawidd6/action-get-tag@v1
-        id: tagName
+  # InstallerMac:
+  #   needs: Release
+  #   runs-on: "macos-latest"
+  #   steps:
+  #     - name: Get the tag version
+  #       uses: dawidd6/action-get-tag@v1
+  #       id: tagName
 
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
+  #     - name: Use Node.js
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: '12.x'
 
-      - uses: actions/checkout@v2
+  #     - uses: actions/checkout@v2
 
-      - uses: conda-incubator/setup-miniconda@v2.0.0
-        with:
-          miniconda-version: "latest"
-          activate-environment: rv2
-          python-version: 3.7
+  #     - uses: conda-incubator/setup-miniconda@v2.0.0
+  #       with:
+  #         miniconda-version: "latest"
+  #         activate-environment: rv2
+  #         python-version: 3.7
 
-      - name: conda-install
-        shell: bash -l {0}
-        run: |
-          conda install conda-pack cython -y
+  #     - name: conda-install
+  #       shell: bash -l {0}
+  #       run: |
+  #         conda config --add channels conda-forge
+  #         conda install conda-pack cython=0.29.23 compas compas_cgal=0.3.0 -y
 
-      - name: rv2-install
-        shell: bash -l {0}
-        run: |
-          pip install .
+  #     - name: rv2-install
+  #       shell: bash -l {0}
+  #       run: |
+  #         pip install .
 
-      - name: rv2-pack
-        shell: bash -l {0}
-        run: |
-          python scripts/pack.py --version ${{ steps.tagName.outputs.tag }}
+  #     - name: rv2-pack
+  #       shell: bash -l {0}
+  #       run: |
+  #         python scripts/pack.py --version ${{ steps.tagName.outputs.tag }}
 
-      - name: Upload Archive
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.Release.outputs.upload_url }}
-          asset_path: dist/RV2_${{ steps.tagName.outputs.tag }}.zip
-          asset_name: RhinoVault2_${{ steps.tagName.outputs.tag }}_mac.zip
-          asset_content_type: application/zip
+  #     - name: Upload Archive
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ needs.Release.outputs.upload_url }}
+  #         asset_path: dist/RV2_${{ steps.tagName.outputs.tag }}.zip
+  #         asset_name: RhinoVault2_${{ steps.tagName.outputs.tag }}_mac.zip
+  #         asset_content_type: application/zip
 
   Publish:
     needs: Release

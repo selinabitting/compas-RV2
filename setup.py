@@ -25,7 +25,7 @@ optional_requirements = {}
 
 setup(
     name='compas-RV2',
-    version='1.3.4',
+    version='1.4.1',
     description='RhinoVault for Rhino 6 based on COMPAS',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -57,7 +57,6 @@ setup(
     zip_safe=False,
     install_requires=requirements,
     dependency_links=[
-        # 'git+https://github.com/BlockResearchGroup/compas_singular.git@d2e0b23723d050916907bb5c77fd18616652a27e#egg=compas_singular'
     ],
     python_requires='>=3.6',
     extras_require=optional_requirements,
