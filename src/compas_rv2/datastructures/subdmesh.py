@@ -296,7 +296,7 @@ class SubdMesh(Mesh):
                 xyz = subd_mesh.vertex_coordinates(vertex)
                 boundary.add(geometric_key(xyz))
 
-        mesh = meshes_join_and_weld(subd_meshes, precision='1f')
+        mesh = meshes_join_and_weld(subd_meshes, precision='2f')
 
         fixed = []
         for vertex in mesh.vertices():

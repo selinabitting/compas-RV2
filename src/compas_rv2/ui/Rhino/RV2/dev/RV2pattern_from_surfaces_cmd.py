@@ -6,7 +6,8 @@ import math
 
 import compas_rhino
 
-from compas.datastructures import mesh_unify_cycles
+from compas.topology import breadth_first_traverse
+from compas.datastructures import mesh_face_adjacency
 
 from compas_rv2.datastructures import SubdMesh
 from compas_rv2.datastructures import Pattern
@@ -106,6 +107,40 @@ def mesh_edge_lines(mesh):
     return lines
 
 
+def _mesh_unify_cycles(mesh, root=None):
+
+    def unify(node, nbr):
+        # find the common edge
+        for u, v in mesh.face_halfedges(nbr):
+            if u in mesh.face[node] and v in mesh.face[node]:
+                # node and nbr have edge u-v in common
+                i = mesh.face[node].index(u)
+                j = mesh.face[node].index(v)
+                if i == j - 1 or (j == 0 and u == mesh.face[node][-1]):
+                    # if the traversal of a neighboring halfedge
+                    # is in the same direction
+                    # flip the neighbor
+                    mesh.face[nbr][:] = mesh.face[nbr][::-1]
+                    return
+
+    if root is None:
+        root = mesh.get_any_face()
+
+    adj = mesh_face_adjacency(mesh)
+
+    visited = breadth_first_traverse(adj, root, unify)
+
+    # assert len(list(visited)) == mesh.number_of_faces(), 'Not all faces were visited'
+
+    mesh.halfedge = {key: {} for key in mesh.vertices()}
+    for fkey in mesh.faces():
+        for u, v in mesh.face_halfedges(fkey):
+            mesh.halfedge[u][v] = fkey
+            if u not in mesh.halfedge[v]:
+                mesh.halfedge[v][u] = None
+
+
+
 @rv2_error()
 @rv2_undo
 def RunCommand(is_interactive):
@@ -115,7 +150,7 @@ def RunCommand(is_interactive):
         return
 
     # 1. select rhino surface or polysurfaces
-    guid = compas_rhino.select_surface()
+    guid = compas_rhino.select_surface(message='Select one surface or joined, non-trimmed surfaces')
     compas_rhino.rs.HideObjects(guid)
 
     # 2. make subdmesh and add it to the scene
@@ -170,12 +205,13 @@ def RunCommand(is_interactive):
 
     # ==========================================================================
 
+    conduit.disable()
+
     # 8. make pattern from subdmesh
-    mesh_unify_cycles(subd1)
+    _mesh_unify_cycles(subd1)
     pattern = Pattern.from_data(subd1.data)
 
     # 9. update scene
-    conduit.disable()
     scene.clear()
     scene.add(pattern, name='pattern')
     scene.update()
