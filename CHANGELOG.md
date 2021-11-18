@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Workflow to check changelog on PRs
 
 ### Changed
+* Made `from_featrues` more stable
 
 ### Removed
 * Removed option to publish release candidates.
