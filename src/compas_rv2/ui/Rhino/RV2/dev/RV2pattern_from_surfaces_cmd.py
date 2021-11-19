@@ -2,16 +2,21 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-import compas_rhino
 import math
+
+import compas_rhino
+
+from compas.topology import breadth_first_traverse
+
+from compas.datastructures import mesh_face_adjacency
+
 from compas_rv2.datastructures import SubdMesh
 from compas_rv2.datastructures import Pattern
 
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
-
-from compas_rhino.conduits import LinesConduit
+from compas_rv2.rhino import SubdConduit
 
 
 __commandname__ = "RV2pattern_from_surfaces"
@@ -19,7 +24,7 @@ __commandname__ = "RV2pattern_from_surfaces"
 
 def divide_edge_strip_faces(mesh, edge):
 
-    is_strip_quad = True  # check whether the edge_strip contains quads or not
+    is_strip_quad = True
 
     strip_edge = mesh.subd_edge_strip(edge)
     edge_strip_faces = mesh.edge_strip_faces(strip_edge)
@@ -28,17 +33,16 @@ def divide_edge_strip_faces(mesh, edge):
         if not mesh.face_attribute(face, 'is_quad'):
             is_strip_quad = False
 
-    # entering subdivision number
     if is_strip_quad:
-        nu_or_nv = compas_rhino.rs.GetInteger('divide into?', minimum=2)
+        nu_or_nv = compas_rhino.rs.GetInteger('This is a quadmesh strip - Choose any integer', minimum=2)
 
     else:
         while True:
-            nu_or_nv = compas_rhino.rs.GetInteger('choose an even integer', minimum=2)
+            nu_or_nv = compas_rhino.rs.GetInteger('This is a non-quadmesh strip - Choose an integer that is a power of 2', minimum=2)
             if (nu_or_nv & (nu_or_nv - 1) == 0) and nu_or_nv != 0:
                 break
             else:
-                print('division number has to be power of 2!')
+                print('Division number has to be power of 2!')
 
     for face in edge_strip_faces:
         quad = mesh.face_attribute(face, 'is_quad')
@@ -64,24 +68,26 @@ def divide_edge_strip_faces(mesh, edge):
 
 def update_nu_nv(mesh):
 
-    quad_mesh = True  # check whether the mesh contains nonquads or not
+    quad_mesh = True
 
     for face in mesh.faces():
         if not mesh.face_attribute(face, 'is_quad'):
             quad_mesh = False
 
     if quad_mesh:
-        nu = compas_rhino.rs.GetInteger('divide U into?', minimum=2)
-        mesh.face_attribute(face, 'nu', nu)
-        nv = compas_rhino.rs.GetInteger('divide V into?', minimum=2)
-        mesh.face_attribute(face, 'nv', nv)
+        nu = compas_rhino.rs.GetInteger('This is a quadmesh - Choose any integer', minimum=2)
+
+        for face in mesh.faces():
+            mesh.face_attribute(face, 'nu', nu)
+            mesh.face_attribute(face, 'nv', nu)
+
     else:
         while True:
-            nu_or_nv = compas_rhino.rs.GetInteger('choose an even integer', minimum=2)
+            nu_or_nv = compas_rhino.rs.GetInteger('This is a non-quadmesh - Choose an integer that is a power of 2', minimum=2)
             if (nu_or_nv & (nu_or_nv - 1) == 0) and nu_or_nv != 0:
                 break
             else:
-                print('division number has to be power of 2!')
+                print('Division number has to be power of 2!')
 
         for face in mesh.faces():
             quad = mesh.face_attribute(face, 'is_quad')
@@ -93,33 +99,62 @@ def update_nu_nv(mesh):
                 mesh.face_attribute(face, 'n', int(n))
 
 
-def interior_edge_lines(mesh):
-    interior_edges = set(list(mesh.edges())) - set(list(mesh.edges_on_boundary()))
-
+def mesh_edge_lines(mesh):
     lines = []
-    for u, v in interior_edges:
+    for u, v in mesh.edges():
         u_xyz = mesh.vertex_coordinates(u)
         v_xyz = mesh.vertex_coordinates(v)
         lines.append([u_xyz, v_xyz])
     return lines
 
 
+def mesh_unify_cycles(mesh, root=None):
+
+    def unify(node, nbr):
+        # find the common edge
+        for u, v in mesh.face_halfedges(nbr):
+            if u in mesh.face[node] and v in mesh.face[node]:
+                # node and nbr have edge u-v in common
+                i = mesh.face[node].index(u)
+                j = mesh.face[node].index(v)
+                if i == j - 1 or (j == 0 and u == mesh.face[node][-1]):
+                    # if the traversal of a neighboring halfedge
+                    # is in the same direction
+                    # flip the neighbor
+                    mesh.face[nbr][:] = mesh.face[nbr][::-1]
+                    return
+
+    if root is None:
+        root = mesh.get_any_face()
+
+    adj = mesh_face_adjacency(mesh)
+
+    breadth_first_traverse(adj, root, unify)
+
+    # assert len(list(visited)) == mesh.number_of_faces(), 'Not all faces were visited'
+
+    mesh.halfedge = {key: {} for key in mesh.vertices()}
+    for fkey in mesh.faces():
+        for u, v in mesh.face_halfedges(fkey):
+            mesh.halfedge[u][v] = fkey
+            if u not in mesh.halfedge[v]:
+                mesh.halfedge[v][u] = None
+
+
 @rv2_error()
 @rv2_undo
 def RunCommand(is_interactive):
 
-    # 0. checks to see if there is a scene in rhino
     scene = get_scene()
     if not scene:
         return
 
-    # 1. select rhino surface or polysurfaces ...
-    guid = compas_rhino.select_surface()
+    # 1. select rhino surface or polysurfaces
+    guid = compas_rhino.select_surface(message='Select one surface or joined, non-trimmed surfaces')
     compas_rhino.rs.HideObjects(guid)
 
     # 2. make subdmesh and add it to the scene
     subdmesh = SubdMesh.from_guid(guid)
-
     scene.add(subdmesh, name='subd')
     subd = scene.get("subd")[0]
 
@@ -127,17 +162,16 @@ def RunCommand(is_interactive):
     subd1 = subd.datastructure.subdivide_all_faces()
 
     # 3. setup conduit to temporarily display subdmeshes
-    conduit = LinesConduit([])
+    conduit = SubdConduit([])
     conduit.enable()
-    conduit.lines = interior_edge_lines(subd1)
+    conduit.lines = mesh_edge_lines(subd1)
     conduit.thickness = 0
-    conduit.color = (125, 125, 125)
     scene.update()
 
     # ==========================================================================
     #   iterative subdivision
     # ==========================================================================
-    options = ["SubdivideMesh", "SubdivideEdgeStrip", "FinishSubdivision"]
+    options = ["SubdivideEntireMesh", "SubdivideEdgeStrip", "FinishSubdivision"]
 
     while True:
         option = compas_rhino.rs.GetString("Modify Subdivision", strings=options)
@@ -152,7 +186,7 @@ def RunCommand(is_interactive):
         if not option:
             break
 
-        if option == "SubdivideMesh":
+        if option == "SubdivideEntireMesh":
             update_nu_nv(subd.datastructure)
             subd1 = subd.datastructure.subdivide_all_faces()
 
@@ -166,18 +200,15 @@ def RunCommand(is_interactive):
         elif option == "FinishSubdivision":
             break
 
-        conduit.lines = interior_edge_lines(subd1)
+        conduit.lines = mesh_edge_lines(subd1)
         scene.update()
 
     # ==========================================================================
 
-    # 8. make pattern from subdmesh
-
-    # xyz = subd1.vertices_attributes('xyz')
-    # faces = [subd1.face_vertices(fkey) for fkey in subd1.faces()]
-    # pattern = Pattern.from_vertices_and_faces(xyz, faces)
-
     conduit.disable()
+
+    # 8. make pattern from subdmesh
+    mesh_unify_cycles(subd1)
     pattern = Pattern.from_data(subd1.data)
 
     # 9. update scene
@@ -185,9 +216,7 @@ def RunCommand(is_interactive):
     scene.add(pattern, name='pattern')
     scene.update()
 
-    # print("Pattern object successfully created. Input surface or polysurface has been hidden.")
-
-    print("This function is not ready yet!")
+    print("Pattern object successfully created. Input surface or polysurface has been hidden.")
 
 
 # ==============================================================================

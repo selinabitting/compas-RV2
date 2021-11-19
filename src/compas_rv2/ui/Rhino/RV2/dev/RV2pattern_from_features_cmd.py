@@ -43,8 +43,6 @@ def RunCommand(is_interactive):
     # point_guids = []
     curve_guids = []
 
-    compas_rhino.rs.HideObjects([surf_guid] + point_guids + curve_guids)
-
     surface = RhinoSurface.from_guid(surf_guid)
     curves = [RhinoCurve.from_guid(guid) for guid in curve_guids]
     points = [RhinoPoint.from_guid(guid) for guid in point_guids]
@@ -56,6 +54,8 @@ def RunCommand(is_interactive):
 
     # Get the target length for the final quad mesh.
     L = compas_rhino.rs.GetReal("Define the target edge length of the pattern.", 1.0)
+
+    compas_rhino.rs.HideObjects([surf_guid] + point_guids + curve_guids)
 
     # Generate the pattern
     pattern = Pattern.from_surface_and_features(D, L, surf_guid, curve_guids, point_guids, delaunay=delaunay)
