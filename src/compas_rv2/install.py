@@ -16,9 +16,11 @@ from subprocess import call
 PLUGIN_NAME = "RV2"
 PACKAGES = ['compas', 'compas_rhino', 'compas_tna', 'compas_cloud', 'compas_skeleton', 'compas_rv2']
 
+
 @compas.plugins.plugin(category='install', pluggable_name='installable_rhino_packages', tryfirst=True)
 def default_installable_rhino_packages():
     return PACKAGES
+
 
 def is_editable(project_name):
     """Is distribution an editable install?"""
