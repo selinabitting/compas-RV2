@@ -17,6 +17,11 @@ PLUGIN_NAME = "RV2"
 PACKAGES = ['compas', 'compas_rhino', 'compas_tna', 'compas_cloud', 'compas_skeleton', 'compas_rv2']
 
 
+@compas.plugins.plugin(category='install', pluggable_name='installable_rhino_packages', tryfirst=True)
+def default_installable_rhino_packages():
+    return PACKAGES
+
+
 def is_editable(project_name):
     """Is distribution an editable install?"""
     for path_item in sys.path:
@@ -86,7 +91,7 @@ if __name__ == '__main__':
     print("CONDA_DEFAULT_ENV", os.environ.get("CONDA_DEFAULT_ENV"))
     print("CONDA_EXE", os.environ.get("CONDA_EXE"))
 
-    install(packages=PACKAGES, version=args.rhino_version)
+    install(version=args.rhino_version)
 
     if compas.WINDOWS:
         call(sys.executable + " " + os.path.join(plugin_path, 'dev', 'rui.py'), shell=True)
