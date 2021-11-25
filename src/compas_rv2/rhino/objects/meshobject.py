@@ -4,6 +4,8 @@ from __future__ import division
 
 import Rhino
 
+import rhinoscriptsyntax as rs
+
 from compas.geometry import Point
 from compas.geometry import Scale
 from compas.geometry import Translation
@@ -270,11 +272,13 @@ class MeshObject(MeshObject):
 
         Returns
         -------
-        list
-            A list of edge identifiers.
+            An edge identifier.
         """
-        guid = compas_rhino.select_line(message=message)
-        return self.guid_edge[guid]
+        guid = compas_rhino.rs.GetObject(message, preselect=True, select=True, filter=rs.filter.curve)
+        if guid:
+            if compas_rhino.is_curve_line(guid):
+                return self.guid_edge[guid]
+        return None
 
 
 # ==============================================================================

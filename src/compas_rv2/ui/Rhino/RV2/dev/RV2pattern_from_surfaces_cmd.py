@@ -192,6 +192,11 @@ def RunCommand(is_interactive):
 
         elif option == "SubdivideEdgeStrip":
             edge = subd.select_edge()
+
+            if not edge:
+                print("No edge was selected.")
+                continue
+
             compas_rhino.rs.UnselectAllObjects()
             compas_rhino.rs.Redraw()
             divide_edge_strip_faces(subd.datastructure, edge)
