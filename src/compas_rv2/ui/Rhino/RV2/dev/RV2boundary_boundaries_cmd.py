@@ -4,6 +4,8 @@ from __future__ import division
 
 from functools import partial
 
+from itertools import groupby
+
 import compas_rhino
 
 from compas.geometry import centroid_points
@@ -34,7 +36,7 @@ def split_boundary(pattern):
     openings[-1] += openings[0]
     del openings[0]
     openings[:] = [opening for opening in openings if len(opening) > 2]
-    return openings
+    return [[v[0] for v in groupby(opening)] for opening in openings]
 
 
 def relax_pattern(pattern, relax):
