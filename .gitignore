@@ -133,3 +133,4 @@ src/compas_rv2/ui/Rhino/RV2/dev/__temp
 
 Thumbs.db
 *.rui
+__plugin__.py
