@@ -10,12 +10,18 @@ from subprocess import call
 
 PACKAGES = ['compas', 'compas_rhino', 'compas_tna', 'compas_cloud', 'compas_skeleton', 'compas_rv2']
 
+def get_version_from_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--version', choices=['5.0', '6.0', '7.0'], default='7.0')
+    args = parser.parse_args()
+    return compas_rhino._check_rhino_version(args.version)
+
 @compas.plugins.plugin(category='install', pluggable_name='installable_rhino_packages', tryfirst=True)
 def default_installable_rhino_packages():
     return PACKAGES
 
 @compas.plugins.plugin(category='install')
-def after_rhino_install(installed_packages, version):
+def after_rhino_install(installed_packages):
 
     if not set(PACKAGES).issubset(set(installed_packages)):
         return []
@@ -26,8 +32,7 @@ def after_rhino_install(installed_packages, version):
     plugin_path = os.path.join(plugin_path, 'ui/Rhino/RV2')
     plugin_path = os.path.abspath(plugin_path)
 
-    # TODO: get version from install step
-    version = compas_rhino._check_rhino_version(None)
+    version = get_version_from_args()
 
     if os.path.exists(plugin_path):
         python_plugins_path = compas_rhino._get_python_plugins_path(version)
