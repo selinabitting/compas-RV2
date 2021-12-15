@@ -78,6 +78,7 @@ a:visited{
 
 #version{
     position: fixed;
+    font-size: medium;
     left: 34%;
-    top: 52%;
+    top: 51.2%;
 }
