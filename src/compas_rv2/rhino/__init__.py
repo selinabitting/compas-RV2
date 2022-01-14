@@ -54,6 +54,7 @@ from .helpers import (
     select_faces,
     rv2_undo,
     save_session,
+    save_session_thrust,
     load_session,
 )
 from .forms import (
@@ -104,6 +105,7 @@ __all__ = [
     'select_faces',
     'rv2_undo',
     'save_session',
+    'save_session_thrust',
     'load_session',
 
     'Browser',
