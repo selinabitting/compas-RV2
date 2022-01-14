@@ -36,12 +36,11 @@ def RunCommand(is_interactive):
     filename = system['session.filename']
     extension = system['session.extension']
 
-    if not filename:
-        filepath = select_filepath_save(dirname, extension)
-        if not filepath:
-            return
-        dirname, basename = os.path.split(filepath)
-        filename, _ = os.path.splitext(basename)
+    filepath = select_filepath_save(dirname, extension)
+    if not filepath:
+        return
+    dirname, basename = os.path.split(filepath)
+    filename, _ = os.path.splitext(basename)
 
     filepath = os.path.join(dirname, filename + '.' + extension)
 
@@ -49,6 +48,7 @@ def RunCommand(is_interactive):
     # perhaps there should be a Session class/object/singleton
 
     session = save_session_thrust()
+    print(session)
 
     with open(filepath, 'w+') as f:
         json.dump(session, f, cls=DataEncoder)
