@@ -34,7 +34,7 @@ def RunCommand(is_interactive):
 
     dirname = system['session.dirname']
     filename = system['session.filename']
-    extension = system['session.extension']
+    extension = 'json'
 
     filepath = select_filepath_save(dirname, extension)
     if not filepath:

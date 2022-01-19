@@ -193,9 +193,25 @@ def save_session_thrust():
         },
         "settings": scene.settings,
     }
-    thrust = scene.get('thrust')[0]
+    thrust = scene.get('thrust')[0].datastructure
+
+    
+    #Write while loop to delete the faces
+
+    faces = list(thrust.faces_where({'_is_loaded': False}))
+    to_delete = len(faces)
+
+    while to_delete > 0:
+        focus_face = faces[0]
+        thrust.delete_face(focus_face)
+
+        faces = list(thrust.faces_where({'_is_loaded': False}))
+        to_delete = len(faces)
+
     if thrust:
-        session['data']['thrust'] = thrust.datastructure.to_data()
+        session['data']['thrust'] = thrust.to_data()
+
+
     return session
 
 
