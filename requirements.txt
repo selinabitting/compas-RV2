@@ -1,4 +1,4 @@
-COMPAS>=1.12.0
+COMPAS>=1.13.3
 compas_cloud>=0.3.0
 compas_tna>=0.1.5
 compas_skeleton>=1.1.4
