@@ -203,7 +203,6 @@ def save_session_thrust():
     if thrust:
         session['data']['thrust'] = thrust.to_data()
 
-
     return session
 
 

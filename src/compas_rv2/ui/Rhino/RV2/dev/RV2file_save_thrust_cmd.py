@@ -48,7 +48,6 @@ def RunCommand(is_interactive):
     # perhaps there should be a Session class/object/singleton
 
     session = save_session_thrust()
-    print(session)
 
     with open(filepath, 'w+') as f:
         json.dump(session, f, cls=DataEncoder)
