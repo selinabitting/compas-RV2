@@ -17,10 +17,10 @@ from .formartist import FormArtist
 from .forceartist import ForceArtist
 from .thrustartist import ThrustArtist
 
-MeshArtist.register(Mesh, MeshArtist)
-MeshArtist.register(Skeleton, SkeletonArtist)
-MeshArtist.register(SubdMesh, MeshArtist)
-MeshArtist.register(Pattern, MeshArtist)
-MeshArtist.register(FormDiagram, FormArtist)
-MeshArtist.register(ForceDiagram, ForceArtist)
-MeshArtist.register(ThrustDiagram, ThrustArtist)
+MeshArtist.register(Mesh, MeshArtist, context='Rhino')
+MeshArtist.register(Skeleton, SkeletonArtist, context='Rhino')
+MeshArtist.register(SubdMesh, MeshArtist, context='Rhino')
+MeshArtist.register(Pattern, MeshArtist, context='Rhino')
+MeshArtist.register(FormDiagram, FormArtist, context='Rhino')
+MeshArtist.register(ForceDiagram, ForceArtist, context='Rhino')
+MeshArtist.register(ThrustDiagram, ThrustArtist, context='Rhino')
