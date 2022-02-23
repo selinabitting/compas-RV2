@@ -185,6 +185,27 @@ def save_session():
     return session
 
 
+def save_session_thrust():
+    scene = get_scene()
+    session = {
+        "data": {
+            "thrust": None
+        },
+        "settings": scene.settings,
+    }
+    thrust = scene.get('thrust')[0].datastructure
+
+    faces = list(thrust.faces_where({'_is_loaded': False}))
+
+    for face in faces:
+        thrust.delete_face(face)
+
+    if thrust:
+        session['data']['thrust'] = thrust.to_data()
+
+    return session
+
+
 def load_session(session):
     print("loading session")
     scene = get_scene()

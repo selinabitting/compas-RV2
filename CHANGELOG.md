@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.4.7] 2022-02-23
 
 ### Added
+* Command `RV2file_save_thrust_cmd` for exporting thrustobject's mesh datastructure as json
 
 ### Changed
 
@@ -30,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-* Avoid `None` attribute error detected by conda-forge CI. 
+* Avoid `None` attribute error detected by conda-forge CI.
 * Updated Artists regitery with context for latest `compas`
 
 ### Removed
@@ -41,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-* updated compas version fixing update boundary issue. 
+* updated compas version fixing update boundary issue.
 
 ### Removed
 
