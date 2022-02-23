@@ -7,10 +7,14 @@ import compas_rhino
 from compas.utilities import geometric_key
 from compas_rv2.rhino import get_scene
 from compas_rv2.rhino import get_proxy
-from compas_rhino.geometry import RhinoCurve
+from compas_rhino.geometry import RhinoCurve as _RhinoCurve
+from compas_rhino.geometry.curves import RhinoCurve
 from compas_rv2.datastructures import Pattern
 from compas_rv2.rhino import rv2_undo
 from compas_rv2.rhino import rv2_error
+
+import scriptcontext as sc
+find_object = sc.doc.Objects.Find
 
 
 __commandname__ = "RV2pattern_from_triangulation"
@@ -53,7 +57,7 @@ def RunCommand(is_interactive):
         compas_rhino.rs.EnableRedraw(False)
         segments = compas_rhino.rs.ExplodeCurves(guid)
         for segment in segments:
-            curve = RhinoCurve.from_guid(segment).to_compas()
+            curve = RhinoCurve.from_rhino(find_object(guid).CurveGeometry)
             N = max(int(curve.length() / target_length), 1)
             _, points = curve.divide_by_count(N, return_points=True)
             for point in points:
@@ -69,7 +73,7 @@ def RunCommand(is_interactive):
     polylines = []
     if segments_guids:
         for guid in segments_guids:
-            curve = RhinoCurve.from_guid(guid).to_compas()
+            curve = RhinoCurve.from_rhino(find_object(guid).CurveGeometry)
             N = int(curve.length() / target_length) or 1
             _, points = curve.divide_by_count(N, return_points=True)
             for point in points:
@@ -83,7 +87,7 @@ def RunCommand(is_interactive):
     polygons = []
     if hole_guids:
         for guid in hole_guids:
-            curve = RhinoCurve.from_guid(guid).to_compas()
+            curve = RhinoCurve.from_rhino(find_object(guid).CurveGeometry)
             N = int(curve.length() / target_length) or 1
             _, points = curve.divide_by_count(N, return_points=True)
             for point in points[:-1]:
