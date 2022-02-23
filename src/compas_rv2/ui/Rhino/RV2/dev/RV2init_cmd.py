@@ -13,8 +13,8 @@ compas_rhino.unload_modules('compas_rv2')
 from compas_cloud import Proxy  # noqa: E402
 from compas_rv2.scene import Scene  # noqa: E402
 from compas_rv2.rhino import rv2_error  # noqa: E402
-from compas_rv2.activate import check  # noqa: E402
-from compas_rv2.activate import activate  # noqa: E402
+# from compas_rv2.activate import check  # noqa: E402
+# from compas_rv2.activate import activate  # noqa: E402
 from compas_rv2.rhino import Browser  # noqa: E402
 
 
@@ -50,15 +50,15 @@ compas.PRECISION = '3f'
 @rv2_error()
 def RunCommand(is_interactive):
 
-    if check():
-        print("Current plugin is already activated")
-    else:
-        compas_rhino.rs.MessageBox("Detected environment change, re-activating plugin", 0, "Re-activating Needed")
-        if activate():
-            compas_rhino.rs.MessageBox("Restart Rhino for the change to take effect", 0, "Restart Rhino")
-        else:
-            compas_rhino.rs.MessageBox("Someting wrong during re-activation", 0, "Error")
-        return
+    # if check():
+    #     print("Current plugin is already activated")
+    # else:
+    #     compas_rhino.rs.MessageBox("Detected environment change, re-activating plugin", 0, "Re-activating Needed")
+    #     if activate():
+    #         compas_rhino.rs.MessageBox("Restart Rhino for the change to take effect", 0, "Restart Rhino")
+    #     else:
+    #         compas_rhino.rs.MessageBox("Someting wrong during re-activation", 0, "Error")
+    #     return
 
     Browser()
 
